@@ -9,7 +9,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping
     {
         public static IMappingExpression<TSource, TDest> MapCommon<TSource, TDest>( this IMappingExpression<TSource, TDest> mappingExpression)
             where TSource: PeriodisedPaymentEvent
-            where TDest: PeriodisedModel
+            where TDest: PeriodisedPaymentsEventModel
         {
             return mappingExpression
                     .ForMember(dest => dest.EventId, opt => opt.MapFrom(source => source.EventId))
