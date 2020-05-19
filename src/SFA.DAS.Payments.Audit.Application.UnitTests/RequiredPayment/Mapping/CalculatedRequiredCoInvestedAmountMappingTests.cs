@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Payments.Audit.Model;
+using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.RequiredPayments.Messages.Events;
 
-namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.RequiredPayments
+namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
 {
     [TestFixture]
     public class CalculatedRequiredCoInvestedAmountMappingTests : RequiredPaymentsMappingTests<CalculatedRequiredCoInvestedAmount>
