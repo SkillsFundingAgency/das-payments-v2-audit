@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using SFA.DAS.Payments.FundingSource.Messages.Events;
 
-namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.FundingSource
+namespace SFA.DAS.Payments.Audit.Application.UnitTests.FundingSource
 {
     [TestFixture]
     public class SfaFullyFundedFundingSourcePaymentEventTests : FundingSourceMappingTests<SfaFullyFundedFundingSourcePaymentEvent>
