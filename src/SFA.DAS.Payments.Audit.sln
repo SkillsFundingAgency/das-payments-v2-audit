@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Payments.Audit.Requ
 EndProject
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "SFA.DAS.Payments.Audit.ServiceFabric", "SFA.DAS.Payments.Audit.ServiceFabric\SFA.DAS.Payments.Audit.ServiceFabric.sfproj", "{FC462DC9-40D8-4142-831C-B91C4476A31B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E14A446C-02A1-45B5-8127-E88FFB72B376}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -108,6 +110,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1ED3DE66-AF18-497A-AFA1-7073AF785E9B} = {E14A446C-02A1-45B5-8127-E88FFB72B376}
+		{41D51868-75AA-4914-A643-63AEF98321F4} = {E14A446C-02A1-45B5-8127-E88FFB72B376}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {692761E7-AA62-40FF-B859-4DCBA2962309}
