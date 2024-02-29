@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.Application.Data.RequiredPayment;
 using SFA.DAS.Payments.Audit.Application.Mapping.RequiredPaymentEvents;
-using SFA.DAS.Payments.Core;
 using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.RequiredPayment

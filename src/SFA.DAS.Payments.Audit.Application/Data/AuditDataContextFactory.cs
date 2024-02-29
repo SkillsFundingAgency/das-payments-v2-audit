@@ -1,7 +1,6 @@
 ﻿using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core.Configuration;
 
 namespace SFA.DAS.Payments.Audit.Application.Data

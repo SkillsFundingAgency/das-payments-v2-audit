@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.Application.Data.EarningEvent;
 using SFA.DAS.Payments.Model.Core.Audit;
-using SFA.DAS.Payments.Monitoring.Jobs.Messages.Events;
+using SFA.DAS.Payments.Monitoring.Jobs.DataMessages.Events;
 
 namespace SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.EarningEvent
 {

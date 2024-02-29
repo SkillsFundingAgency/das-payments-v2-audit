@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Payments.Application.Batch;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
-using SFA.DAS.Payments.Audit.Model;
 using SFA.DAS.Payments.Core.Configuration;
 using SFA.DAS.Payments.Model.Core.Audit;
 
