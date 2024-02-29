@@ -1,90 +1,278 @@
-parameters:
-  TargetProjects: 'src/**/*.csproj'
+# parameters:
+  # TODO: Add all addtiional proejcts in as references become available.
+  # TargetProjects: 'src/SFA.DAS.Payments.Monitoring.Jobs.Messages/SFA.DAS.Payments.Monitoring.Jobs.Messages.csproj src/SFA.DAS.Payments.Monitoring.Jobs.Client/SFA.DAS.Payments.Monitoring.Jobs.Client.csproj'
 jobs:
 - job: CodeBuild
   pool:
     name: SLD Build pool
   variables:
   - group: BUILD Management Resources
+  - name: SolutionBaseName
+    value: SFA.DAS.Payments.Monitoring
   steps:
   - template: /azure-pipelines-templates/build/step/gitversion.yml
 
-  - task: DotNetCoreCLI@2
-    displayName: Restore
+
+  # task: DotNetCoreCLI@2 - src/SFA.DAS.Payments.Audit.Application
+  - task: DotNetCoreCLI@2  
+    displayName: Restore - src/SFA.DAS.Payments.Audit.Application
     inputs:
       command: restore
-      projects: ${{ parameters.TargetProjects }}
+      projects: src/SFA.DAS.Payments.Audit.Application/SFA.DAS.Payments.Audit.Application.csproj
       noCache: true
       feedsToUse: 'select'
       vstsFeed: 'dct-pkg'
 
-  - task: NuGetCommand@2
-    displayName: Restore
+  # task: DotNetCoreCLI@2 - src/SFA.DAS.Payments.Audit.Application.ServiceFabric
+  - task: DotNetCoreCLI@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.Application.ServiceFabric
     inputs:
       command: restore
-      projects: ${{ parameters.TargetProjects }}
+      projects: src/SFA.DAS.Payments.Audit.Application.ServiceFabric/SFA.DAS.Payments.Audit.Application.ServiceFabric.csproj
       noCache: true
       feedsToUse: 'select'
       vstsFeed: 'dct-pkg'
-    
+
+  # task: DotNetCoreCLI@2 - src/SFA.DAS.Payments.Audit.DatalockService
+  - task: DotNetCoreCLI@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.DatalockService
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.DatalockService/SFA.DAS.Payments.Audit.DatalockService.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: DotNetCoreCLI@2 - src/SFA.DAS.Payments.Audit.EarningEventsService
+  - task: DotNetCoreCLI@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.EarningEventsService
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.EarningEventsService/SFA.DAS.Payments.Audit.EarningEventsService.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: DotNetCoreCLI@2 - src/SFA.DAS.Payments.Audit.FundingSourceService
+  - task: DotNetCoreCLI@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.FundingSourceService
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.FundingSourceService/SFA.DAS.Payments.Audit.FundingSourceService.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: DotNetCoreCLI@2 - src/SFA.DAS.Payments.Audit.Model
+  - task: DotNetCoreCLI@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.Model
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.Model/SFA.DAS.Payments.Audit.Model.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: DotNetCoreCLI@2 - src/SFA.DAS.Payments.Audit.RequiredPaymentService
+  - task: DotNetCoreCLI@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.RequiredPaymentService
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.RequiredPaymentService/SFA.DAS.Payments.Audit.RequiredPaymentService.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: DotNetCoreCLI@2 - src/SFA.DAS.Payments.Audit.ServiceFabric
+  - task: DotNetCoreCLI@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.ServiceFabric
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.ServiceFabric/SFA.DAS.Payments.Audit.ServiceFabric.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+
+
+
+  # task: NuGetCommand@2 - src/SFA.DAS.Payments.Audit.Application
+  - task: NuGetCommand@2  
+    displayName: Restore - src/SFA.DAS.Payments.Audit.Application
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.Application/SFA.DAS.Payments.Audit.Application.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: NuGetCommand@2 - src/SFA.DAS.Payments.Audit.Application.ServiceFabric
+  - task: NuGetCommand@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.Application.ServiceFabric
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.Application.ServiceFabric/SFA.DAS.Payments.Audit.Application.ServiceFabric.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: NuGetCommand@2 - src/SFA.DAS.Payments.Audit.DatalockService
+  - task: NuGetCommand@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.DatalockService
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.DatalockService/SFA.DAS.Payments.Audit.DatalockService.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: NuGetCommand@2 - src/SFA.DAS.Payments.Audit.EarningEventsService
+  - task: NuGetCommand@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.EarningEventsService
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.EarningEventsService/SFA.DAS.Payments.Audit.EarningEventsService.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: NuGetCommand@2 - src/SFA.DAS.Payments.Audit.FundingSourceService
+  - task: NuGetCommand@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.FundingSourceService
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.FundingSourceService/SFA.DAS.Payments.Audit.FundingSourceService.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: NuGetCommand@2 - src/SFA.DAS.Payments.Audit.Model
+  - task: NuGetCommand@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.Model
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.Model/SFA.DAS.Payments.Audit.Model.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: NuGetCommand@2 - src/SFA.DAS.Payments.Audit.RequiredPaymentService
+  - task: NuGetCommand@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.RequiredPaymentService
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.RequiredPaymentService/SFA.DAS.Payments.Audit.RequiredPaymentService.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+  # task: NuGetCommand@2 - src/SFA.DAS.Payments.Audit.ServiceFabric
+  - task: NuGetCommand@2
+    displayName: Restore - src/SFA.DAS.Payments.Audit.ServiceFabric
+    inputs:
+      command: restore
+      projects: src/SFA.DAS.Payments.Audit.ServiceFabric/SFA.DAS.Payments.Audit.ServiceFabric.csproj
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+
+
+
+
   - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
-      projects:  ${{ parameters.TargetProjects }}
+      projects:  src/SFA.DAS.Payments.Audit.Application/SFA.DAS.Payments.Audit.Application.csproj
       arguments: '--configuration $(buildConfiguration) --no-restore'
 
   - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.Core"
+    displayName: Build
+    inputs:
+      projects:  src/SFA.DAS.Payments.Audit.Application.ServiceFabric/SFA.DAS.Payments.Audit.Application.ServiceFabric.csproj
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects:  src/SFA.DAS.Payments.Audit.DatalockService/SFA.DAS.Payments.Audit.DatalockService.csproj
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects:  src/SFA.DAS.Payments.Audit.EarningEventsService/SFA.DAS.Payments.Audit.EarningEventsService.csproj
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects:  src/SFA.DAS.Payments.Audit.FundingSourceService/SFA.DAS.Payments.Audit.FundingSourceService.csproj
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects:  src/SFA.DAS.Payments.Audit.Model/SFA.DAS.Payments.Audit.Model.csproj
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects:  src/SFA.DAS.Payments.Audit.RequiredPaymentService/SFA.DAS.Payments.Audit.RequiredPaymentService.csproj
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      projects:  src/SFA.DAS.Payments.Audit.ServiceFabric/SFA.DAS.Payments.Audit.ServiceFabric.csproj
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+
+
+
+
+
+
+  - task: DotNetCoreCLI@2
+    displayName: "Publish SFA.DAS.Payments.Audit.Application"
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.Core/SFA.DAS.Payments.Core.csproj
+      projects: src/SFA.DAS.Payments.Audit.Application/SFA.DAS.Payments.Audit.Application.csproj
       arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
       modifyOutputPath: true
 
   - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.Messages.Common"
+    displayName: "Publish SFA.DAS.Payments.Audit.Application.ServiceFabric"
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.Messages.Common/SFA.DAS.Payments.Messages.Common.csproj
+      projects: src/SFA.DAS.Payments.Audit.Application.ServiceFabric/SFA.DAS.Payments.Audit.Application.ServiceFabric.csproj
       arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
       modifyOutputPath: true
 
   - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.Messaging"
+    displayName: "Publish SFA.DAS.Payments.Audit.Model"
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.Messaging/SFA.DAS.Payments.Messaging.csproj
+      projects: src/SFA.DAS.Payments.Audit.Model/SFA.DAS.Payments.Audit.Model.csproj
       arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
       modifyOutputPath: true
 
-  - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.Model.Core"
-    inputs:
-      command: publish
-      publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.Model.Core/SFA.DAS.Payments.Model.Core.csproj
-      arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
-      modifyOutputPath: true
 
-  - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.ServiceFabric.Core"
-    inputs:
-      command: publish
-      publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.ServiceFabric.Core/SFA.DAS.Payments.ServiceFabric.Core.csproj
-      arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
-      modifyOutputPath: true
+
+
+
 
   - task: CopyFiles@2
     displayName: 'Copy Files to: $(build.artifactstagingdirectory)/publish'
     inputs:
       Contents: |
-       /**
+        /**
       TargetFolder: '$(build.artifactstagingdirectory)/publish'
       OverWrite: true
+
 
   - task: PublishPipelineArtifact@1
     displayName: 'Publish Artifact: drop'
@@ -92,13 +280,10 @@ jobs:
       targetPath: $(build.artifactstagingdirectory)/publish
       artifactName: drop
 
+
   - template: /azure-pipelines-templates/build/step/nuget-pack.yml
     parameters:
       DotNetStandardPackagesToPack: |
-         src/SFA.DAS.Payments.Messages.Common/SFA.DAS.Payments.Messages.Common.csproj;
-         src/SFA.DAS.Payments.Application/SFA.DAS.Payments.Application.csproj;
-         src/SFA.DAS.Payments.Core/SFA.DAS.Payments.Core.csproj;
-         src/SFA.DAS.Payments.Messaging/SFA.DAS.Payments.Messaging.csproj;
-         src/SFA.DAS.Payments.Model.Core/SFA.DAS.Payments.Model.Core.csproj;
-         src/SFA.DAS.Payments.ServiceFabric.Core/SFA.DAS.Payments.ServiceFabric.Core.csproj;
-        
+        src/SFA.DAS.Payments.Audit.Application.ServiceFabric/SFA.DAS.Payments.Audit.Application.ServiceFabric.csproj;
+        src/SFA.DAS.Payments.Audit.Application/SFA.DAS.Payments.Audit.Application.csproj;
+        src/SFA.DAS.Payments.Audit.Model/SFA.DAS.Payments.Audit.Model.csproj;
