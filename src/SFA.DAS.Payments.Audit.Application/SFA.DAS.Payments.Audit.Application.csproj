@@ -18,6 +18,13 @@
     <PackageReference Include="Polly" Version="6.1.2" />
     <PackageReference Include="SFA.DAS.Payments.Application" Version="1.1.0" />
     <PackageReference Include="SFA.DAS.Payments.Core" Version="1.1.0" />
+    <PackageReference Include="SFA.DAS.Payments.DataLocks.Messages" Version="1.0.0" />
+    <PackageReference Include="SFA.DAS.Payments.EarningEvents.Messages" Version="0.1.123" />
+    <PackageReference Include="SFA.DAS.Payments.FundingSource.Messages" Version="1.0.0" />
+    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.DataMessages" Version="1.1.2" />
+    <PackageReference Include="SFA.DAS.Payments.ProviderPayments.Messages.Core" Version="1.1.0" />
+    <PackageReference Include="SFA.DAS.Payments.RequiredPayments.Messages" Version="1.0.1" />
+    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="1.1.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
   </ItemGroup>
 

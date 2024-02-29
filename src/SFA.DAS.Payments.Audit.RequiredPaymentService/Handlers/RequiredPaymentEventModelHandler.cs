@@ -7,7 +7,7 @@ using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.RequiredPayment;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Client;
-using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
+using SFA.DAS.Payments.Monitoring.Jobs.DataMessages.Commands;
 
 namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Handlers
 {

@@ -6,7 +6,6 @@ using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.EarningEvent;
 using SFA.DAS.Payments.Audit.EarningEventsService.Handlers;
 using SFA.DAS.Payments.Core.Configuration;
-using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.Messaging.Serialization;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ServiceFabric.Core;

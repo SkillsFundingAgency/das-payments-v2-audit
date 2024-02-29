@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.DataLock;
 using SFA.DAS.Payments.Monitoring.Jobs.Client;
-using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
+using SFA.DAS.Payments.Monitoring.Jobs.DataMessages.Commands;
 
 namespace SFA.DAS.Payments.Audit.DataLockService.Handlers
 {

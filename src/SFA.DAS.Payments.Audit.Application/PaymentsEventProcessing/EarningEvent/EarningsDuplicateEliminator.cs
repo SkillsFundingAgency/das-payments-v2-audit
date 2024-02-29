@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
-using SFA.DAS.Payments.Audit.Application.Data.EarningEvent;
 
 namespace SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.EarningEvent
 {
