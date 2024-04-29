@@ -7,9 +7,8 @@ using NUnit.Framework;
 using SFA.DAS.Payments.Audit.Application.Data.EarningEvent;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.EarningEvent;
-using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.Model.Core.Audit;
-using SFA.DAS.Payments.Monitoring.Jobs.Messages.Events;
+using SFA.DAS.Payments.Monitoring.Jobs.DataMessages.Events;
 
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.EarningEvent
 {
