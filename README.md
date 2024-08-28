@@ -21,18 +21,15 @@ This repository contains services that record information about the following Pa
 * Funding Source
 * Required Payments
 
-Records are created in the Payments V2 Audit SQL Server database that log the activity from the respective applications, using the information published in event messages, which are processed in batches.
+Records are created in the Payments V2 Audit SQL Server database that logs the activity from the respective applications, using the information published in event messages, which are processed in batches.
 
 ## 🚀 Installation
 
 ### Pre-Requisites
 
-* An Azure DevBox configured for Payments V2 development
-
-Setup instructions: https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/950927878/Development+Environment+-+Payments+V2+DAS+Space
+Setup instructions can be found at the following link, which will help you set up your environment and access the correct repositories: https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/950927878/Development+Environment+-+Payments+V2+DAS+Space
 
 ### Config
-
 
 As detailed in: https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/644972941/Developer+Configuration+Settings
 
