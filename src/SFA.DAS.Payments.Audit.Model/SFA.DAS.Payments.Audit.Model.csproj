@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.Payments.Model.Core\SFA.DAS.Payments.Model.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.1.0-prerelease-7" />
+	</ItemGroup>
 
 </Project>
