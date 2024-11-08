@@ -39,7 +39,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
         public async Task RemovePriorEvents(long ukprn, short academicYear, byte collectionPeriod, DateTime latestIlrSubmissionTime, CancellationToken cancellationToken)
         {
             var dataContext = retryDataContextFactory.Create();
-            await dataContext.Database.ExecuteSqlCommandAsync($@"
+            await dataContext.Database.ExecuteSqlInterpolatedAsync($@"
                     Delete 
                         From [Payments2].[EarningEvent] 
                     Where 
@@ -53,7 +53,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
         public async Task RemoveFailedSubmissionEvents(long jobId, CancellationToken cancellationToken)
         {
             var dataContext = retryDataContextFactory.Create();
-            await dataContext.Database.ExecuteSqlCommandAsync($@"
+            await dataContext.Database.ExecuteSqlInterpolatedAsync($@"
                     Delete 
                         From [Payments2].[EarningEvent] 
                     Where 
@@ -67,11 +67,11 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
             {
                 var bulkConfig = new BulkConfig
                     {SetOutputIdentity = false, BulkCopyTimeout = 60, PreserveInsertOrder = false};
-                await ((DbContext) dataContext).BulkInsertAsync(earningEvents, bulkConfig, null, cancellationToken)
+                await ((DbContext) dataContext).BulkInsertAsync(earningEvents, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
-                await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.Periods).ToList(), bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.Periods).ToList(), bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
-                await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.PriceEpisodes).ToList(), bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.PriceEpisodes).ToList(), bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
                 await tx.CommitAsync(cancellationToken);
             }

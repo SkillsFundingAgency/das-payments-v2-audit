@@ -40,7 +40,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.FundingSource
             {
                 var bulkConfig = new BulkConfig
                 { SetOutputIdentity = false, BulkCopyTimeout = 60, PreserveInsertOrder = false };
-                await ((DbContext)dataContext).BulkInsertAsync(fundingSourceEvents, bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(fundingSourceEvents, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
                 await tx.CommitAsync(cancellationToken);
             }

@@ -51,15 +51,15 @@ namespace SFA.DAS.Payments.Audit.Application.Data.DataLock
                         .SelectMany(npp => npp.Failures))
                     .ToList();
 
-                await ((DbContext)dataContext).BulkInsertAsync(dataLockEvents, bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(dataLockEvents, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
-                await ((DbContext)dataContext).BulkInsertAsync(priceEpisodes, bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(priceEpisodes, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
-                await ((DbContext)dataContext).BulkInsertAsync(payablePeriods, bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(payablePeriods, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
-                await ((DbContext)dataContext).BulkInsertAsync(nonPayablePeriods, bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(nonPayablePeriods, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
-                await ((DbContext)dataContext).BulkInsertAsync(failures, bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(failures, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
                 await tx.CommitAsync(cancellationToken).ConfigureAwait(false);
             }
