@@ -14,14 +14,14 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.8.1" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.55.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
+    <PackageReference Include="SFA.DAS.Payments.PeriodEnd.Data" Version="0.1.39-prerelease-18" />
     <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.6-prerelease-30" />
+    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.0.6-prerelease-30" />
+    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.0.6-prerelease-30" />
+    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Messages" Version="0.2.0-prerelease-960" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.Payments.Application\SFA.DAS.Payments.Application.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Payments.Core\SFA.DAS.Payments.Core.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Payments.Monitoring.Jobs.Messages\SFA.DAS.Payments.Monitoring.Jobs.Messages.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Payments.PeriodEnd.Data\SFA.DAS.Payments.PeriodEnd.Data.csproj" />
-  </ItemGroup>
+
   <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
