@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using NServiceBus;
 using SFA.DAS.Payments.Application.Infrastructure.Ioc;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
@@ -38,6 +39,13 @@ namespace SFA.DAS.Payments.Audit.DataLockService.Infrastructure.Ioc
             builder.RegisterType<DataLockEventModelHandler>()
                 .As<IHandleMessageBatches<DataLockEventModel>>()
                 .InstancePerLifetimeScope();
+
+            builder.Register(c =>
+                {
+                    var appConfig = c.Resolve<IApplicationConfiguration>();
+                    return new EndpointConfiguration(appConfig.EndpointName);
+                }).As<EndpointConfiguration>()
+                .SingleInstance();
         }
     }
 }
