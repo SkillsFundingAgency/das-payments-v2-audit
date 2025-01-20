@@ -25,7 +25,20 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Ioc
                     },
                     Values = new Values
                     {
-                        AzureWebJobsStorage = configHelper.GetValue<string>("AzureWebJobsStorage")
+                        AzureWebJobsStorage = configHelper.GetValue<string>("AzureWebJobsStorage"),
+                        FUNCTIONS_WORKER_RUNTIME = configHelper.GetValue<string>("FUNCTIONS_WORKER_RUNTIME"),
+                        ApplicationInsightsInstrumentationKey = configHelper.GetValue<string>("ApplicationInsightsInstrumentationKey"),
+                        ResourceGroup = configHelper.GetValue<string>("ResourceGroup"),
+                        AzureDataFactoryName = configHelper.GetValue<string>("AzureDataFactoryName"),
+                        PipeLine = configHelper.GetValue<string>("PipeLine"),
+                        SubscriptionId = configHelper.GetValue<string>("SubscriptionId"),
+                        TenantId = configHelper.GetValue<string>("TenantId"),
+                        ApplicationId = configHelper.GetValue<string>("ApplicationId"),
+                        AuthenticationKey = configHelper.GetValue<string>("AuthenticationKey"),
+                        SleepDelay = configHelper.GetValue<int>("SleepDelay"),
+                        AuthorityUri = configHelper.GetValue<string>("AuthorityUri"),
+                        ManagementUri = configHelper.GetValue<string>("ManagementUri")
+
                     }
                 };
             });
