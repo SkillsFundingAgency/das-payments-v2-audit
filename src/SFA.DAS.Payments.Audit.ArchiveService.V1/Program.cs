@@ -39,6 +39,7 @@ var host = new HostBuilder()
         services.AddAppSettingsConfiguration();
 
         services.AddScoped<IDataFactoryHelper, DataFactoryHelper>();
+        services.AddScoped<IEntityHelper,EntityHelper>();
 
         services.Configure<LoggerFilterOptions>(options =>
         {

@@ -15,11 +15,15 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
     {
         private readonly IDataFactoryHelper _dataFactoryHelper;
         private readonly IAppSettingsOptions _appSettingsOption;
+        private readonly IEntityHelper _entityHelper;
+
         public PeriodEndArchiveActivity(IDataFactoryHelper dataFactoryHelper
-            , IAppSettingsOptions appSettingsOption)
+            , IAppSettingsOptions appSettingsOption
+            , IEntityHelper entityHelper)
         {
             _dataFactoryHelper = dataFactoryHelper;
             _appSettingsOption = appSettingsOption;
+            _entityHelper = entityHelper;
         }
 
 
@@ -27,8 +31,10 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
         public async Task<PeriodEndArchiveActivityResponse> StartPeriodEndArchiveActivity(
             [ActivityTrigger] RecordPeriodEndFcsHandOverCompleteJob periodEndFcsHandOverJob
             , string InstanceId
-            , FunctionContext executionContext)
+            , FunctionContext executionContext
+            , [DurableClient] DurableTaskClient client)
         {
+            var currentJob = await _entityHelper.GetCurrentJobs(client);
             ILogger logger = executionContext.GetLogger(nameof(PeriodEndArchiveActivity));
             using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = InstanceId }))
             {
@@ -68,6 +74,13 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                         logger.LogInformation($"Period end archive activity started with RunId: {runResponse.Body.RunId} status: {runResponse.Response.StatusCode}");
                     }
 
+                    await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
+                    {
+                        JobId = periodEndFcsHandOverJob.JobId.ToString(),
+                        InstanceId = runResponse.Body.RunId,
+                        Status = "Started"
+                    });
+
                     return new PeriodEndArchiveActivityResponse
                     {
                         RunId = runResponse.Body.RunId,
@@ -77,6 +90,13 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                 }
                 catch (Exception ex)
                 {
+                    await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
+                    {
+                        JobId = periodEndFcsHandOverJob.JobId.ToString(),
+                        InstanceId = InstanceId,
+                        Status = "Failed"
+                    });
+
                     logger.LogError(ex, $"Error while executing {nameof(PeriodEndArchiveActivity)} function with InstanceId : {InstanceId}", ex.Message);
                     return null;
                 }

@@ -2,16 +2,25 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
+using Microsoft.DurableTask.Entities;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Payments.Audit.ArchiveService.V1.EntityTrigger;
+using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.Orchestrators;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Starter
 {
-    public static class PeriodEndArchiveHttpTrigger
+    public class PeriodEndArchiveHttpTrigger
     {
+        private readonly IEntityHelper _entityHelper;
+        public PeriodEndArchiveHttpTrigger(IEntityHelper entityHelper)
+        {
+            _entityHelper = entityHelper;
+        }
+
         [Function(nameof(PeriodEndArchiveHttpTrigger))]
-        public static async Task<HttpResponseData> HttpTriggerArchivePeriodEnd(
+        public async Task<HttpResponseData> HttpTriggerArchivePeriodEnd(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
             [DurableClient] DurableTaskClient client,
             FunctionContext executionContext)
@@ -23,6 +32,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Starter
                 return req.CreateResponse(System.Net.HttpStatusCode.BadRequest);
             }
 
+            await _entityHelper.ClearCurrentStatus(client);
             // Function input comes from the request content.
             string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(PeriodEndArchiveOrchestrator)
                 , input: periodEndFcsHandOverJob

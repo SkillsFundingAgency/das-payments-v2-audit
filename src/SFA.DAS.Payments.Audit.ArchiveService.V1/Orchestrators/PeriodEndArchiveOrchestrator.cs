@@ -14,12 +14,10 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Orchestrators
     public class PeriodEndArchiveOrchestrator
     {
         private readonly IAppSettingsOptions _appSettingsOption;
-        public PeriodEndArchiveActivityResponse periodEndArchiveActivityResponse { get; set; }
 
         public PeriodEndArchiveOrchestrator(IAppSettingsOptions appSettingsOption)
         {
             _appSettingsOption = appSettingsOption;
-            periodEndArchiveActivityResponse = new PeriodEndArchiveActivityResponse();
         }
 
         [Function(nameof(PeriodEndArchiveOrchestrator))]
