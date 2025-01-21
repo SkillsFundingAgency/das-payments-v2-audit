@@ -9,6 +9,7 @@ using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
+using SFA.DAS.Payments.Audit.ArchiveService.V1.Models;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
@@ -24,47 +25,55 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
             _appSettingsOption = appSettingsOption;
         }
 
-
-
         [Function(nameof(CheckStatusActivity))]
-        public async Task<StatusHelper.ArchiveStatus> StartCheckStatusActivity([ActivityTrigger] string InstanceId
+        public async Task<StatusHelper.ArchiveStatus> StartCheckStatusActivity([ActivityTrigger] PeriodEndArchiveActivityResponse PeriodEndArchiveActivityResponse
+            , string runPipelineId
            , FunctionContext executionContext)
         {
             ILogger logger = executionContext.GetLogger(nameof(CheckStatusActivity));
-            using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = InstanceId }))
+            using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = PeriodEndArchiveActivityResponse.InstanceId }))
             {
-                logger.LogInformation($"Starting CheckStatusActivity for OrchestrationInstanceId: {InstanceId}");
-
-                var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
-
-                var pipelineRun = await datafactoryClient.PipelineRuns.GetAsync(
-                    _appSettingsOption.Values.ResourceGroup
-                    , _appSettingsOption.Values.AzureDataFactoryName
-                    , InstanceId);
-
-
-                if (pipelineRun.Status is "InProgress" or "Queued")
+                try
                 {
-                    return StatusHelper.ArchiveStatus.InProgress;
+                    logger.LogInformation($"Starting {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {PeriodEndArchiveActivityResponse.InstanceId}");
+
+                    var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
+
+                    var pipelineRun = await datafactoryClient.PipelineRuns.GetAsync(
+                        _appSettingsOption.Values.ResourceGroup
+                        , _appSettingsOption.Values.AzureDataFactoryName
+                        , PeriodEndArchiveActivityResponse.RunId);
+
+
+                    if (pipelineRun.Status is "InProgress" or "Queued")
+                    {
+                        return StatusHelper.ArchiveStatus.InProgress;
+                    }
+
+                    var filterParams = new RunFilterParameters(DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(10));
+
+                    var queryResponse = await datafactoryClient.ActivityRuns.QueryByPipelineRunAsync(
+                        _appSettingsOption.Values.ResourceGroup
+                        , _appSettingsOption.Values.AzureDataFactoryName
+                        , PeriodEndArchiveActivityResponse.InstanceId
+                        , filterParams);
+
+                    if (queryResponse is not null)
+                        logger.LogInformation(queryResponse.Value.First().Output.ToString());
+
+                    if (pipelineRun.Status != "Succeeded")
+                    {
+                        logger.LogError($"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {PeriodEndArchiveActivityResponse.InstanceId}. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {PeriodEndArchiveActivityResponse.InstanceId}");
+                        return StatusHelper.ArchiveStatus.Failed;
+                    }
+
+                    return StatusHelper.ArchiveStatus.Completed;
                 }
-
-                var filterParams = new RunFilterParameters(DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(10));
-
-                var queryResponse = await datafactoryClient.ActivityRuns.QueryByPipelineRunAsync(
-                    _appSettingsOption.Values.ResourceGroup
-                    , _appSettingsOption.Values.AzureDataFactoryName
-                    , InstanceId
-                    , filterParams);
-
-
-                if (pipelineRun.Status != "Succeeded")
+                catch (Exception ex)
                 {
-                    throw new Exception($"Error in CheckStatusActivity. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {InstanceId}");
+                    logger.LogError(ex, $"Error while executing {nameof(CheckStatusActivity)} function with InstanceId : {PeriodEndArchiveActivityResponse.InstanceId}", ex.Message);
+                    return StatusHelper.ArchiveStatus.Failed;
                 }
-
-                logger.LogInformation(queryResponse.Value.First().Output.ToString());
-
-                return StatusHelper.ArchiveStatus.Completed;
             }
         }
     }

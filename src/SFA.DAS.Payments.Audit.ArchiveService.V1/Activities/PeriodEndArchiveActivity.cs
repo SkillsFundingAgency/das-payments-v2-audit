@@ -5,6 +5,7 @@ using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
+using SFA.DAS.Payments.Audit.ArchiveService.V1.Models;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
@@ -23,7 +24,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
 
 
         [Function(nameof(PeriodEndArchiveActivity))]
-        public async Task<string> StartPeriodEndArchiveActivity(
+        public async Task<PeriodEndArchiveActivityResponse> StartPeriodEndArchiveActivity(
             [ActivityTrigger] RecordPeriodEndFcsHandOverCompleteJob periodEndFcsHandOverJob
             , string InstanceId
             , FunctionContext executionContext)
@@ -31,39 +32,54 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
             ILogger logger = executionContext.GetLogger(nameof(PeriodEndArchiveActivity));
             using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = InstanceId }))
             {
-                logger.LogInformation($"Starting Period End Archive Activity for OrchestrationInstanceId: {InstanceId}");
-
-                if (periodEndFcsHandOverJob.CollectionPeriod is 0 || periodEndFcsHandOverJob.CollectionYear is 0)
-                    throw new Exception($"Error in {nameof(StartPeriodEndArchiveActivity)}. CollectionPeriod or CollectionYear is invalid. CollectionPeriod: {periodEndFcsHandOverJob.CollectionPeriod}. CollectionYear: {periodEndFcsHandOverJob.CollectionYear}");
-
-                var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
-
-                var parameters = new Dictionary<string, object>
+                try
                 {
-                    { "CollectionPeriod", periodEndFcsHandOverJob.CollectionPeriod },
-                    { "AcademicYear", periodEndFcsHandOverJob.CollectionYear }
-                };
+                    logger.LogInformation($"Starting Period End Archive Activity for OrchestrationInstanceId: {InstanceId}");
 
-                var runResponse = await datafactoryClient.Pipelines.CreateRunWithHttpMessagesAsync(_appSettingsOption.Values.ResourceGroup
-                    , _appSettingsOption.Values.AzureDataFactoryName
-                    , _appSettingsOption.Values.PipeLine
-                    , parameters: parameters);
+                    if (periodEndFcsHandOverJob.CollectionPeriod is 0 || periodEndFcsHandOverJob.CollectionYear is 0)
+                        throw new Exception($"Error in {nameof(StartPeriodEndArchiveActivity)}. CollectionPeriod or CollectionYear is invalid. CollectionPeriod: {periodEndFcsHandOverJob.CollectionPeriod}. CollectionYear: {periodEndFcsHandOverJob.CollectionYear}");
 
-                if (runResponse == null)
-                    throw new Exception($"Error in {nameof(StartPeriodEndArchiveActivity)}. RunResponse is null.");
+                    var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
 
-                var resposne = runResponse.Body;
-                var vr = StatusHelper.GetEntityId();
+                    var parameters = new Dictionary<string, object>
+                    {
+                        { "CollectionPeriod", periodEndFcsHandOverJob.CollectionPeriod },
+                        { "AcademicYear", periodEndFcsHandOverJob.CollectionYear }
+                    };
 
-                //currentRunInfo = new ArchiveRunInformation
-                //{
-                //    JobId = message.JobId.ToString(),
-                //    InstanceId = runResponse.RunId,
-                //    Status = "Started"
-                //};
-                //await StatusHelper.UpdateCurrentJobStatus(entityClient, currentRunInfo);
+                    var runResponse = await datafactoryClient.Pipelines.CreateRunWithHttpMessagesAsync(_appSettingsOption.Values.ResourceGroup
+                        , _appSettingsOption.Values.AzureDataFactoryName
+                        , _appSettingsOption.Values.PipeLine
+                        , parameters: parameters);
 
-                return resposne.ToString();
+                    if (runResponse == null)
+                    {
+                        logger.LogError($"Error in {nameof(StartPeriodEndArchiveActivity)}. RunResponse is null.");
+                        return null;
+                    }
+
+                    if (runResponse.Response.StatusCode is not System.Net.HttpStatusCode.OK)
+                    {
+                        logger.LogError($"Error in {nameof(StartPeriodEndArchiveActivity)}. Error message: {runResponse.Response.Content}.");
+                        return null;
+                    }
+                    if (runResponse.Response.StatusCode is System.Net.HttpStatusCode.OK)
+                    {
+                        logger.LogInformation($"Period end archive activity started with RunId: {runResponse.Body.RunId} status: {runResponse.Response.StatusCode}");
+                    }
+
+                    return new PeriodEndArchiveActivityResponse
+                    {
+                        RunId = runResponse.Body.RunId,
+                        StatusCode = runResponse.Response.StatusCode,
+                        InstanceId = InstanceId
+                    };
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, $"Error while executing {nameof(PeriodEndArchiveActivity)} function with InstanceId : {InstanceId}", ex.Message);
+                    return null;
+                }
             }
         }
     }
