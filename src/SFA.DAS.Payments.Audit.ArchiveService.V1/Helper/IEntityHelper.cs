@@ -9,7 +9,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
     {
         Task<ArchiveRunInformation> GetCurrentJobs(DurableTaskClient client);
         EntityInstanceId GetEntityId();
-        Task ClearCurrentStatus(DurableTaskClient client);
+        Task ClearCurrentStatus(DurableTaskClient client, EntityState state);
         Task UpdateCurrentJobStatus(DurableTaskClient client, ArchiveRunInformation runInformation, EntityState state);
     }
 }
