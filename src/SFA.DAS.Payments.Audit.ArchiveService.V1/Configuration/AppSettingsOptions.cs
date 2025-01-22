@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration
+﻿namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration
 {
     public class AppSettingsOptions : IAppSettingsOptions
     {

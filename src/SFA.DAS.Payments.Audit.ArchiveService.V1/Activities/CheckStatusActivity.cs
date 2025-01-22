@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.DurableTask.Client;
@@ -12,7 +7,6 @@ using SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.Models;
 using SFA.DAS.Payments.Model.Core.Audit;
-using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
 {
@@ -104,7 +98,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                         JobId = currentJob.JobId,
                         InstanceId = currentJob.InstanceId,
                         Status = "Failed"
-                    },StatusHelper.EntityState.add);
+                    }, StatusHelper.EntityState.add);
 
                     logger.LogError(ex, $"Error while executing {nameof(CheckStatusActivity)} function with InstanceId : {PeriodEndArchiveActivityResponse.InstanceId}", ex.Message);
                     return StatusHelper.ArchiveStatus.Failed;

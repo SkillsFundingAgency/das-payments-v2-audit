@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.DurableTask.Client;
+﻿using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Entities;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.EntityTrigger;
 using SFA.DAS.Payments.Model.Core.Audit;
@@ -33,7 +28,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
         {
             var entityId = GetEntityId();
             var currentJob = GetCurrentJobs(client);
-            await client.Entities.SignalEntityAsync(entityId, "add", new ArchiveRunInformation {
+            await client.Entities.SignalEntityAsync(entityId, "add", new ArchiveRunInformation
+            {
                 JobId = string.Empty,
                 InstanceId = string.Empty,
                 Status = string.Empty
