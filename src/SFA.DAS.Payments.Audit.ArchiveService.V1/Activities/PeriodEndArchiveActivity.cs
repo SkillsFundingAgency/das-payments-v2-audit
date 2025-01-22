@@ -79,7 +79,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                         JobId = periodEndFcsHandOverJob.JobId.ToString(),
                         InstanceId = runResponse.Body.RunId,
                         Status = "Started"
-                    });
+                    }, StatusHelper.EntityState.add);
 
                     return new PeriodEndArchiveActivityResponse
                     {
@@ -95,7 +95,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                         JobId = periodEndFcsHandOverJob.JobId.ToString(),
                         InstanceId = InstanceId,
                         Status = "Failed"
-                    });
+                    }, StatusHelper.EntityState.add);
 
                     logger.LogError(ex, $"Error while executing {nameof(PeriodEndArchiveActivity)} function with InstanceId : {InstanceId}", ex.Message);
                     return null;

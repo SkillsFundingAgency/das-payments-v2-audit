@@ -1,6 +1,7 @@
 ﻿using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Entities;
 using SFA.DAS.Payments.Model.Core.Audit;
+using static SFA.DAS.Payments.Audit.ArchiveService.V1.Helper.StatusHelper;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
 {
@@ -9,6 +10,6 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
         Task<ArchiveRunInformation> GetCurrentJobs(DurableTaskClient client);
         EntityInstanceId GetEntityId();
         Task ClearCurrentStatus(DurableTaskClient client);
-        Task UpdateCurrentJobStatus(DurableTaskClient client, ArchiveRunInformation runInformation);
+        Task UpdateCurrentJobStatus(DurableTaskClient client, ArchiveRunInformation runInformation, EntityState state);
     }
 }

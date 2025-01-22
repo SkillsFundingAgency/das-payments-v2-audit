@@ -24,30 +24,37 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Orchestrators
         public async Task RunOrchestrator([OrchestrationTrigger] TaskOrchestrationContext context)
         {
             ILogger logger = context.CreateReplaySafeLogger(nameof(PeriodEndArchiveOrchestrator));
-            using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = context.InstanceId }))
+            try
             {
-                RecordPeriodEndFcsHandOverCompleteJob periodEndFcsHandOverJob = context.GetInput<RecordPeriodEndFcsHandOverCompleteJob>();
-                logger.LogInformation($"Starting Period End Archive Orchestrator for OrchestrationInstanceId: {context.InstanceId}");
-
-                PeriodEndArchiveActivityResponse periodEndArchiveActivityResponse = await context.CallActivityAsync<PeriodEndArchiveActivityResponse>(nameof(PeriodEndArchiveActivity)
-                    , periodEndFcsHandOverJob);
-                if (periodEndArchiveActivityResponse is not null)
+                using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = context.InstanceId }))
                 {
-                    // Start polling ADF for result
-                    var timeout = context.CurrentUtcDateTime.AddMinutes(_appSettingsOption.Values.SleepDelay);
-                    var pollingInterval = TimeSpan.FromMinutes(1);
+                    RecordPeriodEndFcsHandOverCompleteJob periodEndFcsHandOverJob = context.GetInput<RecordPeriodEndFcsHandOverCompleteJob>();
+                    logger.LogInformation($"Starting Period End Archive Orchestrator for OrchestrationInstanceId: {context.InstanceId}");
 
-                    while (context.CurrentUtcDateTime < timeout)
+                    PeriodEndArchiveActivityResponse periodEndArchiveActivityResponse = await context.CallActivityAsync<PeriodEndArchiveActivityResponse>(nameof(PeriodEndArchiveActivity)
+                        , periodEndFcsHandOverJob);
+                    if (periodEndArchiveActivityResponse is not null)
                     {
-                        var archiveStatus = await context.CallActivityAsync<StatusHelper.ArchiveStatus>(nameof(CheckStatusActivity), periodEndArchiveActivityResponse);
-                        if (archiveStatus is StatusHelper.ArchiveStatus.Completed or StatusHelper.ArchiveStatus.Failed)
+                        // Start polling ADF for result
+                        var timeout = context.CurrentUtcDateTime.AddMinutes(_appSettingsOption.Values.SleepDelay);
+                        var pollingInterval = TimeSpan.FromMinutes(1);
+
+                        while (context.CurrentUtcDateTime < timeout)
                         {
-                            break;
+                            var archiveStatus = await context.CallActivityAsync<StatusHelper.ArchiveStatus>(nameof(CheckStatusActivity), periodEndArchiveActivityResponse);
+                            if (archiveStatus is StatusHelper.ArchiveStatus.Completed or StatusHelper.ArchiveStatus.Failed)
+                            {
+                                break;
+                            }
+                            // If not yet complete, or failed wait for the specified polling interval before the next attempt.
+                            await context.CreateTimer(context.CurrentUtcDateTime.Add(pollingInterval), CancellationToken.None);
                         }
-                        // If not yet complete, or failed wait for the specified polling interval before the next attempt.
-                        await context.CreateTimer(context.CurrentUtcDateTime.Add(pollingInterval), CancellationToken.None);
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Error while executing {nameof(PeriodEndArchiveOrchestrator)} function with InstanceId : {context.InstanceId}", ex.Message);
             }
         }
     }

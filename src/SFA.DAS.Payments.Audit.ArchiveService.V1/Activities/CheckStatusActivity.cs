@@ -60,7 +60,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                             JobId = currentJob.JobId,
                             InstanceId = currentJob.InstanceId,
                             Status = pipelineRun.Status
-                        });
+                        }, StatusHelper.EntityState.add);
                         return StatusHelper.ArchiveStatus.InProgress;
                     }
 
@@ -82,7 +82,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                             JobId = currentJob.JobId,
                             InstanceId = currentJob.InstanceId,
                             Status = pipelineRun.Status
-                        });
+                        }, StatusHelper.EntityState.add);
 
                         logger.LogError($"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {PeriodEndArchiveActivityResponse.InstanceId}. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {PeriodEndArchiveActivityResponse.InstanceId}");
                         return StatusHelper.ArchiveStatus.Failed;
@@ -93,7 +93,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                         JobId = currentJob.JobId,
                         InstanceId = currentJob.InstanceId,
                         Status = pipelineRun.Status
-                    });
+                    }, StatusHelper.EntityState.add);
 
                     return StatusHelper.ArchiveStatus.Completed;
                 }
@@ -104,7 +104,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                         JobId = currentJob.JobId,
                         InstanceId = currentJob.InstanceId,
                         Status = "Failed"
-                    });
+                    },StatusHelper.EntityState.add);
 
                     logger.LogError(ex, $"Error while executing {nameof(CheckStatusActivity)} function with InstanceId : {PeriodEndArchiveActivityResponse.InstanceId}", ex.Message);
                     return StatusHelper.ArchiveStatus.Failed;

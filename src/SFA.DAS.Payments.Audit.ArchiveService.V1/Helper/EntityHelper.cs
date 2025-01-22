@@ -7,6 +7,7 @@ using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Entities;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.EntityTrigger;
 using SFA.DAS.Payments.Model.Core.Audit;
+using static SFA.DAS.Payments.Audit.ArchiveService.V1.Helper.StatusHelper;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
 {
@@ -39,10 +40,10 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
             });
         }
 
-        public async Task UpdateCurrentJobStatus(DurableTaskClient client, ArchiveRunInformation runInformation)
+        public async Task UpdateCurrentJobStatus(DurableTaskClient client, ArchiveRunInformation runInformation, EntityState state)
         {
             var entityId = GetEntityId();
-            await client.Entities.SignalEntityAsync(entityId, "add", runInformation);
+            await client.Entities.SignalEntityAsync(entityId, state.ToString(), runInformation);
         }
     }
 }

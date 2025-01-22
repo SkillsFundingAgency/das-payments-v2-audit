@@ -16,5 +16,12 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
             Completed,
             Failed
         }
+        public enum EntityState
+        {
+            add,
+            reset,
+            get,
+            delete
+        }
     }
 }
