@@ -40,9 +40,6 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                 {
                     logger.LogInformation($"Starting Period End Archive Activity for OrchestrationInstanceId: {InstanceId}");
 
-                    if (periodEndFcsHandOverJob.CollectionPeriod is 0 || periodEndFcsHandOverJob.CollectionYear is 0)
-                        throw new Exception($"Error in {nameof(StartPeriodEndArchiveActivity)}. CollectionPeriod or CollectionYear is invalid. CollectionPeriod: {periodEndFcsHandOverJob.CollectionPeriod}. CollectionYear: {periodEndFcsHandOverJob.CollectionYear}");
-
                     var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
 
                     var parameters = new Dictionary<string, object>
