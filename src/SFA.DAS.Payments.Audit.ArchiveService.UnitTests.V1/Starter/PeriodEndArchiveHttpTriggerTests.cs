@@ -40,7 +40,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Starter
 
 
         [Test]
-        public async Task GetCurrentJobs_IsNull_Status_Is_Queued_Test()
+        public async Task Get_CurrentJobs_IsNull_Status_Is_Queued_Test()
         {
             RecordPeriodEndFcsHandOverCompleteJob input = MockRecordPeriodEndFcsHandOverCompleteJob();
 
@@ -71,6 +71,109 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Starter
             Assert.That(response.InstanceId, Is.EqualTo(string.Empty));
             Assert.That(response.Status, Is.EqualTo("Queued"));
             Assert.That(response.JobId, Is.EqualTo("1879876"));
+        }
+
+        [Test]
+        public async Task Get_RequestPayload_Is_Null_Test()
+        {
+            RecordPeriodEndFcsHandOverCompleteJob input = null;
+
+            string request = JsonSerializer.Serialize(input);
+            var body = new MemoryStream(Encoding.ASCII.GetBytes(request));
+            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri("http://localhost:7044/hellofunction"), body);
+
+            _serviceProvider.Setup(sp => sp.GetService(typeof(ILogger<PeriodEndArchiveHttpTrigger>)))
+                           .Returns(_logger.Object);
+            _functionContext.Setup(c => c.InstanceServices).Returns(_serviceProvider.Object);
+
+            _mockDurableTaskClient.Setup(client => client.ScheduleNewOrchestrationInstanceAsync(It.IsAny<TaskName>(), It.IsAny<object>(), CancellationToken.None))
+                     .ReturnsAsync("instanceId");
+
+            _durableTaskClientWrapper.Setup(wrapper => wrapper.CreateCheckStatusResponseAsync(
+                It.IsAny<HttpRequestData>()
+                , It.IsAny<string>()
+                , CancellationToken.None)).ReturnsAsync(new FakerHttpResponseData(HttpStatusCode.OK));
+
+            var result = periodEndArchiveHttpTrigger.HttpTriggerArchivePeriodEnd(requestData, _mockDurableTaskClient.Object, _functionContext.Object).Result;
+
+
+            result.Body.Position = 0;
+            using var reader = new StreamReader(result.Body);
+            var responseBody = await reader.ReadToEndAsync();
+            Assert.That(responseBody, Is.EqualTo("Request payload is null"));
+        }
+
+        [Test]
+        public async Task Get_MockedArchiveRunInformation_Test()
+        {
+            RecordPeriodEndFcsHandOverCompleteJob input = MockRecordPeriodEndFcsHandOverCompleteJob();
+            var archiveInfo = ArchiveRunInformation();
+
+            string request = JsonSerializer.Serialize(input);
+            var body = new MemoryStream(Encoding.ASCII.GetBytes(request));
+            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri("http://localhost:7044/hellofunction"), body);
+
+            _entityHelper.Setup(a => a.GetCurrentJobs(It.IsAny<FakeDurableTaskClient>())).ReturnsAsync(archiveInfo);
+
+            _serviceProvider.Setup(sp => sp.GetService(typeof(ILogger<PeriodEndArchiveHttpTrigger>)))
+                           .Returns(_logger.Object);
+            _functionContext.Setup(c => c.InstanceServices).Returns(_serviceProvider.Object);
+
+            _mockDurableTaskClient.Setup(client => client.ScheduleNewOrchestrationInstanceAsync(It.IsAny<TaskName>(), It.IsAny<object>(), CancellationToken.None))
+                     .ReturnsAsync("instanceId");
+
+            _durableTaskClientWrapper.Setup(wrapper => wrapper.CreateCheckStatusResponseAsync(
+                It.IsAny<HttpRequestData>()
+                , It.IsAny<string>()
+                , CancellationToken.None)).ReturnsAsync(new FakerHttpResponseData(HttpStatusCode.OK));
+
+            var result = periodEndArchiveHttpTrigger.HttpTriggerArchivePeriodEnd(requestData, _mockDurableTaskClient.Object, _functionContext.Object).Result;
+
+
+            result.Body.Position = 0;
+            using var reader = new StreamReader(result.Body);
+            var responseBody = await reader.ReadToEndAsync();
+            var response = JsonSerializer.Deserialize<ArchiveRunInformation>(responseBody);
+
+            Assert.That(response.InstanceId, Is.EqualTo(archiveInfo.InstanceId));
+            Assert.That(response.Status, Is.EqualTo(archiveInfo.Status));
+            Assert.That(response.JobId, Is.EqualTo(archiveInfo.JobId));
+        }
+
+        [Test]
+        public async Task Post_Where_CollectionPeriod_Is_0_Test()
+        {
+            RecordPeriodEndFcsHandOverCompleteJob input = MockRecordPeriodEndFcsHandOverCompleteJob();
+            input.CollectionPeriod = 0;
+
+            string request = JsonSerializer.Serialize(input);
+            var body = new MemoryStream(Encoding.ASCII.GetBytes(request));
+            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri("http://localhost:7044/hellofunction"), body, "POST");
+
+            _serviceProvider.Setup(sp => sp.GetService(typeof(ILogger<PeriodEndArchiveHttpTrigger>)))
+                           .Returns(_logger.Object);
+            _functionContext.Setup(c => c.InstanceServices).Returns(_serviceProvider.Object);
+
+            _mockDurableTaskClient.Setup(client => client.ScheduleNewOrchestrationInstanceAsync(It.IsAny<TaskName>(), It.IsAny<object>(), CancellationToken.None))
+                     .ReturnsAsync("instanceId");
+
+            _durableTaskClientWrapper.Setup(wrapper => wrapper.CreateCheckStatusResponseAsync(
+                It.IsAny<HttpRequestData>()
+                , It.IsAny<string>()
+                , CancellationToken.None)).ReturnsAsync(new FakerHttpResponseData(HttpStatusCode.OK));
+
+            var result = periodEndArchiveHttpTrigger.HttpTriggerArchivePeriodEnd(requestData, _mockDurableTaskClient.Object, _functionContext.Object).Result;
+
+
+            result.Body.Position = 0;
+            using var reader = new StreamReader(result.Body);
+            var responseBody = await reader.ReadToEndAsync();
+            Assert.That(responseBody, Is.EqualTo("Error in PeriodEndArchiveHttpTrigger. CollectionPeriod or CollectionYear is invalid. CollectionPeriod: 0. CollectionYear: 2324"));
+        }
+
+        private static ArchiveRunInformation ArchiveRunInformation()
+        {
+            return new ArchiveRunInformation { InstanceId = "b0165422-1926-475d-8a28-497514fb8301", JobId = "1879876", Status = "Failed" };
         }
 
         private static RecordPeriodEndFcsHandOverCompleteJob MockRecordPeriodEndFcsHandOverCompleteJob()

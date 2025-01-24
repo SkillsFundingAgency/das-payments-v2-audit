@@ -90,7 +90,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Starter
         private static async Task<HttpResponseData> BuildErrorResponse(HttpRequestData req, string errorMessage)
         {
             var badRequestResponse = req.CreateResponse(System.Net.HttpStatusCode.BadRequest);
-            await badRequestResponse.WriteAsJsonAsync(errorMessage);
+            await badRequestResponse.WriteStringAsync(errorMessage);
             return badRequestResponse;
         }
 
