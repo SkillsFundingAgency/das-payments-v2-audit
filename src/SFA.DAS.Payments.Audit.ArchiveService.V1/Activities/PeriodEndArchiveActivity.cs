@@ -89,6 +89,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                 }
                 catch (Exception ex)
                 {
+                    string errorMsg = $"Error in {nameof(StartPeriodEndArchiveActivity)}. Error message: {ex.Message}.";
                     await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
                     {
                         JobId = periodEndFcsHandOverJob.JobId.ToString(),
@@ -96,7 +97,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
                         Status = "Failed"
                     }, StatusHelper.EntityState.add);
 
-                    _logger.LogError(ex, $"Error while executing {nameof(PeriodEndArchiveActivity)} function with InstanceId : {InstanceId}", ex.Message);
+                    _logger.LogError(ex, errorMsg, ex.Message);
                     return null;
                 }
             }

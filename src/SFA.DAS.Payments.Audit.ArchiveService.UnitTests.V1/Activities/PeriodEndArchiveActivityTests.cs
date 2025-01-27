@@ -136,6 +136,56 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Activities
             Assert.IsNull(result);
         }
 
+
+        [Test]
+        public async Task StartPeriodEndArchiveActivity_Should_Throw_Exception()
+        {
+            // Arrange
+            RecordPeriodEndFcsHandOverCompleteJob periodEndFcsHandOverJob = BuildPeriodEndFcsHandOverCompleteJob();
+            CreateRunResponse runResponse = BuildRunResponse();
+
+            var dataFactoryClient = new Mock<DataFactoryManagementClient>(new HttpClient(), false);
+            dataFactoryClient.Setup(x => x.Pipelines.CreateRunWithHttpMessagesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<bool?>(),
+                It.IsAny<string>(),
+                It.IsAny<bool?>(),
+                It.IsAny<IDictionary<string, object>>(),
+                It.IsAny<Dictionary<string, List<string>>>(),
+                It.IsAny<CancellationToken>()
+            )).ReturnsAsync(new Microsoft.Rest.Azure.AzureOperationResponse<CreateRunResponse>
+            {
+                Body = runResponse,
+                Response = new HttpResponseMessage(HttpStatusCode.OK)
+            });
+
+            _serviceProvider.Setup(sp => sp.GetService(typeof(ILogger<PeriodEndArchiveActivity>)))
+                          .Returns(_mockLogger.Object);
+            _mockFunctionContext.Setup(c => c.InstanceServices).Returns(_serviceProvider.Object);
+
+            _mockDataFactoryHelper.Setup(x => x.CreateClientAsync()).ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _activity.StartPeriodEndArchiveActivity(
+                periodEndFcsHandOverJob
+                , InstanceId
+                , _mockFunctionContext.Object
+                , _mockDurableTaskClient.Object);
+
+            // Assert
+            Assert.IsNull(result);
+            _mockEntityHelper.Verify(x => x.UpdateCurrentJobStatus(_mockDurableTaskClient.Object, It.IsAny<ArchiveRunInformation>(), StatusHelper.EntityState.add), Times.Once);
+            
+            _mockLogger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => true),
+                It.IsAny<Exception>(),
+                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
+        }
         private static CreateRunResponse BuildRunResponse()
         {
             return new CreateRunResponse
