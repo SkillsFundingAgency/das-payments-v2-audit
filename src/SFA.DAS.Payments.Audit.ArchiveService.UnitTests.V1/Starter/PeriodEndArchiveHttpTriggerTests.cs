@@ -14,6 +14,7 @@ using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Starter
 {
+    [TestFixture]
     public class PeriodEndArchiveHttpTriggerTests
     {
         private Mock<IEntityHelper> _entityHelper;
