@@ -22,6 +22,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Starter
         private Mock<ILogger<PeriodEndArchiveHttpTrigger>> _logger;
         private Mock<FakeDurableTaskClient> _mockDurableTaskClient;
         private Mock<IDurableTaskClientWrapper> _durableTaskClientWrapper;
+        private string getUrl = "http://localhost:7044/api/orchestrators/PeriodEndArchiveOrchestrator?jobid=187987";
 
         public PeriodEndArchiveHttpTrigger periodEndArchiveHttpTrigger { get; set; }
 
@@ -46,7 +47,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Starter
 
             string request = JsonSerializer.Serialize(input);
             var body = new MemoryStream(Encoding.ASCII.GetBytes(request));
-            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri("http://localhost:7044/hellofunction"), body);
+            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri(getUrl), body);
 
             _serviceProvider.Setup(sp => sp.GetService(typeof(ILogger<PeriodEndArchiveHttpTrigger>)))
                            .Returns(_logger.Object);
@@ -80,7 +81,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Starter
 
             string request = JsonSerializer.Serialize(input);
             var body = new MemoryStream(Encoding.ASCII.GetBytes(request));
-            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri("http://localhost:7044/hellofunction"), body);
+            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri(getUrl), body, "POST");
 
             _serviceProvider.Setup(sp => sp.GetService(typeof(ILogger<PeriodEndArchiveHttpTrigger>)))
                            .Returns(_logger.Object);
@@ -111,7 +112,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Starter
 
             string request = JsonSerializer.Serialize(input);
             var body = new MemoryStream(Encoding.ASCII.GetBytes(request));
-            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri("http://localhost:7044/hellofunction"), body);
+            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri(getUrl), body);
 
             _entityHelper.Setup(a => a.GetCurrentJobs(It.IsAny<FakeDurableTaskClient>())).ReturnsAsync(archiveInfo);
 
@@ -148,7 +149,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Starter
 
             string request = JsonSerializer.Serialize(input);
             var body = new MemoryStream(Encoding.ASCII.GetBytes(request));
-            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri("http://localhost:7044/hellofunction"), body, "POST");
+            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri(getUrl), body, "POST");
 
             _serviceProvider.Setup(sp => sp.GetService(typeof(ILogger<PeriodEndArchiveHttpTrigger>)))
                            .Returns(_logger.Object);

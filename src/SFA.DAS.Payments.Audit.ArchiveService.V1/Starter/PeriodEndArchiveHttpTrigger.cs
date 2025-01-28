@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
@@ -8,7 +7,9 @@ using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
 using SFA.DAS.Payments.Audit.ArchiveService.V1.Orchestrators;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Json;
+using System.Web;
+
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Starter
 {
@@ -33,19 +34,19 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Starter
             _logger = executionContext.GetLogger<PeriodEndArchiveHttpTrigger>();
             try
             {
-                RecordPeriodEndFcsHandOverCompleteJob periodEndFcsHandOverJob = JsonSerializer.Deserialize<RecordPeriodEndFcsHandOverCompleteJob>
-                    (await req.ReadAsStringAsync());
-
-                if (periodEndFcsHandOverJob == null)
-                {
-                    string error = "Request payload is null";
-                    HttpResponseData badRequestResponse = await BuildErrorResponse(req, error);
-                    _logger.LogError(error);
-                    return badRequestResponse;
-                }
-
                 if (req.Method == "POST")
                 {
+                    RecordPeriodEndFcsHandOverCompleteJob periodEndFcsHandOverJob = JsonSerializer.Deserialize<RecordPeriodEndFcsHandOverCompleteJob>
+                        (await req.ReadAsStringAsync());
+
+                    if (periodEndFcsHandOverJob == null)
+                    {
+                        string error = "Request payload is null";
+                        HttpResponseData badRequestResponse = await BuildErrorResponse(req, error);
+                        _logger.LogError(error);
+                        return badRequestResponse;
+                    }
+
                     if (periodEndFcsHandOverJob.CollectionPeriod is 0 || periodEndFcsHandOverJob.CollectionYear is 0)
                     {
                         string error = $"Error in {nameof(PeriodEndArchiveHttpTrigger)}. CollectionPeriod or CollectionYear is invalid. CollectionPeriod: {periodEndFcsHandOverJob.CollectionPeriod}. CollectionYear: {periodEndFcsHandOverJob.CollectionYear}";
@@ -64,17 +65,29 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Starter
 
                     return await client.CreateCheckStatusResponseAsync(req, instanceId);
                 }
-
-                var stateResponse = await _entityHelper.GetCurrentJobs(client) ?? new ArchiveRunInformation();
-                if (stateResponse.JobId != periodEndFcsHandOverJob.JobId.ToString())
+                else if (req.Method == "GET")
                 {
-                    stateResponse.JobId = periodEndFcsHandOverJob.JobId.ToString();
-                    stateResponse.InstanceId = string.Empty;
-                    stateResponse.Status = "Queued";
-                }
+                    var queryParams = HttpUtility.ParseQueryString(req.Url.Query);
+                    var jobId = queryParams.Get("jobId");
 
-                HttpResponseData response = await BuildOkResponse(req, stateResponse);
-                return response;
+                    var stateResponse = await _entityHelper.GetCurrentJobs(client) ?? new ArchiveRunInformation();
+                    if (stateResponse.JobId != jobId)
+                    {
+                        stateResponse.JobId = jobId;
+                        stateResponse.InstanceId = string.Empty;
+                        stateResponse.Status = "Queued";
+                    }
+
+                    HttpResponseData response = await BuildOkResponse(req, stateResponse);
+                    return response;
+                }
+                else
+                {
+                    string error = $"Method not supported in: {nameof(PeriodEndArchiveHttpTrigger)} ";
+                    _logger.LogError(error);
+                    HttpResponseData badRequestResponse = await BuildErrorResponse(req, error);
+                    return badRequestResponse;
+                }
 
             }
             catch (Exception ex)
