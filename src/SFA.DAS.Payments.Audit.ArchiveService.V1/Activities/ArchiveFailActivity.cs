@@ -1,11 +1,11 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Models;
+using SFA.DAS.Payments.Audit.ArchiveService.Helper;
+using SFA.DAS.Payments.Audit.ArchiveService.Models;
 using SFA.DAS.Payments.Model.Core.Audit;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
+namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 {
     public class ArchiveFailActivity
     {

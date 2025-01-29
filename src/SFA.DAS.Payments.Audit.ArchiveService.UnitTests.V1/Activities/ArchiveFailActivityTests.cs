@@ -2,14 +2,14 @@
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Activities;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Models;
+using SFA.DAS.Payments.Audit.ArchiveService.UnitTests;
+using SFA.DAS.Payments.Audit.ArchiveService.Activities;
+using SFA.DAS.Payments.Audit.ArchiveService.Helper;
+using SFA.DAS.Payments.Audit.ArchiveService.Models;
 using SFA.DAS.Payments.Model.Core.Audit;
-using static SFA.DAS.Payments.Audit.ArchiveService.V1.Helper.StatusHelper;
+using static SFA.DAS.Payments.Audit.ArchiveService.Helper.StatusHelper;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Tests.Activities
+namespace SFA.DAS.Payments.Audit.ArchiveService.Tests.Activities
 {
     [TestFixture]
     public class ArchiveFailActivityTests

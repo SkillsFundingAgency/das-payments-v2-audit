@@ -3,15 +3,15 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Orchestrators;
+using SFA.DAS.Payments.Audit.ArchiveService.Helper;
+using SFA.DAS.Payments.Audit.ArchiveService.Orchestrators;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 using System.Text.Json;
 using System.Web;
 
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Starter
+namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
 {
     public class PeriodEndArchiveHttpTrigger
     {

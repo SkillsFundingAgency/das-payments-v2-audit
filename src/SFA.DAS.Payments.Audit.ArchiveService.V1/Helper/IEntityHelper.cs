@@ -1,9 +1,9 @@
 ﻿using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Entities;
 using SFA.DAS.Payments.Model.Core.Audit;
-using static SFA.DAS.Payments.Audit.ArchiveService.V1.Helper.StatusHelper;
+using static SFA.DAS.Payments.Audit.ArchiveService.Helper.StatusHelper;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
+namespace SFA.DAS.Payments.Audit.ArchiveService.Helper
 {
     public interface IEntityHelper
     {

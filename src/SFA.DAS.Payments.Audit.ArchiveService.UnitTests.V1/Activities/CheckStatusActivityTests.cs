@@ -4,16 +4,16 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Activities;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Models;
+using SFA.DAS.Payments.Audit.ArchiveService.Activities;
+using SFA.DAS.Payments.Audit.ArchiveService.Configuration;
+using SFA.DAS.Payments.Audit.ArchiveService.Helper;
+using SFA.DAS.Payments.Audit.ArchiveService.Models;
 using SFA.DAS.Payments.Model.Core.Audit;
 using NUnit.Framework;
 using System.Net.Http;
 using Microsoft.Rest;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Activities
+namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Activities
 {
     [Ignore("Due to extention method in CheckStatusActivity class which GetAsync not be able to mock.")]
     public class CheckStatusActivityTests

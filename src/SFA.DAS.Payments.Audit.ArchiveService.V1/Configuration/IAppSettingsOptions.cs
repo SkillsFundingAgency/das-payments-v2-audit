@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration
+﻿namespace SFA.DAS.Payments.Audit.ArchiveService.Configuration
 {
     public interface IAppSettingsOptions
     {

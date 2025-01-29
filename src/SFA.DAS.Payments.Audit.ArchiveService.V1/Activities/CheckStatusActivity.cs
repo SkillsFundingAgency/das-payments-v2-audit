@@ -3,12 +3,12 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Models;
+using SFA.DAS.Payments.Audit.ArchiveService.Configuration;
+using SFA.DAS.Payments.Audit.ArchiveService.Helper;
+using SFA.DAS.Payments.Audit.ArchiveService.Models;
 using SFA.DAS.Payments.Model.Core.Audit;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Activities
+namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 {
     public class CheckStatusActivity
     {

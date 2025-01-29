@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Functions.Worker.Http;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1
+namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests
 {
     public interface IDurableTaskClientWrapper
     {

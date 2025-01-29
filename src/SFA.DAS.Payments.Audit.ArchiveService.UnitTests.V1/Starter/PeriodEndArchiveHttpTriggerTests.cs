@@ -7,12 +7,12 @@ using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework.Internal;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Starter;
+using SFA.DAS.Payments.Audit.ArchiveService.Helper;
+using SFA.DAS.Payments.Audit.ArchiveService.Starter;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Starter
+namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Starter
 {
     [TestFixture]
     public class PeriodEndArchiveHttpTriggerTests

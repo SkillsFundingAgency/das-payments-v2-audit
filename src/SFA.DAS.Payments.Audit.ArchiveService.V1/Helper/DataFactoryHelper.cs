@@ -1,9 +1,9 @@
 ﻿using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Identity.Client;
 using Microsoft.Rest;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration;
+using SFA.DAS.Payments.Audit.ArchiveService.Configuration;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
+namespace SFA.DAS.Payments.Audit.ArchiveService.Helper
 {
     public class DataFactoryHelper : IDataFactoryHelper
     {

@@ -4,13 +4,13 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Activities;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Helper;
+using SFA.DAS.Payments.Audit.ArchiveService.Activities;
+using SFA.DAS.Payments.Audit.ArchiveService.Configuration;
+using SFA.DAS.Payments.Audit.ArchiveService.Helper;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1.Activities
+namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Activities
 {
     [TestFixture]
     public class PeriodEndArchiveActivityTests

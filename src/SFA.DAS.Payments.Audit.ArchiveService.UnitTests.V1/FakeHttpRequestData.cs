@@ -8,7 +8,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
 using System.Net;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1
+namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests
 {
     public class FakeHttpRequestData : HttpRequestData
     {

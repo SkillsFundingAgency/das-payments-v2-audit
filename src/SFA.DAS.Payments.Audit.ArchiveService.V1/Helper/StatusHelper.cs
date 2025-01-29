@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Helper
+﻿namespace SFA.DAS.Payments.Audit.ArchiveService.Helper
 {
     public static class StatusHelper
     {

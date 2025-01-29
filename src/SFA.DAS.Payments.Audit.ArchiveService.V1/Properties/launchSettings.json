@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "SFA.DAS.Payments.Audit.ArchiveService.V1": {
+    "SFA.DAS.Payments.Audit.ArchiveService": {
       "commandName": "Project",
       "commandLineArgs": "--port 7174",
       "launchBrowser": false

@@ -7,7 +7,7 @@ using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1
+namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests
 {
     public class FakeTaskOrchestrationContext : TaskOrchestrationContext
     {

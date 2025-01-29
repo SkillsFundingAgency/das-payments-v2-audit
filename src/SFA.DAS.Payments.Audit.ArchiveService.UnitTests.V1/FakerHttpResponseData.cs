@@ -3,7 +3,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1
+namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests
 {
     public class FakerHttpResponseData : HttpResponseData
     {

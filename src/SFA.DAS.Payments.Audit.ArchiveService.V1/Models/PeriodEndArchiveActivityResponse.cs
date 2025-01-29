@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Models
+namespace SFA.DAS.Payments.Audit.ArchiveService.Models
 {
     public class PeriodEndArchiveActivityResponse
     {

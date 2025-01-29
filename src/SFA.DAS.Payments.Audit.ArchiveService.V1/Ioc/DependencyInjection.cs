@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Configuration;
+using SFA.DAS.Payments.Audit.ArchiveService.Configuration;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Ioc
+namespace SFA.DAS.Payments.Audit.ArchiveService.Ioc
 {
     public static class DependencyInjection
     {

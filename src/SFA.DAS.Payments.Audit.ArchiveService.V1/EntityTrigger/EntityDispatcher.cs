@@ -1,8 +1,8 @@
 ﻿using Microsoft.Azure.Functions.Worker;
-using SFA.DAS.Payments.Audit.ArchiveService.V1.Models;
+using SFA.DAS.Payments.Audit.ArchiveService.Models;
 using SFA.DAS.Payments.Model.Core.Audit;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.EntityTrigger
+namespace SFA.DAS.Payments.Audit.ArchiveService.EntityTrigger
 {
     public class EntityDispatcher
     {

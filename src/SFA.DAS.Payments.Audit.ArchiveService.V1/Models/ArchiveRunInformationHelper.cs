@@ -1,6 +1,6 @@
 ﻿using SFA.DAS.Payments.Model.Core.Audit;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.V1.Models
+namespace SFA.DAS.Payments.Audit.ArchiveService.Models
 {
     public static class ArchiveRunInformationHelper
     {

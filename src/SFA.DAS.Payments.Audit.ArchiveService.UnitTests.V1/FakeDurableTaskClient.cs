@@ -1,7 +1,7 @@
 ﻿using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 
-namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1
+namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests
 {
     public class FakeDurableTaskClient : DurableTaskClient
     {
