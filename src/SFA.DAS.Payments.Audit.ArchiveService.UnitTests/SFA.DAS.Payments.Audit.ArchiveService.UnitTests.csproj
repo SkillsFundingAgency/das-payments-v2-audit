@@ -21,6 +21,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\SFA.DAS.Payments.Audit.ArchiveService.V1\SFA.DAS.Payments.Audit.ArchiveService.csproj" />
+	  <ProjectReference Include="..\SFA.DAS.Payments.Audit.ArchiveService\SFA.DAS.Payments.Audit.ArchiveService.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

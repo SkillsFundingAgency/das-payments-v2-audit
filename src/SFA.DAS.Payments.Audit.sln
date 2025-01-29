@@ -25,9 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Payments.Audit.Fund
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Payments.Tests.Core", "SFA.DAS.Payments.Tests.Core\SFA.DAS.Payments.Tests.Core.csproj", "{2949A5C7-19C1-41DC-A1EF-3FC04987193E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.Audit.ArchiveService.UnitTests", "SFA.DAS.Payments.Audit.ArchiveService.UnitTests.V1\SFA.DAS.Payments.Audit.ArchiveService.UnitTests.csproj", "{592175D6-1D9E-4660-A396-4A75D185B8BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.Audit.ArchiveService.UnitTests", "SFA.DAS.Payments.Audit.ArchiveService.UnitTests\SFA.DAS.Payments.Audit.ArchiveService.UnitTests.csproj", "{592175D6-1D9E-4660-A396-4A75D185B8BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.Audit.ArchiveService", "SFA.DAS.Payments.Audit.ArchiveService.V1\SFA.DAS.Payments.Audit.ArchiveService.csproj", "{D314BA33-F391-4537-861B-C787DEBBB181}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.Audit.ArchiveService", "SFA.DAS.Payments.Audit.ArchiveService\SFA.DAS.Payments.Audit.ArchiveService.csproj", "{D314BA33-F391-4537-861B-C787DEBBB181}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
