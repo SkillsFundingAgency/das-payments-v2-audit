@@ -142,6 +142,43 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Starter
             Assert.That(response.JobId, Is.EqualTo(archiveInfo.JobId));
         }
 
+
+        [Test]
+        public async Task Get_MockedArchiveRunInformation_Where_JobId_Is_NotPassed_Test()
+        {
+            RecordPeriodEndFcsHandOverCompleteJob input = MockRecordPeriodEndFcsHandOverCompleteJob();
+            var archiveInfo = ArchiveRunInformation();
+
+            string getUrl = "http://localhost:7044/api/orchestrators/PeriodEndArchiveOrchestrator?";
+
+            string request = JsonSerializer.Serialize(input);
+            var body = new MemoryStream(Encoding.ASCII.GetBytes(request));
+            var requestData = new FakeHttpRequestData(_functionContext.Object, new Uri(getUrl), body);
+
+            _entityHelper.Setup(a => a.GetCurrentJobs(It.IsAny<FakeDurableTaskClient>())).ReturnsAsync(archiveInfo);
+
+            _serviceProvider.Setup(sp => sp.GetService(typeof(ILogger<PeriodEndArchiveHttpTrigger>)))
+                           .Returns(_logger.Object);
+            _functionContext.Setup(c => c.InstanceServices).Returns(_serviceProvider.Object);
+
+            _mockDurableTaskClient.Setup(client => client.ScheduleNewOrchestrationInstanceAsync(It.IsAny<TaskName>(), It.IsAny<object>(), CancellationToken.None))
+                     .ReturnsAsync("instanceId");
+
+            _durableTaskClientWrapper.Setup(wrapper => wrapper.CreateCheckStatusResponseAsync(
+                It.IsAny<HttpRequestData>()
+                , It.IsAny<string>()
+                , CancellationToken.None)).ReturnsAsync(new FakerHttpResponseData(HttpStatusCode.OK));
+
+            var result = periodEndArchiveHttpTrigger.HttpTriggerArchivePeriodEnd(requestData, _mockDurableTaskClient.Object, _functionContext.Object).Result;
+
+
+            result.Body.Position = 0;
+            using var reader = new StreamReader(result.Body);
+            var responseBody = await reader.ReadToEndAsync();
+
+            Assert.That(responseBody, Is.EqualTo("Method not supported in: PeriodEndArchiveHttpTrigger jobId is not been passed with the request."));
+        }
+
         [Test]
         public async Task Post_Where_CollectionPeriod_Is_0_Test()
         {

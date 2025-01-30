@@ -70,6 +70,14 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
                     var queryParams = HttpUtility.ParseQueryString(req.Url.Query);
                     var jobId = queryParams.Get("jobId");
 
+                    if (jobId is null)
+                    {
+                        string error = $"Method not supported in: {nameof(PeriodEndArchiveHttpTrigger)} jobId is not been passed with the request.";
+                        _logger.LogError(error);
+                        HttpResponseData badRequestResponse = await BuildErrorResponse(req, error);
+                        return badRequestResponse;
+                    }
+
                     var stateResponse = await _entityHelper.GetCurrentJobs(client) ?? new ArchiveRunInformation();
                     if (stateResponse.JobId != jobId)
                     {
