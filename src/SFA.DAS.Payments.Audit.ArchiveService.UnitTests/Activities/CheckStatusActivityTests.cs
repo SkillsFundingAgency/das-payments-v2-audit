@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.Extensions.Logging;
@@ -9,9 +8,7 @@ using SFA.DAS.Payments.Audit.ArchiveService.Configuration;
 using SFA.DAS.Payments.Audit.ArchiveService.Helper;
 using SFA.DAS.Payments.Audit.ArchiveService.Models;
 using SFA.DAS.Payments.Model.Core.Audit;
-using NUnit.Framework;
-using System.Net.Http;
-using Microsoft.Rest;
+using System.Net;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Activities
 {

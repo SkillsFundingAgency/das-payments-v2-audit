@@ -1,6 +1,3 @@
-using System.Net;
-using System.Text;
-using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
@@ -11,6 +8,9 @@ using SFA.DAS.Payments.Audit.ArchiveService.Helper;
 using SFA.DAS.Payments.Audit.ArchiveService.Starter;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
+using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Starter
 {

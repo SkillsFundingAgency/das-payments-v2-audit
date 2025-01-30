@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.Extensions.Logging;
@@ -9,6 +8,7 @@ using SFA.DAS.Payments.Audit.ArchiveService.Configuration;
 using SFA.DAS.Payments.Audit.ArchiveService.Helper;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
+using System.Net;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Activities
 {
@@ -178,7 +178,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Activities
             // Assert
             Assert.IsNull(result);
             _mockEntityHelper.Verify(x => x.UpdateCurrentJobStatus(_mockDurableTaskClient.Object, It.IsAny<ArchiveRunInformation>(), StatusHelper.EntityState.add), Times.Once);
-            
+
             _mockLogger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),

@@ -1,7 +1,7 @@
-﻿using System.Net;
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
+using System.Net;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests
 {

@@ -2,10 +2,10 @@
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.Payments.Audit.ArchiveService.UnitTests;
 using SFA.DAS.Payments.Audit.ArchiveService.Activities;
 using SFA.DAS.Payments.Audit.ArchiveService.Helper;
 using SFA.DAS.Payments.Audit.ArchiveService.Models;
+using SFA.DAS.Payments.Audit.ArchiveService.UnitTests;
 using SFA.DAS.Payments.Model.Core.Audit;
 using static SFA.DAS.Payments.Audit.ArchiveService.Helper.StatusHelper;
 
