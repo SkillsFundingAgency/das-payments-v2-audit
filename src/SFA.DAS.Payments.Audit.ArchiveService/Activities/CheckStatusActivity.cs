@@ -26,25 +26,26 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
         }
 
         [Function(nameof(CheckStatusActivity))]
-        public async Task<StatusHelper.ArchiveStatus> StartCheckStatusActivity([ActivityTrigger] PeriodEndArchiveActivityResponse PeriodEndArchiveActivityResponse
+        public async Task<StatusHelper.ArchiveStatus> StartCheckStatusActivity([ActivityTrigger] PeriodEndArchiveActivityResponse periodEndArchiveActivityResponse
             , FunctionContext executionContext
             , [DurableClient] DurableTaskClient client)
         {
             var currentJob = await _entityHelper.GetCurrentJobs(client);
 
             ILogger logger = executionContext.GetLogger(nameof(CheckStatusActivity));
-            using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = PeriodEndArchiveActivityResponse.InstanceId }))
+            using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = periodEndArchiveActivityResponse.InstanceId }))
             {
                 try
                 {
-                    logger.LogInformation($"Starting {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {PeriodEndArchiveActivityResponse.InstanceId}");
+                    string msg = $"Starting {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}";
+                    logger.LogInformation(msg);
 
                     var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
 
                     var pipelineRun = await datafactoryClient.PipelineRuns.GetAsync(
                         _appSettingsOption.Values.ResourceGroup
                         , _appSettingsOption.Values.AzureDataFactoryName
-                        , PeriodEndArchiveActivityResponse.RunId);
+                        , periodEndArchiveActivityResponse.RunId);
 
 
                     if (pipelineRun.Status is "InProgress" or "Queued")
@@ -63,7 +64,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                     var queryResponse = await datafactoryClient.ActivityRuns.QueryByPipelineRunAsync(
                         _appSettingsOption.Values.ResourceGroup
                         , _appSettingsOption.Values.AzureDataFactoryName
-                        , PeriodEndArchiveActivityResponse.RunId
+                        , periodEndArchiveActivityResponse.RunId
                         , filterParams);
 
                     if (queryResponse is not null)
@@ -78,7 +79,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                             Status = pipelineRun.Status
                         }, StatusHelper.EntityState.add);
 
-                        logger.LogError($"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {PeriodEndArchiveActivityResponse.InstanceId}. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {PeriodEndArchiveActivityResponse.InstanceId}");
+                        string errorMsg = $"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {periodEndArchiveActivityResponse.InstanceId}";
+                        logger.LogError(errorMsg);
                         return StatusHelper.ArchiveStatus.Failed;
                     }
 
@@ -100,7 +102,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                         Status = "Failed"
                     }, StatusHelper.EntityState.add);
 
-                    logger.LogError(ex, $"Error while executing {nameof(CheckStatusActivity)} function with InstanceId : {PeriodEndArchiveActivityResponse.InstanceId}", ex.Message);
+                    string errorMsg = $"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Error message: {ex.Message}.";
+                    logger.LogError(ex, errorMsg, ex.Message);
                     return StatusHelper.ArchiveStatus.Failed;
                 }
             }

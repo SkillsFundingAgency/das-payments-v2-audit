@@ -15,9 +15,6 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Ioc
                 return new AppSettingsOptions
                 {
                     IsEncrypted = configHelper.GetValue<bool>("IsEncrypted"),
-                    ConnectionStrings = new ConnectionStrings
-                    {
-                    },
                     Values = new Values
                     {
                         AzureWebJobsStorage = configHelper.GetValue<string>("AzureWebJobsStorage"),

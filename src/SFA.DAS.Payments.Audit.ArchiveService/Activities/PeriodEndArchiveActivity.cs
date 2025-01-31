@@ -39,7 +39,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
             {
                 try
                 {
-                    _logger.LogInformation($"Starting Period End Archive Activity for OrchestrationInstanceId: {InstanceId}");
+                    string msg = $"Starting Period End Archive Activity for OrchestrationInstanceId: {InstanceId}";
+                    _logger.LogInformation(msg);
 
                     var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
 
@@ -69,8 +70,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                     }
                     if (runResponse.Response.StatusCode is System.Net.HttpStatusCode.OK)
                     {
-                        string msg = $"Period end archive activity started with RunId: {runResponse.Body.RunId} status: {runResponse.Response.StatusCode}";
-                        _logger.LogInformation(msg);
+                        string msglog = $"Period end archive activity started with RunId: {runResponse.Body.RunId} status: {runResponse.Response.StatusCode}";
+                        _logger.LogInformation(msglog);
                     }
 
                     await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation

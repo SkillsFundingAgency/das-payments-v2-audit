@@ -4,7 +4,6 @@
     {
         public bool IsEncrypted { get; set; }
         public Values Values { get; set; }
-        public ConnectionStrings ConnectionStrings { get; set; }
     }
 
     public class Values
@@ -23,7 +22,4 @@
         public string AuthorityUri { get; set; }
         public string ManagementUri { get; set; }
     }
-
-    public class ConnectionStrings
-    { }
 }

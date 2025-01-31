@@ -18,7 +18,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
         }
 
         [Function(nameof(ArchiveFailActivity))]
-        public async Task StartArchiveFailActivity([ActivityTrigger] PeriodEndArchiveActivityResponse PeriodEndArchiveActivityResponse
+        public async Task StartArchiveFailActivity([ActivityTrigger] PeriodEndArchiveActivityResponse periodEndArchiveActivityResponse
             , FunctionContext executionContext
             , [DurableClient] DurableTaskClient client)
         {
@@ -27,7 +27,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
             _logger = executionContext.GetLogger<ArchiveFailActivity>();
             try
             {
-                _logger.LogInformation($"Starting {nameof(ArchiveFailActivity)} for OrchestrationInstanceId: {PeriodEndArchiveActivityResponse.InstanceId}");
+                string msg = $"Starting {nameof(ArchiveFailActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}";
+                _logger.LogInformation(msg);
 
                 await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
                 {
@@ -36,12 +37,14 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                     Status = "Failed"
                 }, StatusHelper.EntityState.add);
 
-                _logger.LogError($"JobId: {currentJob.JobId}. ADF InstanceId: {currentJob.InstanceId} PeriodEndArchiveOrchestrator failed");
+                string errorMsg = $"JobId: {currentJob.JobId}. ADF InstanceId: {currentJob.InstanceId} PeriodEndArchiveOrchestrator failed";
+                _logger.LogError(errorMsg);
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error while executing {nameof(ArchiveFailActivity)} function with InstanceId : {PeriodEndArchiveActivityResponse.InstanceId}", ex.Message);
+                string errorMsg = $"Error while executing {nameof(ArchiveFailActivity)} function with InstanceId : {periodEndArchiveActivityResponse.InstanceId}.";
+                _logger.LogError(ex, errorMsg, ex.Message);
 
                 await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
                 {
