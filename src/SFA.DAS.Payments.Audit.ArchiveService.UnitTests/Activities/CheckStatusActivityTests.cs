@@ -25,8 +25,6 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Activities
         private Mock<IServiceProvider> _serviceProvider;
         private Mock<IPipelineRunsOperations> _mockPipelineRunsOperations;
 
-        private string InstanceId = "InstanceId";
-
         [SetUp]
         public void SetUp()
         {
@@ -46,7 +44,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Activities
                 PipeLine = "PipeLine"
             });
 
-            _activity = new CheckStatusActivity(_mockDataFactoryHelper.Object, _mockAppSettingsOptions.Object, _mockEntityHelper.Object);
+            _activity = new CheckStatusActivity(_mockDataFactoryHelper.Object, _mockAppSettingsOptions.Object, _mockEntityHelper.Object, _mockLogger.Object);
         }
 
         [Test]

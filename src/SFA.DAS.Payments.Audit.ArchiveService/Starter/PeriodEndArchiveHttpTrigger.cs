@@ -36,15 +36,15 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
             {
                 if (req.Method == "POST")
                 {
-                    RecordPeriodEndFcsHandOverCompleteJob periodEndFcsHandOverJob = JsonSerializer.Deserialize<RecordPeriodEndFcsHandOverCompleteJob>
+                    var periodEndFcsHandOverJob = JsonSerializer.Deserialize<RecordPeriodEndFcsHandOverCompleteJob>
                         (await req.ReadAsStringAsync());
 
                     if (periodEndFcsHandOverJob == null)
                     {
                         string error = "Request payload is null";
-                        HttpResponseData badRequestResponse = await BuildErrorResponse(req, error);
+
                         _logger.LogError(error);
-                        return badRequestResponse;
+                        return await BuildErrorResponse(req, error);
                     }
 
                     if (periodEndFcsHandOverJob.CollectionPeriod is 0 || periodEndFcsHandOverJob.CollectionYear is 0)
@@ -52,8 +52,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
                         string error = $"Error in {nameof(PeriodEndArchiveHttpTrigger)}. CollectionPeriod or CollectionYear is invalid. CollectionPeriod: {periodEndFcsHandOverJob.CollectionPeriod}. CollectionYear: {periodEndFcsHandOverJob.CollectionYear}";
                         _logger.LogError(error);
 
-                        HttpResponseData badRequestResponse = await BuildErrorResponse(req, error);
-                        return badRequestResponse;
+                        return await BuildErrorResponse(req, error);
                     }
 
                     await _entityHelper.ClearCurrentStatus(client, StatusHelper.EntityState.add);
@@ -74,8 +73,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
                     {
                         string error = $"Method not supported in: {nameof(PeriodEndArchiveHttpTrigger)} jobId is not been passed with the request.";
                         _logger.LogError(error);
-                        HttpResponseData badRequestResponse = await BuildErrorResponse(req, error);
-                        return badRequestResponse;
+
+                        return await BuildErrorResponse(req, error);
                     }
 
                     var stateResponse = await _entityHelper.GetCurrentJobs(client) ?? new ArchiveRunInformation();
@@ -86,15 +85,13 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
                         stateResponse.Status = "Queued";
                     }
 
-                    HttpResponseData response = await BuildOkResponse(req, stateResponse);
-                    return response;
+                    return await BuildOkResponse(req, stateResponse);
                 }
                 else
                 {
                     string error = $"Method not supported in: {nameof(PeriodEndArchiveHttpTrigger)} ";
                     _logger.LogError(error);
-                    HttpResponseData badRequestResponse = await BuildErrorResponse(req, error);
-                    return badRequestResponse;
+                    return await BuildErrorResponse(req, error);
                 }
 
             }
@@ -103,8 +100,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
                 string error = $"Error while executing {nameof(PeriodEndArchiveHttpTrigger)} ";
                 _logger.LogError(ex, error, ex.Message);
 
-                HttpResponseData badRequestResponse = await BuildErrorResponse(req, error);
-                return badRequestResponse;
+                return await BuildErrorResponse(req, error);
             }
         }
 

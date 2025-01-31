@@ -15,36 +15,40 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
         private readonly IDataFactoryHelper _dataFactoryHelper;
         private readonly IAppSettingsOptions _appSettingsOption;
         private readonly IEntityHelper _entityHelper;
+        private ILogger<CheckStatusActivity> _logger;
 
         public CheckStatusActivity(IDataFactoryHelper dataFactoryHelper
             , IAppSettingsOptions appSettingsOption
-            , IEntityHelper entityHelper)
+            , IEntityHelper entityHelper
+            , ILogger<CheckStatusActivity> logger)
         {
             _dataFactoryHelper = dataFactoryHelper;
             _appSettingsOption = appSettingsOption;
             _entityHelper = entityHelper;
+            _logger = logger;
         }
 
         [Function(nameof(CheckStatusActivity))]
-        public async Task<StatusHelper.ArchiveStatus> StartCheckStatusActivity([ActivityTrigger] PeriodEndArchiveActivityResponse PeriodEndArchiveActivityResponse
+        public async Task<StatusHelper.ArchiveStatus> StartCheckStatusActivity([ActivityTrigger] PeriodEndArchiveActivityResponse periodEndArchiveActivityResponse
             , FunctionContext executionContext
             , [DurableClient] DurableTaskClient client)
         {
             var currentJob = await _entityHelper.GetCurrentJobs(client);
 
-            ILogger logger = executionContext.GetLogger(nameof(CheckStatusActivity));
-            using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = PeriodEndArchiveActivityResponse.InstanceId }))
+            _logger = executionContext.GetLogger<CheckStatusActivity>();
+            using (_logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = periodEndArchiveActivityResponse.InstanceId }))
             {
                 try
                 {
-                    logger.LogInformation($"Starting {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {PeriodEndArchiveActivityResponse.InstanceId}");
+                    string msg = $"Starting {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}";
+                    _logger.LogInformation(msg);
 
                     var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
 
                     var pipelineRun = await datafactoryClient.PipelineRuns.GetAsync(
                         _appSettingsOption.Values.ResourceGroup
                         , _appSettingsOption.Values.AzureDataFactoryName
-                        , PeriodEndArchiveActivityResponse.RunId);
+                        , periodEndArchiveActivityResponse.RunId);
 
 
                     if (pipelineRun.Status is "InProgress" or "Queued")
@@ -63,11 +67,11 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                     var queryResponse = await datafactoryClient.ActivityRuns.QueryByPipelineRunAsync(
                         _appSettingsOption.Values.ResourceGroup
                         , _appSettingsOption.Values.AzureDataFactoryName
-                        , PeriodEndArchiveActivityResponse.RunId
+                        , periodEndArchiveActivityResponse.RunId
                         , filterParams);
 
                     if (queryResponse is not null)
-                        logger.LogInformation(queryResponse.Value.First().Output.ToString());
+                        _logger.LogInformation(queryResponse.Value.First().Output.ToString());
 
                     if (pipelineRun.Status is not "Succeeded")
                     {
@@ -78,7 +82,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                             Status = pipelineRun.Status
                         }, StatusHelper.EntityState.add);
 
-                        logger.LogError($"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {PeriodEndArchiveActivityResponse.InstanceId}. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {PeriodEndArchiveActivityResponse.InstanceId}");
+                        string errorMsg = $"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {periodEndArchiveActivityResponse.InstanceId}";
+                        _logger.LogError(errorMsg);
                         return StatusHelper.ArchiveStatus.Failed;
                     }
 
@@ -100,7 +105,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                         Status = "Failed"
                     }, StatusHelper.EntityState.add);
 
-                    logger.LogError(ex, $"Error while executing {nameof(CheckStatusActivity)} function with InstanceId : {PeriodEndArchiveActivityResponse.InstanceId}", ex.Message);
+                    string errorMsg = $"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Error message: {ex.Message}.";
+                    _logger.LogError(ex, errorMsg, ex.Message);
                     return StatusHelper.ArchiveStatus.Failed;
                 }
             }

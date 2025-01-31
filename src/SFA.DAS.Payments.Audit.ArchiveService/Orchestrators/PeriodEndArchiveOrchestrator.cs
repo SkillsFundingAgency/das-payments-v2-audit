@@ -21,14 +21,16 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Orchestrators
         [Function(nameof(PeriodEndArchiveOrchestrator))]
         public async Task RunOrchestrator([OrchestrationTrigger] TaskOrchestrationContext context)
         {
-            PeriodEndArchiveActivityResponse periodEndArchiveActivityResponse = new();
+            var periodEndArchiveActivityResponse = new PeriodEndArchiveActivityResponse();
             ILogger logger = context.CreateReplaySafeLogger(nameof(PeriodEndArchiveOrchestrator));
             try
             {
                 using (logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = context.InstanceId }))
                 {
-                    RecordPeriodEndFcsHandOverCompleteJob periodEndFcsHandOverJob = context.GetInput<RecordPeriodEndFcsHandOverCompleteJob>();
-                    logger.LogInformation($"Starting Period End Archive Orchestrator for OrchestrationInstanceId: {context.InstanceId}");
+                    var periodEndFcsHandOverJob = context.GetInput<RecordPeriodEndFcsHandOverCompleteJob>();
+
+                    string msg = $"Starting Period End Archive Orchestrator for OrchestrationInstanceId: {context.InstanceId}";
+                    logger.LogInformation(msg);
 
                     periodEndArchiveActivityResponse = await context.CallActivityAsync<PeriodEndArchiveActivityResponse>(nameof(PeriodEndArchiveActivity)
                         , periodEndFcsHandOverJob);
@@ -53,7 +55,9 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Orchestrators
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Error while executing {nameof(PeriodEndArchiveOrchestrator)} function with InstanceId : {context.InstanceId}", ex.Message);
+                string errorMsg = $"Error while executing {nameof(PeriodEndArchiveOrchestrator)} function with InstanceId : {context.InstanceId}";
+                logger.LogError(ex, errorMsg, ex.Message);
+
                 await context.CallActivityAsync(nameof(ArchiveFailActivity), periodEndArchiveActivityResponse);
             }
         }
