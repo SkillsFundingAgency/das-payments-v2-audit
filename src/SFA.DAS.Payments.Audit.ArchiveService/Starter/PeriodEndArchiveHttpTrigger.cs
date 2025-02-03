@@ -42,16 +42,12 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
                     if (periodEndFcsHandOverJob == null)
                     {
                         string error = "Request payload is null";
-
-                        _logger.LogError(error);
                         return await BuildErrorResponse(req, error);
                     }
 
                     if (periodEndFcsHandOverJob.CollectionPeriod is 0 || periodEndFcsHandOverJob.CollectionYear is 0)
                     {
                         string error = $"Error in {nameof(PeriodEndArchiveHttpTrigger)}. CollectionPeriod or CollectionYear is invalid. CollectionPeriod: {periodEndFcsHandOverJob.CollectionPeriod}. CollectionYear: {periodEndFcsHandOverJob.CollectionYear}";
-                        _logger.LogError(error);
-
                         return await BuildErrorResponse(req, error);
                     }
 
@@ -72,8 +68,6 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
                     if (jobId is null)
                     {
                         string error = $"Method not supported in: {nameof(PeriodEndArchiveHttpTrigger)} jobId is not been passed with the request.";
-                        _logger.LogError(error);
-
                         return await BuildErrorResponse(req, error);
                     }
 
@@ -90,7 +84,6 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
                 else
                 {
                     string error = $"Method not supported in: {nameof(PeriodEndArchiveHttpTrigger)} ";
-                    _logger.LogError(error);
                     return await BuildErrorResponse(req, error);
                 }
 
@@ -98,20 +91,23 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Starter
             catch (Exception ex)
             {
                 string error = $"Error while executing {nameof(PeriodEndArchiveHttpTrigger)} ";
-                _logger.LogError(ex, error, ex.Message);
-
-                return await BuildErrorResponse(req, error);
+                return await BuildErrorResponse(req, error, ex);
             }
         }
 
-        private static async Task<HttpResponseData> BuildErrorResponse(HttpRequestData req, string errorMessage)
+        private async Task<HttpResponseData> BuildErrorResponse(HttpRequestData req, string errorMessage, Exception exception = null)
         {
+            if (exception != null)
+                _logger.LogError(exception, errorMessage);
+            else
+                _logger.LogError(errorMessage);
+
             var badRequestResponse = req.CreateResponse(System.Net.HttpStatusCode.BadRequest);
             await badRequestResponse.WriteStringAsync(errorMessage);
             return badRequestResponse;
         }
 
-        private static async Task<HttpResponseData> BuildOkResponse(HttpRequestData req, ArchiveRunInformation stateResponse)
+        private async Task<HttpResponseData> BuildOkResponse(HttpRequestData req, ArchiveRunInformation stateResponse)
         {
             string responseString = JsonSerializer.Serialize(stateResponse);
             var response = req.CreateResponse(System.Net.HttpStatusCode.OK);

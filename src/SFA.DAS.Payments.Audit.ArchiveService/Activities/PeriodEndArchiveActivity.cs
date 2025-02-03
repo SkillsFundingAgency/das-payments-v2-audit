@@ -39,8 +39,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
             {
                 try
                 {
-                    string msg = $"Starting Period End Archive Activity for OrchestrationInstanceId: {InstanceId}";
-                    _logger.LogInformation(msg);
+                    _logger.LogInformation($"Starting Period End Archive Activity for OrchestrationInstanceId: {InstanceId}");
 
                     var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
 
@@ -57,21 +56,18 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 
                     if (runResponse == null)
                     {
-                        string errorMsg = $"Error in {nameof(StartPeriodEndArchiveActivity)}. RunResponse is null.";
-                        _logger.LogError(errorMsg);
+                        _logger.LogError($"Error in {nameof(StartPeriodEndArchiveActivity)}. RunResponse is null.");
                         return null;
                     }
 
                     if (runResponse.Response.StatusCode is not System.Net.HttpStatusCode.OK)
                     {
-                        string errorMsg = $"Error in {nameof(StartPeriodEndArchiveActivity)}. Error message: {runResponse.Response.Content}.";
-                        _logger.LogError(errorMsg);
+                        _logger.LogError($"Error in {nameof(StartPeriodEndArchiveActivity)}. Error message: {runResponse.Response.Content}.");
                         return null;
                     }
                     if (runResponse.Response.StatusCode is System.Net.HttpStatusCode.OK)
                     {
-                        string msglog = $"Period end archive activity started with RunId: {runResponse.Body.RunId} status: {runResponse.Response.StatusCode}";
-                        _logger.LogInformation(msglog);
+                        _logger.LogInformation($"Period end archive activity started with RunId: {runResponse.Body.RunId} status: {runResponse.Response.StatusCode}");
                     }
 
                     await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
@@ -90,7 +86,6 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                 }
                 catch (Exception ex)
                 {
-                    string errorMsg = $"Error in {nameof(StartPeriodEndArchiveActivity)}. Error message: {ex.Message}.";
                     await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
                     {
                         JobId = periodEndFcsHandOverJob.JobId.ToString(),
@@ -98,7 +93,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                         Status = "Failed"
                     }, StatusHelper.EntityState.add);
 
-                    _logger.LogError(ex, errorMsg, ex.Message);
+                    _logger.LogError(ex, $"Error in {nameof(StartPeriodEndArchiveActivity)}. Error message: {ex.Message}.", ex.Message);
                     return null;
                 }
             }

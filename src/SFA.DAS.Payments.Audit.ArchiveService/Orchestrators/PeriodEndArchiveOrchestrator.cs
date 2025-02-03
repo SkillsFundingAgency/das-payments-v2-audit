@@ -29,8 +29,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Orchestrators
                 {
                     var periodEndFcsHandOverJob = context.GetInput<RecordPeriodEndFcsHandOverCompleteJob>();
 
-                    string msg = $"Starting Period End Archive Orchestrator for OrchestrationInstanceId: {context.InstanceId}";
-                    logger.LogInformation(msg);
+                    logger.LogInformation($"Starting Period End Archive Orchestrator for OrchestrationInstanceId: {context.InstanceId}");
 
                     periodEndArchiveActivityResponse = await context.CallActivityAsync<PeriodEndArchiveActivityResponse>(nameof(PeriodEndArchiveActivity)
                         , periodEndFcsHandOverJob);
@@ -55,8 +54,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Orchestrators
             }
             catch (Exception ex)
             {
-                string errorMsg = $"Error while executing {nameof(PeriodEndArchiveOrchestrator)} function with InstanceId : {context.InstanceId}";
-                logger.LogError(ex, errorMsg, ex.Message);
+                logger.LogError(ex, $"Error while executing {nameof(PeriodEndArchiveOrchestrator)} function with InstanceId : {context.InstanceId}", ex.Message);
 
                 await context.CallActivityAsync(nameof(ArchiveFailActivity), periodEndArchiveActivityResponse);
             }

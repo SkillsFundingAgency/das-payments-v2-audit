@@ -40,8 +40,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
             {
                 try
                 {
-                    string msg = $"Starting {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}";
-                    _logger.LogInformation(msg);
+                    _logger.LogInformation($"Starting {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}");
 
                     var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
 
@@ -82,8 +81,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                             Status = pipelineRun.Status
                         }, StatusHelper.EntityState.add);
 
-                        string errorMsg = $"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {periodEndArchiveActivityResponse.InstanceId}";
-                        _logger.LogError(errorMsg);
+                        _logger.LogError($"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {periodEndArchiveActivityResponse.InstanceId}");
                         return StatusHelper.ArchiveStatus.Failed;
                     }
 
@@ -105,8 +103,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                         Status = "Failed"
                     }, StatusHelper.EntityState.add);
 
-                    string errorMsg = $"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Error message: {ex.Message}.";
-                    _logger.LogError(ex, errorMsg, ex.Message);
+                    _logger.LogError(ex, $"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Error message: {ex.Message}.", ex.Message);
                     return StatusHelper.ArchiveStatus.Failed;
                 }
             }

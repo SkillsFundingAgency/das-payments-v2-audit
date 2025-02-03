@@ -27,8 +27,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
             _logger = executionContext.GetLogger<ArchiveFailActivity>();
             try
             {
-                string msg = $"Starting {nameof(ArchiveFailActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}";
-                _logger.LogInformation(msg);
+                _logger.LogInformation($"Starting {nameof(ArchiveFailActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}");
 
                 await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
                 {
@@ -37,14 +36,12 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                     Status = "Failed"
                 }, StatusHelper.EntityState.add);
 
-                string errorMsg = $"JobId: {currentJob.JobId}. ADF InstanceId: {currentJob.InstanceId} PeriodEndArchiveOrchestrator failed";
-                _logger.LogError(errorMsg);
+                _logger.LogError($"JobId: {currentJob.JobId}. ADF InstanceId: {currentJob.InstanceId} PeriodEndArchiveOrchestrator failed");
 
             }
             catch (Exception ex)
             {
-                string errorMsg = $"Error while executing {nameof(ArchiveFailActivity)} function with InstanceId : {periodEndArchiveActivityResponse.InstanceId}.";
-                _logger.LogError(ex, errorMsg, ex.Message);
+                _logger.LogError(ex, $"Error while executing {nameof(ArchiveFailActivity)} function with InstanceId : {periodEndArchiveActivityResponse.InstanceId}.", ex.Message);
 
                 await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
                 {
