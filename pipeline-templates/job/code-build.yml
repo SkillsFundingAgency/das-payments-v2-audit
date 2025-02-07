@@ -70,6 +70,27 @@ jobs:
       createLogFile: true
       continueOnError: true
 
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
+    inputs:
+      projects: src/SFA.DAS.Payments.Audit.ArchiveService/SFA.DAS.Payments.Audit.ArchiveService.csproj
+      arguments: '--configuration $(BuildConfiguration)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet publish'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: src/SFA.DAS.Payments.Audit.ArchiveService/SFA.DAS.Payments.Audit.ArchiveService.csproj
+      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\Audit-ArchiveService'
+      modifyOutputPath: false
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Pipeline Artifact'
+    inputs:
+      targetPath: '$(build.artifactstagingdirectory)\Audit-ArchiveService'
+      artifact: AuditArchiveFunctionApp
+
   - task: DeleteFiles@1
     displayName: 'Delete Symbols files from Artifact Folder '
     inputs:
