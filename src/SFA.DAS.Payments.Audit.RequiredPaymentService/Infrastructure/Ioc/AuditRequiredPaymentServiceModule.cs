@@ -7,8 +7,10 @@ using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.RequiredPayment;
 using SFA.DAS.Payments.Audit.RequiredPaymentService.Handlers;
 using SFA.DAS.Payments.Core.Configuration;
+using SFA.DAS.Payments.DataLocks.Messages.Events;
 using SFA.DAS.Payments.Messaging.Serialization;
 using SFA.DAS.Payments.Model.Core.Audit;
+using SFA.DAS.Payments.RequiredPayments.Messages.Events;
 using SFA.DAS.Payments.ServiceFabric.Core;
 
 namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Infrastructure.Ioc
@@ -39,6 +41,10 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Infrastructure.Ioc
             builder.RegisterType<RequiredPaymentEventModelHandler>()
                 .As<IHandleMessageBatches<RequiredPaymentEventModel>>()
                 .InstancePerLifetimeScope();
+
+            builder.RegisterType<PeriodisedRequiredPaymentEventHandler>()
+           .As<IHandleMessageBatches<PeriodisedRequiredPaymentEvent>>()
+           .InstancePerLifetimeScope();
 
             builder.Register(c =>
                 {
