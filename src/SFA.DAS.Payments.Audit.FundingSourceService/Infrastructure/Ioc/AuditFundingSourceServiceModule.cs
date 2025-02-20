@@ -9,6 +9,7 @@ using SFA.DAS.Payments.Audit.FundingSourceService.Handlers;
 using SFA.DAS.Payments.Core.Configuration;
 using SFA.DAS.Payments.Messaging.Serialization;
 using SFA.DAS.Payments.Model.Core.Audit;
+using SFA.DAS.Payments.RequiredPayments.Messages.Events;
 using SFA.DAS.Payments.ServiceFabric.Core;
 
 namespace SFA.DAS.Payments.Audit.FundingSourceService.Infrastructure.Ioc
@@ -39,6 +40,10 @@ namespace SFA.DAS.Payments.Audit.FundingSourceService.Infrastructure.Ioc
             builder.RegisterType<FundingSourceEventModelHandler>()
                 .As<IHandleMessageBatches<FundingSourceEventModel>>()
                 .InstancePerLifetimeScope();
+
+            builder.RegisterType<FundingSourcePaymentEventHandler>()
+              .As<IHandleMessageBatches<PeriodisedRequiredPaymentEvent>>()
+              .InstancePerLifetimeScope();
 
             builder.Register(c =>
                 {

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.RequiredPayments.Messages.Events;
 
-namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Handlers
+namespace SFA.DAS.Payments.Audit.FundingSourceService.Handlers
 {
-    public class PeriodisedRequiredPaymentEventHandler : IHandleMessageBatches<PeriodisedRequiredPaymentEvent>
+    public class FundingSourcePaymentEventHandler : IHandleMessageBatches<PeriodisedRequiredPaymentEvent>
     {
         public async Task Handle(IList<PeriodisedRequiredPaymentEvent> messages, CancellationToken cancellationToken)
         {

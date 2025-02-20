@@ -43,8 +43,8 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Infrastructure.Ioc
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<PeriodisedRequiredPaymentEventHandler>()
-           .As<IHandleMessageBatches<PeriodisedRequiredPaymentEvent>>()
-           .InstancePerLifetimeScope();
+               .As<IHandleMessageBatches<PeriodisedRequiredPaymentEvent>>()
+               .InstancePerLifetimeScope();
 
             builder.Register(c =>
                 {
