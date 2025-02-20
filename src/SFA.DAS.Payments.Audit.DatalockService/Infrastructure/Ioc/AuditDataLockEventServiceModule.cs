@@ -7,6 +7,7 @@ using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.DataLock;
 using SFA.DAS.Payments.Audit.DataLockService.Handlers;
 using SFA.DAS.Payments.Core.Configuration;
+using SFA.DAS.Payments.DataLocks.Messages.Events;
 using SFA.DAS.Payments.Messaging.Serialization;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ServiceFabric.Core;
@@ -27,7 +28,7 @@ namespace SFA.DAS.Payments.Audit.DataLockService.Infrastructure.Ioc
                         c.Resolve<IPaymentLogger>(),
                         c.Resolve<IContainerScopeFactory>(),
                         c.Resolve<ITelemetry>(),
-                        c.Resolve<IMessageDeserializer>(), 
+                        c.Resolve<IMessageDeserializer>(),
                         c.Resolve<IApplicationMessageModifier>());
                 })
                 .As<IStatelessServiceBusBatchCommunicationListener>()
@@ -39,6 +40,10 @@ namespace SFA.DAS.Payments.Audit.DataLockService.Infrastructure.Ioc
             builder.RegisterType<DataLockEventModelHandler>()
                 .As<IHandleMessageBatches<DataLockEventModel>>()
                 .InstancePerLifetimeScope();
+
+            builder.RegisterType<DataLockEventHandler>()
+            .As<IHandleMessageBatches<DataLockEvent>>()
+            .InstancePerLifetimeScope();
 
             builder.Register(c =>
                 {
