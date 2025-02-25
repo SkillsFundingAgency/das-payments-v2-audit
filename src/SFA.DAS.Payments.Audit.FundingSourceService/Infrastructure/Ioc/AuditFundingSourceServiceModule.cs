@@ -4,17 +4,20 @@ using SFA.DAS.Payments.Application.Infrastructure.Ioc;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
 using SFA.DAS.Payments.Application.Messaging;
+using SFA.DAS.Payments.Audit.Application.Infrastructure.Messaging;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.FundingSource;
 using SFA.DAS.Payments.Audit.FundingSourceService.Handlers;
 using SFA.DAS.Payments.Core.Configuration;
+using SFA.DAS.Payments.FundingSource.Messages.Events;
 using SFA.DAS.Payments.Messaging.Serialization;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.RequiredPayments.Messages.Events;
 using SFA.DAS.Payments.ServiceFabric.Core;
+using System.Threading;
 
 namespace SFA.DAS.Payments.Audit.FundingSourceService.Infrastructure.Ioc
 {
-    public class AuditFundingSourceServiceModule: Module
+    public class AuditFundingSourceServiceModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -41,9 +44,18 @@ namespace SFA.DAS.Payments.Audit.FundingSourceService.Infrastructure.Ioc
                 .As<IHandleMessageBatches<FundingSourceEventModel>>()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<FundingSourcePaymentEventHandler>()
-              .As<IHandleMessageBatches<PeriodisedRequiredPaymentEvent>>()
-              .InstancePerLifetimeScope();
+            //builder.RegisterType<FundingSourcePaymentEventHandler>()
+            //  .As<IHandleMessageBatches<FundingSourcePaymentEvent>>()
+            //  .InstancePerLifetimeScope();
+
+            builder.Register(c =>
+            {
+                var appConfig = c.Resolve<IApplicationConfiguration>();
+                return new ServiceBusManagement(appConfig.ServiceBusConnectionString, appConfig.EndpointName, c.Resolve<IPaymentLogger>());
+            })
+           .As<IServiceBusManagement>()
+           .SingleInstance()
+           .OnActivated(e => e.Instance.EnsureSubscriptionRule<FundingSourcePaymentEvent>(CancellationToken.None).Wait());
 
             builder.Register(c =>
                 {

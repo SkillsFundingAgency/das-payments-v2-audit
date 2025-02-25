@@ -4,6 +4,7 @@ using SFA.DAS.Payments.Application.Infrastructure.Ioc;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
 using SFA.DAS.Payments.Application.Messaging;
+using SFA.DAS.Payments.Audit.Application.Infrastructure.Messaging;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.RequiredPayment;
 using SFA.DAS.Payments.Audit.RequiredPaymentService.Handlers;
 using SFA.DAS.Payments.Core.Configuration;
@@ -12,6 +13,7 @@ using SFA.DAS.Payments.Messaging.Serialization;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.RequiredPayments.Messages.Events;
 using SFA.DAS.Payments.ServiceFabric.Core;
+using System.Threading;
 
 namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Infrastructure.Ioc
 {
@@ -42,9 +44,9 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Infrastructure.Ioc
                 .As<IHandleMessageBatches<RequiredPaymentEventModel>>()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<PeriodisedRequiredPaymentEventHandler>()
-               .As<IHandleMessageBatches<PeriodisedRequiredPaymentEvent>>()
-               .InstancePerLifetimeScope();
+            //builder.RegisterType<PeriodisedRequiredPaymentEventHandler>()
+            //   .As<IHandleMessageBatches<PeriodisedRequiredPaymentEvent>>()
+            //   .InstancePerLifetimeScope();
 
             builder.Register(c =>
                 {
@@ -52,6 +54,15 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Infrastructure.Ioc
                     return new EndpointConfiguration(appConfig.EndpointName);
                 }).As<EndpointConfiguration>()
                 .SingleInstance();
+
+            builder.Register(c =>
+            {
+                var appConfig = c.Resolve<IApplicationConfiguration>();
+                return new ServiceBusManagement(appConfig.ServiceBusConnectionString, appConfig.EndpointName, c.Resolve<IPaymentLogger>());
+            })
+           .As<IServiceBusManagement>()
+           .SingleInstance()
+           .OnActivated(e => e.Instance.EnsureSubscriptionRule<PeriodisedRequiredPaymentEvent>(CancellationToken.None).Wait());
         }
     }
 }

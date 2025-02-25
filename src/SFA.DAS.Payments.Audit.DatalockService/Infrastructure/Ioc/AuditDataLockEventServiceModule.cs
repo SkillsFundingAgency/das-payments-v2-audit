@@ -4,6 +4,7 @@ using SFA.DAS.Payments.Application.Infrastructure.Ioc;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
 using SFA.DAS.Payments.Application.Messaging;
+using SFA.DAS.Payments.Audit.Application.Infrastructure.Messaging;
 using SFA.DAS.Payments.Audit.Application.PaymentsEventProcessing.DataLock;
 using SFA.DAS.Payments.Audit.DataLockService.Handlers;
 using SFA.DAS.Payments.Core.Configuration;
@@ -11,6 +12,7 @@ using SFA.DAS.Payments.DataLocks.Messages.Events;
 using SFA.DAS.Payments.Messaging.Serialization;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ServiceFabric.Core;
+using System.Threading;
 
 namespace SFA.DAS.Payments.Audit.DataLockService.Infrastructure.Ioc
 {
@@ -41,9 +43,9 @@ namespace SFA.DAS.Payments.Audit.DataLockService.Infrastructure.Ioc
                 .As<IHandleMessageBatches<DataLockEventModel>>()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<DataLockEventHandler>()
-            .As<IHandleMessageBatches<DataLockEvent>>()
-            .InstancePerLifetimeScope();
+            //builder.RegisterType<DataLockEventHandler>()
+            //.As<IHandleMessageBatches<DataLockEvent>>()
+            //.InstancePerLifetimeScope();
 
             builder.Register(c =>
                 {
@@ -51,6 +53,16 @@ namespace SFA.DAS.Payments.Audit.DataLockService.Infrastructure.Ioc
                     return new EndpointConfiguration(appConfig.EndpointName);
                 }).As<EndpointConfiguration>()
                 .SingleInstance();
+
+
+            builder.Register(c =>
+            {
+                var appConfig = c.Resolve<IApplicationConfiguration>();
+                return new ServiceBusManagement(appConfig.ServiceBusConnectionString, appConfig.EndpointName, c.Resolve<IPaymentLogger>());
+            })
+            .As<IServiceBusManagement>()
+            .SingleInstance()
+            .OnActivated(e => e.Instance.EnsureSubscriptionRule<DataLockEvent>(CancellationToken.None).Wait());
         }
     }
 }
