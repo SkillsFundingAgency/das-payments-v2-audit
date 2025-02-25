@@ -52,8 +52,6 @@ namespace SFA.DAS.Payments.Audit.DataLockService
             var tasks = new List<Task>
             {
                 serviceBusManagement.EnsureSubscriptionRule<DataLockEvent>(cancellationToken),
-                serviceBusManagement.EnsureSubscriptionRule<PeriodisedRequiredPaymentEvent>(cancellationToken),
-                serviceBusManagement.EnsureSubscriptionRule<FundingSourcePaymentEvent>(cancellationToken)
             };
             return Task.WhenAll(tasks);
         }

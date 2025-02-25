@@ -9,6 +9,10 @@ using Microsoft.ServiceFabric.Services.Runtime;
 using NServiceBus;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Messaging;
+using SFA.DAS.Payments.Audit.Application.Infrastructure.Messaging;
+using SFA.DAS.Payments.DataLocks.Messages.Events;
+using SFA.DAS.Payments.FundingSource.Messages.Events;
+using SFA.DAS.Payments.RequiredPayments.Messages.Events;
 using SFA.DAS.Payments.ServiceFabric.Core;
 
 namespace SFA.DAS.Payments.Audit.RequiredPaymentService
@@ -38,7 +42,16 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService
 
         protected override Task RunAsync(CancellationToken cancellationToken)
         {
-            return RunSendOnlyEndpoint();
+            return Task.WhenAll(RunSendOnlyEndpoint(), EnsureSubscriptionRule(cancellationToken));
+        }
+        private Task EnsureSubscriptionRule(CancellationToken cancellationToken)
+        {
+            var serviceBusManagement = lifetimeScope.Resolve<IServiceBusManagement>();
+            var tasks = new List<Task>
+            {
+                serviceBusManagement.EnsureSubscriptionRule<PeriodisedRequiredPaymentEvent>(cancellationToken),
+            };
+            return Task.WhenAll(tasks);
         }
 
         private async Task RunSendOnlyEndpoint()
