@@ -49,15 +49,6 @@ namespace SFA.DAS.Payments.Audit.FundingSourceService.Infrastructure.Ioc
             //  .InstancePerLifetimeScope();
 
             builder.Register(c =>
-            {
-                var appConfig = c.Resolve<IApplicationConfiguration>();
-                return new ServiceBusManagement(appConfig.ServiceBusConnectionString, appConfig.EndpointName, c.Resolve<IPaymentLogger>());
-            })
-           .As<IServiceBusManagement>()
-           .SingleInstance()
-           .OnActivated(e => e.Instance.EnsureSubscriptionRule<FundingSourcePaymentEvent>(CancellationToken.None).Wait());
-
-            builder.Register(c =>
                 {
                     var appConfig = c.Resolve<IApplicationConfiguration>();
                     return new EndpointConfiguration(appConfig.EndpointName);

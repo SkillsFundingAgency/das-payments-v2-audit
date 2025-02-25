@@ -55,14 +55,6 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Infrastructure.Ioc
                 }).As<EndpointConfiguration>()
                 .SingleInstance();
 
-            builder.Register(c =>
-            {
-                var appConfig = c.Resolve<IApplicationConfiguration>();
-                return new ServiceBusManagement(appConfig.ServiceBusConnectionString, appConfig.EndpointName, c.Resolve<IPaymentLogger>());
-            })
-           .As<IServiceBusManagement>()
-           .SingleInstance()
-           .OnActivated(e => e.Instance.EnsureSubscriptionRule<PeriodisedRequiredPaymentEvent>(CancellationToken.None).Wait());
         }
     }
 }

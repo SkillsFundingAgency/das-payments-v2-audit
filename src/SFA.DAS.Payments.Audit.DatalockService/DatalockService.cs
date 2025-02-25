@@ -9,6 +9,8 @@ using Microsoft.ServiceFabric.Services.Runtime;
 using NServiceBus;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Messaging;
+using SFA.DAS.Payments.Audit.Application.Infrastructure.Messaging;
+using SFA.DAS.Payments.DataLocks.Messages.Events;
 using SFA.DAS.Payments.ServiceFabric.Core;
 
 namespace SFA.DAS.Payments.Audit.DataLockService
@@ -40,7 +42,12 @@ namespace SFA.DAS.Payments.Audit.DataLockService
 
         protected override Task RunAsync(CancellationToken cancellationToken)
         {
-            return Task.WhenAll(RunSendOnlyEndpoint());
+            return Task.WhenAll(RunSendOnlyEndpoint(), EnsureSubscriptionRule(cancellationToken));
+        }
+        private async Task EnsureSubscriptionRule(CancellationToken cancellationToken)
+        {
+            var serviceBusManagement = lifetimeScope.Resolve<IServiceBusManagement>();
+            await serviceBusManagement.EnsureSubscriptionRule<DataLockEvent>(cancellationToken);
         }
 
         private async Task RunSendOnlyEndpoint()
