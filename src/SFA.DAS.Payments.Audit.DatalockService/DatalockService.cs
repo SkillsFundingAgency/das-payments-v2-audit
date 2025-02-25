@@ -46,12 +46,16 @@ namespace SFA.DAS.Payments.Audit.DataLockService
         {
             return Task.WhenAll(RunSendOnlyEndpoint(), EnsureSubscriptionRule(cancellationToken));
         }
-        private async Task EnsureSubscriptionRule(CancellationToken cancellationToken)
+        private Task EnsureSubscriptionRule(CancellationToken cancellationToken)
         {
             var serviceBusManagement = lifetimeScope.Resolve<IServiceBusManagement>();
-            await serviceBusManagement.EnsureSubscriptionRule<DataLockEvent>(cancellationToken);
-            await serviceBusManagement.EnsureSubscriptionRule<PeriodisedRequiredPaymentEvent>(cancellationToken);
-            await serviceBusManagement.EnsureSubscriptionRule<FundingSourcePaymentEvent>(cancellationToken);
+            var tasks = new List<Task>
+            {
+                serviceBusManagement.EnsureSubscriptionRule<DataLockEvent>(cancellationToken),
+                serviceBusManagement.EnsureSubscriptionRule<PeriodisedRequiredPaymentEvent>(cancellationToken),
+                serviceBusManagement.EnsureSubscriptionRule<FundingSourcePaymentEvent>(cancellationToken)
+            };
+            return Task.WhenAll(tasks);
         }
 
         private async Task RunSendOnlyEndpoint()

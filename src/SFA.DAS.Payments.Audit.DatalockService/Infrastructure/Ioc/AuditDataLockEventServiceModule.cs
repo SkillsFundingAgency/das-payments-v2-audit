@@ -43,6 +43,16 @@ namespace SFA.DAS.Payments.Audit.DataLockService.Infrastructure.Ioc
                 .As<IHandleMessageBatches<DataLockEventModel>>()
                 .InstancePerLifetimeScope();
 
+            builder.Register(c =>
+            {
+                var appConfig = c.Resolve<IApplicationConfiguration>();
+                return new ServiceBusManagement(appConfig.ServiceBusConnectionString
+                    , appConfig.EndpointName
+                    , c.Resolve<IPaymentLogger>());
+            })
+            .As<IServiceBusManagement>()
+            .SingleInstance();
+
             //builder.RegisterType<DataLockEventHandler>()
             //.As<IHandleMessageBatches<DataLockEvent>>()
             //.InstancePerLifetimeScope();
