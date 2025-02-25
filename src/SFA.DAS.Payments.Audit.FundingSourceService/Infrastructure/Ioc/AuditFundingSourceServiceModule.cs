@@ -43,6 +43,16 @@ namespace SFA.DAS.Payments.Audit.FundingSourceService.Infrastructure.Ioc
             builder.RegisterType<FundingSourceEventModelHandler>()
                 .As<IHandleMessageBatches<FundingSourceEventModel>>()
                 .InstancePerLifetimeScope();
+            
+            builder.Register(c =>
+            {
+                var appConfig = c.Resolve<IApplicationConfiguration>();
+                return new ServiceBusManagement(appConfig.ServiceBusConnectionString
+                    , appConfig.EndpointName
+                    , c.Resolve<IPaymentLogger>());
+            })
+           .As<IServiceBusManagement>()
+           .SingleInstance();
 
             //builder.RegisterType<FundingSourcePaymentEventHandler>()
             //  .As<IHandleMessageBatches<FundingSourcePaymentEvent>>()
