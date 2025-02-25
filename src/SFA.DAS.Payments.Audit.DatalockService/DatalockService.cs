@@ -11,6 +11,8 @@ using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Audit.Application.Infrastructure.Messaging;
 using SFA.DAS.Payments.DataLocks.Messages.Events;
+using SFA.DAS.Payments.FundingSource.Messages.Events;
+using SFA.DAS.Payments.RequiredPayments.Messages.Events;
 using SFA.DAS.Payments.ServiceFabric.Core;
 
 namespace SFA.DAS.Payments.Audit.DataLockService
@@ -48,6 +50,8 @@ namespace SFA.DAS.Payments.Audit.DataLockService
         {
             var serviceBusManagement = lifetimeScope.Resolve<IServiceBusManagement>();
             await serviceBusManagement.EnsureSubscriptionRule<DataLockEvent>(cancellationToken);
+            await serviceBusManagement.EnsureSubscriptionRule<PeriodisedRequiredPaymentEvent>(cancellationToken);
+            await serviceBusManagement.EnsureSubscriptionRule<FundingSourcePaymentEvent>(cancellationToken);
         }
 
         private async Task RunSendOnlyEndpoint()
