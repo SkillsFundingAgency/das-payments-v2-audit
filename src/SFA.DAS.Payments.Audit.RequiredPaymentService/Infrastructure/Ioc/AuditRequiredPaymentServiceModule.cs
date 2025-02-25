@@ -54,10 +54,6 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Infrastructure.Ioc
            .As<IServiceBusManagement>()
            .SingleInstance();
 
-            //builder.RegisterType<PeriodisedRequiredPaymentEventHandler>()
-            //   .As<IHandleMessageBatches<PeriodisedRequiredPaymentEvent>>()
-            //   .InstancePerLifetimeScope();
-
             builder.Register(c =>
                 {
                     var appConfig = c.Resolve<IApplicationConfiguration>();
