@@ -44,16 +44,6 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService.Infrastructure.Ioc
                 .As<IHandleMessageBatches<RequiredPaymentEventModel>>()
                 .InstancePerLifetimeScope();
 
-           // builder.Register(c =>
-           // {
-           //     var appConfig = c.Resolve<IApplicationConfiguration>();
-           //     return new ServiceBusManagement(appConfig.ServiceBusConnectionString
-           //         , appConfig.EndpointName
-           //         , c.Resolve<IPaymentLogger>());
-           // })
-           //.As<IServiceBusManagement>()
-           //.SingleInstance();
-
             builder.Register(c =>
                 {
                     var appConfig = c.Resolve<IApplicationConfiguration>();
