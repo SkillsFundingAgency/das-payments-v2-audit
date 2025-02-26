@@ -50,11 +50,7 @@ namespace SFA.DAS.Payments.Audit.FundingSourceService
         private Task EnsureSubscriptionRule(CancellationToken cancellationToken)
         {
             var serviceBusManagement = lifetimeScope.Resolve<IServiceBusManagement>();
-            var tasks = new List<Task>
-            {
-                serviceBusManagement.EnsureSubscriptionRule<FundingSourcePaymentEvent>(cancellationToken)
-            };
-            return Task.WhenAll(tasks);
+            return serviceBusManagement.EnsureSubscriptionRule<FundingSourcePaymentEvent>(cancellationToken);
         }
 
         private async Task RunSendOnlyEndpoint()

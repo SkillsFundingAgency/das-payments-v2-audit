@@ -47,11 +47,7 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService
         private Task EnsureSubscriptionRule(CancellationToken cancellationToken)
         {
             var serviceBusManagement = lifetimeScope.Resolve<IServiceBusManagement>();
-            var tasks = new List<Task>
-            {
-                serviceBusManagement.EnsureSubscriptionRule<PeriodisedRequiredPaymentEvent>(cancellationToken),
-            };
-            return Task.WhenAll(tasks);
+            return serviceBusManagement.EnsureSubscriptionRule<PeriodisedRequiredPaymentEvent>(cancellationToken);
         }
 
         private async Task RunSendOnlyEndpoint()

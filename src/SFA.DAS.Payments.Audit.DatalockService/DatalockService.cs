@@ -49,11 +49,7 @@ namespace SFA.DAS.Payments.Audit.DataLockService
         private Task EnsureSubscriptionRule(CancellationToken cancellationToken)
         {
             var serviceBusManagement = lifetimeScope.Resolve<IServiceBusManagement>();
-            var tasks = new List<Task>
-            {
-                serviceBusManagement.EnsureSubscriptionRule<DataLockEvent>(cancellationToken),
-            };
-            return Task.WhenAll(tasks);
+            return serviceBusManagement.EnsureSubscriptionRule<DataLockEvent>(cancellationToken);
         }
 
         private async Task RunSendOnlyEndpoint()
