@@ -25,7 +25,7 @@
     <PackageReference Include="SFA.DAS.Payments.RequiredPayments.Model" Version="1.0.4-prerelease-1148" />
     <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.1.0-prerelease-7" />
     <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.1.0-prerelease-7" />
-    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.3-prerelease-5" />
+    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.4-prerelease-10" />
   </ItemGroup>
 
   <ItemGroup>
