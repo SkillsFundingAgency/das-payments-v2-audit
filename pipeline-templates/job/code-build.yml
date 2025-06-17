@@ -1,40 +1,148 @@
 parameters:
-  SolutionBaseName:
-  BuildConfiguration:
+  TargetProjects: 'src/**/*.csproj'
 
 jobs:
 - job: CodeBuild
   pool:
-    name: DAS - Continuous Integration Agents
-    workspace:
-      clean: all
+    name: SLD Build pool
   variables:
   - group: BUILD Management Resources
+  - name: SolutionBaseName
+    value: SFA.DAS.Payments.Audit
   steps:
-  - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
+  - template: /azure-pipelines-templates/build/step/gitversion.yml
 
-  - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
+  - task: UseDotNet@2
+    displayName: Use .NET 
+    inputs: 
+      packageType: 'sdk'
+      version: 6.x
+      
+
+  - task: NuGetCommand@2
+    displayName: Nuget Restore
+    inputs:
+      command: restore
+      projects: ${{ parameters.TargetProjects }}
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+      includeNuGetOrg: true
 
   - task: DotNetCoreCLI@2
-    displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}
+    displayName: Dotnet Restore
     inputs:
-      command: publish
-      publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.csproj
-      arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
-      modifyOutputPath: true
-      zipAfterPublish: true
+      command: restore
+      projects: ${{ parameters.TargetProjects }}
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+      includeNuGetOrg: true
+  
+  - task: MSBuild@1
+    displayName: 'Build solution'
+    inputs:
+      solution: '**/*.sln'
+      msbuildArchitecture: x64
+      configuration: '$(BuildConfiguration)'
+      msbuildArguments: '/p:version=$(Build.BuildNumber) /p:FileVersion=$(Build.BuildNumber)'
+      maximumCpuCount: true
+      logProjectEvents: true
+      createLogFile: true
+      continueOnError: true
+      clean: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build UnitTest Projects'
+    inputs:
+      command: build
+      projects: '**/*unittest*.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet test UnitTest Projects'
+    inputs:
+      command: test
+      projects: '**/*unittest*.csproj'
+      arguments: '--filter FullyQualifiedName~UnitTests'
+
+  - task: MSBuild@1
+    displayName: 'Build solution'
+    inputs:
+      solution: 'src/SFA.DAS.Payments.Audit.ServiceFabric/SFA.DAS.Payments.Audit.ServiceFabric.sfproj'
+      msbuildArchitecture: x64
+      configuration: '$(BuildConfiguration)'
+      msbuildArguments: '/p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /t:Package /p:PackageLocation="$(build.artifactstagingdirectory)\ApplicationPackage" /p:version=$(Build.BuildNumber) /p:FileVersion=$(Build.BuildNumber)'
+      maximumCpuCount: true
+      logProjectEvents: true
+      createLogFile: true
+      continueOnError: true
+
+  - task: DeleteFiles@1
+    displayName: 'Delete Symbols files from Artifact Folder '
+    inputs:
+      SourceFolder: '$(build.artifactstagingdirectory)/ApplicationPackage/'
+      Contents: '**/*ApplicationPackage*/*.pdb'
+      continueOnError: true
+
+  - task: ServiceFabricUpdateManifests@2
+    displayName: 'Update Service Fabric Manifests (Manifest versions)'
+    inputs:
+      applicationPackagePath: '$(build.artifactstagingdirectory)/ApplicationPackage'
+      versionBehavior: Replace
+      continueOnError: true
 
   - task: CopyFiles@2
-    displayName: Copy Files to $(build.artifactstagingdirectory)/publish
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
     inputs:
       Contents: |
-        azure/**
-      TargetFolder: $(build.artifactstagingdirectory)/publish
+        pipeline-templates/scripts/**    
+      TargetFolder: '$(build.artifactstagingdirectory)/publish'
       OverWrite: true
+      CleanTargetFolder: true
+      flattenFolders: true  
+      continueOnError: true
+
+  - task: CopyFiles@2 
+    displayName: 'Copy Nuget Files to: Artifact Nuget Directory'
+    inputs:
+     Contents: |
+       **\*.nupkg
+       !**\packages\**
+       !**\bin\x64\**
+     TargetFolder: '$(build.artifactstagingdirectory)/NugetPackages'
+     OverWrite: true
+     CleanTargetFolder: true
+     flattenFolders: true
+     continueOnError: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy ApplicationParameters Files to: Artifact ApplicationParameters Directory'
+    inputs:
+      Contents: 'src/SFA.DAS.Payments.Audit.ServiceFabric/ApplicationParameters/*.xml'
+      TargetFolder: '$(build.artifactstagingdirectory)/ApplicationParameters'
+      OverWrite: true
+      CleanTargetFolder: true
+      flattenFolders: true
+      continueOnError: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy PublishProfiles Files to: Artifact PublishProfiles Directory'
+    inputs:
+      Contents: 'src/SFA.DAS.Payments.Audit.ServiceFabric/PublishProfiles/*.xml'
+      TargetFolder: '$(build.artifactstagingdirectory)/PublishProfiles'
+      OverWrite: true
+      CleanTargetFolder: true
+      flattenFolders: true
+      continueOnError: true
 
   - task: PublishPipelineArtifact@1
-    displayName: Publish Build Artifact
+    displayName: 'Publish Pipeline Artifact - Audit'
     inputs:
-      targetPath: $(build.artifactstagingdirectory)/publish
-      artifactName: ${{ parameters.SolutionBaseName }}
+      targetPath: $(build.artifactstagingdirectory)
+      artifact: audit-drop
+      continueOnError: true
+
+  - template: /azure-pipelines-templates/build/step/nuget-pack.yml
+    parameters:
+      DotNetStandardPackagesToPack: |
+        src/SFA.DAS.Payments.Audit.Messages/SFA.DAS.Payments.Audit.Messages.csproj;
