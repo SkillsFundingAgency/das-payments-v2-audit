@@ -32,9 +32,9 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.RequiredPaymentEvents
                 .ForMember(dest => dest.Amount, opt => opt.MapFrom(source => source.AmountDue))
                 .ForMember(dest => dest.DeliveryPeriod, opt => opt.MapFrom(source => source.DeliveryPeriod))
                 .ForMember(dest => dest.AgreementId, opt => opt.Ignore())
-                .ForMember(dest => dest.StartDate, opt => opt.ResolveUsing(source => source.StartDate == DateTime.MinValue ? (DateTime?)SqlDateTime.MinValue : source.StartDate))
-                .ForMember(dest => dest.PlannedEndDate, opt => opt.ResolveUsing(source => source.PlannedEndDate == DateTime.MinValue ? (DateTime?)SqlDateTime.MinValue : source.PlannedEndDate))
-                .ForMember(dest => dest.ActualEndDate, opt => opt.ResolveUsing(source => source.ActualEndDate == DateTime.MinValue ? (DateTime?)SqlDateTime.MinValue : source.ActualEndDate))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(source => source.StartDate == DateTime.MinValue ? (DateTime?)SqlDateTime.MinValue : source.StartDate))
+                .ForMember(dest => dest.PlannedEndDate, opt => opt.MapFrom(source => source.PlannedEndDate == DateTime.MinValue ? (DateTime?)SqlDateTime.MinValue : source.PlannedEndDate))
+                .ForMember(dest => dest.ActualEndDate, opt => opt.MapFrom(source => source.ActualEndDate == DateTime.MinValue ? (DateTime?)SqlDateTime.MinValue : source.ActualEndDate))
                 .ForMember(dest => dest.CompletionStatus, opt => opt.MapFrom(source => source.CompletionStatus))
                 .ForMember(dest => dest.CompletionAmount, opt => opt.MapFrom(source => source.CompletionAmount))
                 .ForMember(dest => dest.InstalmentAmount, opt => opt.MapFrom(source => source.InstalmentAmount))
@@ -45,13 +45,13 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.RequiredPaymentEvents
                 .ForMember(dest => dest.ApprenticeshipEmployerType, opt => opt.MapFrom(source => source.ApprenticeshipEmployerType))
                 .ForMember(dest => dest.PriceEpisodeIdentifier, opt => opt.MapFrom(source => source.PriceEpisodeIdentifier ?? string.Empty))
                 .ForMember(dest => dest.EventType, opt => opt.MapFrom(src => src.GetType().Name))
-                .ForMember(dest => dest.ClawbackSourcePaymentEventId, opt => opt.ResolveUsing(source => source.ClawbackSourcePaymentEventId ?? Guid.Empty))
+                .ForMember(dest => dest.ClawbackSourcePaymentEventId, opt => opt.MapFrom(source => source.ClawbackSourcePaymentEventId ?? Guid.Empty))
                 ;
 
             CreateMap<CalculatedRequiredIncentiveAmount, RequiredPaymentEventModel>()
                   .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(source => (TransactionType)source.Type))
                   .ForMember(dest => dest.ContractType, opt => opt.MapFrom(source => source.ContractType))
-                  .ForMember(dest => dest.SfaContributionPercentage, opt => opt.UseValue(1M))
+                  .ForMember(dest => dest.SfaContributionPercentage, opt => opt.MapFrom(src => 1M))
                   ;
 
             CreateMap<CalculatedRequiredOnProgrammeAmount, RequiredPaymentEventModel>()
@@ -67,13 +67,13 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.RequiredPaymentEvents
                 ;
 
             CreateMap<CalculatedRequiredLevyAmount, RequiredPaymentEventModel>()
-                .ForMember(dest => dest.ContractType, opt => opt.UseValue(ContractType.Act1))
+                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1))
                 .ForMember(dest => dest.AgreementId, opt => opt.MapFrom(source => source.AgreementId))
                 .ForMember(dest => dest.AgeAtStartOfLearning, opt => opt.MapFrom(source => source.AgeAtStartOfLearning))
                 ;
 
             CreateMap<CompletionPaymentHeldBackEvent, RequiredPaymentEventModel>()
-                .ForMember(dest => dest.NonPaymentReason, opt => opt.UseValue(NonPaymentReason.InsufficientEmployerContribution))
+                .ForMember(dest => dest.NonPaymentReason, opt => opt.MapFrom(src => NonPaymentReason.InsufficientEmployerContribution))
                 ;
         }
     }

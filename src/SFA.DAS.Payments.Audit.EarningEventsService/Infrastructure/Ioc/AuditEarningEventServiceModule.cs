@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using NServiceBus;
 using SFA.DAS.Payments.Application.Infrastructure.Ioc;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
@@ -39,6 +40,13 @@ namespace SFA.DAS.Payments.Audit.EarningEventsService.Infrastructure.Ioc
            builder.RegisterType<EarningEventModelHandler>()
                 .As<IHandleMessageBatches<EarningEventModel>>()
                 .InstancePerLifetimeScope();
+
+           builder.Register(c =>
+               {
+                   var appConfig = c.Resolve<IApplicationConfiguration>();
+                   return new EndpointConfiguration(appConfig.EndpointName);
+               }).As<EndpointConfiguration>()
+               .SingleInstance();
         }
     }
 }

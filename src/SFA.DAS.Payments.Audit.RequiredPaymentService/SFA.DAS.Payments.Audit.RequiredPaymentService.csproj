@@ -16,14 +16,14 @@
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="7.0.1010" />
     <PackageReference Include="NServiceBus" Version="8.1.1" />
     <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="3.0.0" />
-    <PackageReference Include="NServiceBus.Persistence.AzureStorage" Version="2.2.0" />
+    <!--<PackageReference Include="NServiceBus.Persistence.AzureStorage" Version="2.2.0" />-->
     <PackageReference Include="NServiceBus.Transport.AzureServiceBus" Version="3.2.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
 
-    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.6-prerelease-31" />
-    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.0.6-prerelease-31" />
-    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.0.6-prerelease-31" />
-    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.0.6-prerelease-31" />
+    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.7-prerelease-35" />
+    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.0.7-prerelease-35" />
+    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.0.7-prerelease-35" />
+    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.0.7-prerelease-35" />
     <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Client" Version="0.2.1-prerelease-939" />
     <PackageReference Include="SFA.DAS.Payments.RequiredPayments.Messages" Version="0.1.176" />
     <PackageReference Include="SFA.DAS.Payments.RequiredPayments.Model" Version="0.1.176" />
@@ -37,7 +37,7 @@
     <ProjectReference Include="..\SFA.DAS.Payments.Monitoring.Jobs.Client\SFA.DAS.Payments.Monitoring.Jobs.Client.csproj" />
     <ProjectReference Include="..\SFA.DAS.Payments.RequiredPayments.Messages\SFA.DAS.Payments.RequiredPayments.Messages.csproj" />
     <ProjectReference Include="..\SFA.DAS.Payments.RequiredPayments.Model\SFA.DAS.Payments.RequiredPayments.Model.csproj" />-->
-    <!--<ProjectReference Include="..\SFA.DAS.Payments.Messages.Core\SFA.DAS.Payments.Messages.Core.csproj" />
+    <!--<ProjectReference Include="..\SFA.DAS.Payments.Messages.Common\SFA.DAS.Payments.Messages.Common.csproj" />
     <ProjectReference Include="..\SFA.DAS.Payments.Model.Core\SFA.DAS.Payments.Model.Core.csproj" />
     <ProjectReference Include="..\SFA.DAS.Payments.ServiceFabric.Core\SFA.DAS.Payments.ServiceFabric.Core.csproj" />-->
   </ItemGroup>

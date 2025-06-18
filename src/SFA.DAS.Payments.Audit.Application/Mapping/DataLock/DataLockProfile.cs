@@ -15,7 +15,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.DataLock
                 .MapCommon()
                 .ForMember(dest => dest.ContractType, opt => opt.Ignore())
                 .ForMember(dest => dest.AgreementId, opt => opt.MapFrom(source => source.AgreementId))
-                .ForMember(dest => dest.PriceEpisodes, opt => opt.ResolveUsing<DataLockEventPriceEpisodeModelListResolver>())
+                .ForMember(dest => dest.PriceEpisodes, opt => opt.MapFrom<DataLockEventPriceEpisodeModelListResolver>())
                 .ForMember(dest => dest.LearningAimSequenceNumber, opt => opt.MapFrom(x => x.LearningAim.SequenceNumber))
                 .ForMember(dest => dest.LearningStartDate, opt => opt.MapFrom(src => src.LearningAim.StartDate))
                 .ForMember(dest => dest.IlrFileName, opt => opt.MapFrom(x => x.IlrFileName))
@@ -23,14 +23,14 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.DataLock
 
 
             CreateMap<PayableEarningEvent, DataLockEventModel>()
-                .ForMember(x => x.IsPayable, opt => opt.UseValue(true))
-                .ForMember(dest => dest.PayablePeriods, opt => opt.ResolveUsing<PayablePeriodResolver>())
+                .ForMember(x => x.IsPayable, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.PayablePeriods, opt => opt.MapFrom<PayablePeriodResolver>())
                 .ForMember(dest => dest.AgeAtStartOfLearning,
                     opt => opt.MapFrom(source => source.AgeAtStartOfLearning));
 
             CreateMap<EarningFailedDataLockMatching, DataLockEventModel>()
-                .ForMember(x => x.IsPayable, opt => opt.UseValue(false))
-                .ForMember(dest => dest.NonPayablePeriods, opt => opt.ResolveUsing<NonPayablePeriodResolver>())
+                .ForMember(x => x.IsPayable, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.NonPayablePeriods, opt => opt.MapFrom<NonPayablePeriodResolver>())
                 ;
 
             CreateMap<FunctionalSkillDataLockEvent, DataLockEventModel>()
@@ -39,19 +39,19 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.DataLock
                 .MapCommon()
                 .ForMember(dest => dest.ContractType, opt => opt.Ignore())
                 .ForMember(dest => dest.AgreementId, opt => opt.MapFrom(source => source.AgreementId))
-                .ForMember(dest => dest.PriceEpisodes, opt => opt.ResolveUsing<DataLockEventPriceEpisodeModelListResolver>())
+                .ForMember(dest => dest.PriceEpisodes, opt => opt.MapFrom<DataLockEventPriceEpisodeModelListResolver>())
                 .ForMember(dest => dest.LearningAimSequenceNumber, opt => opt.MapFrom(x => x.LearningAim.SequenceNumber))
                 .ForMember(dest => dest.LearningStartDate, opt => opt.MapFrom(src => src.LearningAim.StartDate))
                 .ForMember(dest => dest.IlrFileName, opt => opt.MapFrom(x => x.IlrFileName))
                 .ForMember(dest => dest.EventType, opt => opt.MapFrom(x => x.GetType().FullName))
                 ;
             CreateMap<PayableFunctionalSkillEarningEvent, DataLockEventModel>()
-                .ForMember(dest => dest.PayablePeriods, opt => opt.ResolveUsing<FunctionalSkillEarningsPayablePeriodsResolver>())
-                .ForMember(x => x.IsPayable, opt => opt.UseValue(true));
+                .ForMember(dest => dest.PayablePeriods, opt => opt.MapFrom<FunctionalSkillEarningsPayablePeriodsResolver>())
+                .ForMember(x => x.IsPayable, opt => opt.MapFrom(src => true));
 
             CreateMap<FunctionalSkillEarningFailedDataLockMatching, DataLockEventModel>()
-                .ForMember(x => x.IsPayable, opt => opt.UseValue(false))
-                .ForMember(dest => dest.NonPayablePeriods, opt => opt.ResolveUsing<FunctionalSkillEarningsNonPayablePeriodsResolver>())
+                .ForMember(x => x.IsPayable, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.NonPayablePeriods, opt => opt.MapFrom<FunctionalSkillEarningsNonPayablePeriodsResolver>())
                 ;
 
 

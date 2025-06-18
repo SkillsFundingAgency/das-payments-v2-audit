@@ -39,7 +39,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
         public async Task RemovePriorEvents(long ukprn, short academicYear, byte collectionPeriod, DateTime latestIlrSubmissionTime, CancellationToken cancellationToken)
         {
             var dataContext = retryDataContextFactory.Create();
-            await dataContext.Database.ExecuteSqlCommandAsync($@"
+            await dataContext.Database.ExecuteSqlRawAsync($@"
                     Delete 
                         From [Payments2].[EarningEvent] 
                     Where 
@@ -53,7 +53,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
         public async Task RemoveFailedSubmissionEvents(long jobId, CancellationToken cancellationToken)
         {
             var dataContext = retryDataContextFactory.Create();
-            await dataContext.Database.ExecuteSqlCommandAsync($@"
+            await dataContext.Database.ExecuteSqlRawAsync($@"
                     Delete 
                         From [Payments2].[EarningEvent] 
                     Where 

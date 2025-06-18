@@ -23,7 +23,7 @@
     <PackageReference Include="NServiceBus.Transport.AzureServiceBus" Version="3.2.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
 
-	  <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.6-prerelease-31" />
+	  <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.7-prerelease-35" />
     <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.3-prerelease-5" />
   </ItemGroup>
 

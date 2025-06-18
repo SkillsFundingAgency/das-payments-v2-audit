@@ -145,4 +145,6 @@ jobs:
   - template: /azure-pipelines-templates/build/step/nuget-pack.yml
     parameters:
       DotNetStandardPackagesToPack: |
+        src/SFA.DAS.Payments.Audit.Application/SFA.DAS.Payments.Audit.Application.csproj;
+        src/SFA.DAS.Payments.Audit.Application.ServiceFabric/SFA.DAS.Payments.Audit.Application.ServiceFabric.csproj;
         src/SFA.DAS.Payments.Audit.Messages/SFA.DAS.Payments.Audit.Messages.csproj;
