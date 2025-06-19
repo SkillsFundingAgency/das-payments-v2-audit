@@ -11,6 +11,8 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="7.0.1" />
     <PackageReference Include="ESFA.DC.Logging.Interfaces" Version="0.1.4-beta0001" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="10.0.1010" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data.Interfaces" Version="7.0.1010" />
     <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="7.0.1001" />
     <PackageReference Include="Microsoft.ServiceFabric.Services" Version="7.0.1001" />
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="7.0.1010" />
