@@ -148,3 +148,4 @@ jobs:
         src/SFA.DAS.Payments.Audit.Application/SFA.DAS.Payments.Audit.Application.csproj;
         src/SFA.DAS.Payments.Audit.Application.ServiceFabric/SFA.DAS.Payments.Audit.Application.ServiceFabric.csproj;
         src/SFA.DAS.Payments.Audit.Messages/SFA.DAS.Payments.Audit.Messages.csproj;
+        src/SFA.DAS.Payments.Audit.Model/SFA.DAS.Payments.Audit.Model.csproj;
