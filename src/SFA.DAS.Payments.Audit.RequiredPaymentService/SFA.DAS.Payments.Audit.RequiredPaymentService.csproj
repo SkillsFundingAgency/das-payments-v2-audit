@@ -18,7 +18,6 @@
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="7.0.1010" />
     <PackageReference Include="NServiceBus" Version="8.1.1" />
     <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="3.0.0" />
-    <!--<PackageReference Include="NServiceBus.Persistence.AzureStorage" Version="2.2.0" />-->
     <PackageReference Include="NServiceBus.Transport.AzureServiceBus" Version="3.2.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
 
@@ -33,15 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--<ProjectReference Include="..\SFA.DAS.Payments.Application\SFA.DAS.Payments.Application.csproj" />-->
     <ProjectReference Include="..\SFA.DAS.Payments.Audit.Application.ServiceFabric\SFA.DAS.Payments.Audit.Application.ServiceFabric.csproj" />
-    <!--<ProjectReference Include="..\SFA.DAS.Payments.Core\SFA.DAS.Payments.Core.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Payments.Monitoring.Jobs.Client\SFA.DAS.Payments.Monitoring.Jobs.Client.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Payments.RequiredPayments.Messages\SFA.DAS.Payments.RequiredPayments.Messages.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Payments.RequiredPayments.Model\SFA.DAS.Payments.RequiredPayments.Model.csproj" />-->
-    <!--<ProjectReference Include="..\SFA.DAS.Payments.Messages.Common\SFA.DAS.Payments.Messages.Common.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Payments.Model.Core\SFA.DAS.Payments.Model.Core.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Payments.ServiceFabric.Core\SFA.DAS.Payments.ServiceFabric.Core.csproj" />-->
   </ItemGroup>
 
 </Project>
