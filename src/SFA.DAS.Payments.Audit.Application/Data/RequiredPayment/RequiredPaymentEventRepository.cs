@@ -40,7 +40,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.RequiredPayment
             {
                 var bulkConfig = new BulkConfig
                 { SetOutputIdentity = false, BulkCopyTimeout = 60, PreserveInsertOrder = false };
-                await ((DbContext)dataContext).BulkInsertAsync(requiredPayments, bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(requiredPayments, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
                 await tx.CommitAsync(cancellationToken).ConfigureAwait(false);
             }

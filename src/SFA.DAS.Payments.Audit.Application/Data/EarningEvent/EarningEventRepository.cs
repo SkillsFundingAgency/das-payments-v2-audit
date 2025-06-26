@@ -67,11 +67,11 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
             {
                 var bulkConfig = new BulkConfig
                     {SetOutputIdentity = false, BulkCopyTimeout = 60, PreserveInsertOrder = false};
-                await ((DbContext) dataContext).BulkInsertAsync(earningEvents, bulkConfig, null, cancellationToken)
+                await ((DbContext) dataContext).BulkInsertAsync(earningEvents, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
-                await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.Periods).ToList(), bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.Periods).ToList(), bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
-                await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.PriceEpisodes).ToList(), bulkConfig, null, cancellationToken)
+                await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.PriceEpisodes).ToList(), bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
                 await tx.CommitAsync(cancellationToken);
             }
