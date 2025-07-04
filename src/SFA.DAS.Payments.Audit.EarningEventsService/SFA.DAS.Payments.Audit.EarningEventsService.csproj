@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -26,7 +26,7 @@
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
 
 	  <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.7-prerelease-35" />
-    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.3-prerelease-5" />
+    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.4-prerelease-11" />
   </ItemGroup>
 
   <ItemGroup>
