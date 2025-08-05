@@ -45,8 +45,6 @@ namespace SFA.DAS.Payments.Audit.RequiredPaymentService
         {
             var endpoint = lifetimeScope.Resolve<EndpointConfiguration>();
             endpoint.SendOnly();
-            var factory = lifetimeScope.Resolve<IEndpointInstanceFactory>();
-            await factory.GetEndpointInstance();
         }
     }
 }

@@ -47,8 +47,6 @@ namespace SFA.DAS.Payments.Audit.DataLockService
         {
             var endpoint = lifetimeScope.Resolve<EndpointConfiguration>();
             endpoint.SendOnly();
-            var factory = lifetimeScope.Resolve<IEndpointInstanceFactory>();
-            await factory.GetEndpointInstance();
         }
     }
 }
