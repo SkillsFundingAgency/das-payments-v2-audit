@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AzureFunctions.Autofac;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
@@ -17,7 +18,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
         [FunctionName(nameof(ArchiveFailActivity))]
         public static async Task Run([ActivityTrigger] string messageJson,
             [DurableClient] IDurableEntityClient entityClient,
-            [Inject] IPaymentLogger logger)
+            [Inject] ILogger logger)
         {
             var message = JsonConvert.DeserializeObject<RecordPeriodEndFcsHandOverCompleteJob>(messageJson) ??
                           throw new Exception(

@@ -6,6 +6,7 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
 using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.Configuration;
@@ -20,7 +21,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
         [FunctionName(nameof(CheckStatusActivity))]
         public static async Task<StatusHelper.ArchiveStatus> Run([ActivityTrigger] string messageJson,
             [DurableClient] IDurableEntityClient entityClient,
-            [Inject] IPaymentLogger logger,
+            [Inject] ILogger logger,
             [Inject] IPeriodEndArchiveConfiguration config)
         {
             var currentRunInfo = await StatusHelper.GetCurrentJobs(entityClient);
@@ -31,7 +32,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                 var pipelineRun = await client.PipelineRuns.GetAsync(
                     config.ResourceGroup, config.AzureDataFactoryName, currentRunInfo.InstanceId);
 
-                logger.LogInfo("Period End Archive Status: " + pipelineRun.Status);
+                logger.Log(LogLevel.Information,"Period End Archive Status: " + pipelineRun.Status);
                 if (pipelineRun.Status is "InProgress" or "Queued")
                 {
                     currentRunInfo = new ArchiveRunInformation
@@ -57,7 +58,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                         $"Error in CheckStatusActivity. Pipeline run failed. Status: {pipelineRun.Status}. Message: {messageJson}");
                 }
 
-                logger.LogInfo(queryResponse.Value.First().Output.ToString());
+                logger.Log(LogLevel.Information,queryResponse.Value.First().Output.ToString());
 
                 currentRunInfo = new ArchiveRunInformation
                 {

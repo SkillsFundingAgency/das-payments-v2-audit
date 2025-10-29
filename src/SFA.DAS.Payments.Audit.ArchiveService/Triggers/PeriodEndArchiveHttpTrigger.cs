@@ -8,8 +8,8 @@ using AzureFunctions.Autofac;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
 using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
 using SFA.DAS.Payments.Model.Core.Audit;
@@ -26,7 +26,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Triggers
             HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
             [DurableClient] IDurableEntityClient client,
-            [Inject] IPaymentLogger log
+            [Inject] ILogger log
         )
         {
             try

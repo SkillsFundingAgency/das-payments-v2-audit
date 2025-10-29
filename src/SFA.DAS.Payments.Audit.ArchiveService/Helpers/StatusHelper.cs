@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Extensions;
 using SFA.DAS.Payments.Model.Core.Audit;
 
@@ -29,14 +29,14 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
             await entityClient.SignalEntityAsync(entityId, "add", runInformation);
         }
 
-        public static async Task ClearCurrentStatus(IDurableEntityClient entityClient, IPaymentLogger log)
+        public static async Task ClearCurrentStatus(IDurableEntityClient entityClient, ILogger log)
         {
-            log.LogInfo("StatusHelper.ClearCurrentStatus: Clearing down previous archive job");
+            log.Log(LogLevel.Information, "StatusHelper.ClearCurrentStatus: Clearing down previous archive job");
 
             var previousRun = await GetCurrentJobs(entityClient);
             if (previousRun != null)
             {
-                log.LogInfo(
+                log.Log(LogLevel.Information,
                     $"StatusHelper.ClearCurrentStatus: Previous JobId: {previousRun.JobId}, JobStatus: {previousRun.Status}");
             }
 
@@ -51,7 +51,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
             });
             var currentRun = await GetCurrentJobs(entityClient);
 
-            log.LogInfo(
+            log.Log(LogLevel.Information,
                 $"StatusHelper.ClearCurrentStatus: Current JobId: {currentRun.JobId}, JobStatus: {currentRun.Status}");
         }
 

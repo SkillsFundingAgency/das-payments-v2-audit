@@ -4,14 +4,15 @@ using System.Threading.Tasks;
 using AzureFunctions.Autofac;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
 using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.Configuration;
 using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 {
@@ -21,7 +22,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
         [FunctionName(nameof(StartPeriodEndArchiveActivity))]
         public static async Task Run([ActivityTrigger] string messageJson,
             [DurableClient] IDurableEntityClient entityClient,
-            [Inject] IPaymentLogger logger,
+            [Inject] ILogger logger,
             [Inject] IPeriodEndArchiveConfiguration config)
         {
             var currentRunInfo = await StatusHelper.GetCurrentJobs(entityClient);
@@ -36,13 +37,13 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                     throw new Exception(
                         $"Error in StartPeriodEndArchiveActivity. CollectionPeriod or CollectionYear is invalid. CollectionPeriod: {message.CollectionPeriod}. CollectionYear: {message.CollectionYear}");
 
-                logger.LogInfo("Starting Period End Archive Activity");
+                logger.Log(LogLevel.Information,"Starting Period End Archive Activity");
 
 
                 var client = await DataFactoryHelper.CreateClient(config);
 
                 // Create a pipeline run
-                logger.LogInfo("Creating pipeline run...");
+                logger.Log(LogLevel.Information,"Creating pipeline run...");
 
                 var parameters = new Dictionary<string, object>
                 {
@@ -53,8 +54,8 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                 var runResponse = client.Pipelines.CreateRunWithHttpMessagesAsync(
                     config.ResourceGroup, config.AzureDataFactoryName, config.PipeLine, parameters: parameters
                 ).Result.Body;
-                logger.LogInfo("Pipeline run ID: " + runResponse.RunId);
-                logger.LogInfo(
+                logger.Log(LogLevel.Information,"Pipeline run ID: " + runResponse.RunId);
+                logger.Log(LogLevel.Information,
                     $"PeriodEndArchive CollectionPeriod: {message.CollectionPeriod}. AcademicYear: {message.CollectionYear}");
 
                 currentRunInfo = new ArchiveRunInformation

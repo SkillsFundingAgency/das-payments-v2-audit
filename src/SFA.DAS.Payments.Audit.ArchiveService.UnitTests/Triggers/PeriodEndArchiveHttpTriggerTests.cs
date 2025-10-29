@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using Autofac.Extras.Moq;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Orchestrators;
 using SFA.DAS.Payments.Audit.ArchiveService.Triggers;
 using SFA.DAS.Payments.Model.Core.Audit;
@@ -28,10 +28,10 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Triggers
             mocker = AutoMock.GetLoose();
             mockOrchestrationClient = mocker.Mock<IDurableOrchestrationClient>();
             mockEntityClient = mocker.Mock<IDurableEntityClient>();
-            logger = mocker.Mock<IPaymentLogger>();
+            logger = mocker.Mock<ILogger>();
         }
 
-        private Mock<IPaymentLogger> logger;
+        private Mock<ILogger> logger;
         private Mock<IDurableEntityClient> mockEntityClient;
         private AutoMock mocker;
         private Mock<IDurableOrchestrationClient> mockOrchestrationClient;

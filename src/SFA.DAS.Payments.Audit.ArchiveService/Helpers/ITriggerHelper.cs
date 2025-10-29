@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
@@ -10,7 +11,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
         Task<HttpResponseMessage> StartOrchestrator(
             HttpRequestMessage req,
             IDurableOrchestrationClient starter,
-            IPaymentLogger log,
+            ILogger log,
             IDurableEntityClient client);
     }
 }

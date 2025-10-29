@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AzureFunctions.Autofac;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Activities;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
@@ -18,7 +19,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Orchestrators
         [FunctionName("PeriodEndArchiveOrchestrator")]
         public static async Task RunOrchestrator(
             [OrchestrationTrigger] IDurableOrchestrationContext context,
-            [Inject] IPaymentLogger log,
+            [Inject] ILogger log,
             [Inject] IPeriodEndArchiveConfiguration config)
         {
             var messageJson = context.GetInput<string>() ??
@@ -26,7 +27,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Orchestrators
                                   "Error in PeriodEndArchiveOrchestrator. Message is null.");
             try
             {
-                log.LogInfo("Starting Period End Archive Orchestrator");
+                log.Log(LogLevel.Information,"Starting Period End Archive Orchestrator");
 
                 await context.CallActivityAsync(nameof(StartPeriodEndArchiveActivity), messageJson);
 
