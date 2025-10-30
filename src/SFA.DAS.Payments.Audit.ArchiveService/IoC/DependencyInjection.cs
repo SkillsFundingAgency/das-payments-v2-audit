@@ -1,0 +1,41 @@
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SFA.DAS.Payments.Audit.ArchiveService.Configuration;
+
+namespace SFA.DAS.Payments.Audit.ArchiveService.IoC
+{
+    public static class DependencyInjection
+    {
+        public static IServiceCollection AddAppSettingsConfiguration(this IServiceCollection services)
+        {
+            services.AddSingleton<IAppSettingsOptions>(provider =>
+            {
+                var configHelper = provider.GetRequiredService<IConfiguration>();
+
+                return new AppSettingsOptions
+                {
+                    IsEncrypted = configHelper.GetValue<bool>("IsEncrypted"),
+                    Values = new Values
+                    {
+                        AzureWebJobsStorage = configHelper.GetValue<string>("AzureWebJobsStorage"),
+                        FUNCTIONS_WORKER_RUNTIME = configHelper.GetValue<string>("FUNCTIONS_WORKER_RUNTIME"),
+                        ApplicationInsightsInstrumentationKey = configHelper.GetValue<string>("ApplicationInsightsInstrumentationKey"),
+                        ResourceGroup = configHelper.GetValue<string>("ResourceGroup"),
+                        AzureDataFactoryName = configHelper.GetValue<string>("AzureDataFactoryName"),
+                        PipeLine = configHelper.GetValue<string>("PipeLine"),
+                        SubscriptionId = configHelper.GetValue<string>("SubscriptionId"),
+                        TenantId = configHelper.GetValue<string>("TenantId"),
+                        ApplicationId = configHelper.GetValue<string>("ApplicationId"),
+                        AuthenticationKey = configHelper.GetValue<string>("AuthenticationKey"),
+                        SleepDelay = configHelper.GetValue<int>("SleepDelay"),
+                        AuthorityUri = configHelper.GetValue<string>("AuthorityUri"),
+                        ManagementUri = configHelper.GetValue<string>("ManagementUri")
+
+                    }
+                };
+            });
+
+            return services;
+        }
+    }
+}

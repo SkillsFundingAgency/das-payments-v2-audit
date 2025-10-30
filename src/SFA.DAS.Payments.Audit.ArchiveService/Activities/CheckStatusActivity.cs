@@ -1,79 +1,111 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AzureFunctions.Autofac;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
+using SFA.DAS.Payments.Audit.ArchiveService.Configuration;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
-using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.Configuration;
-using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
+using SFA.DAS.Payments.Audit.ArchiveService.Models;
 using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 {
-    [DependencyInjectionConfig(typeof(DependencyRegister))]
-    public static class CheckStatusActivity
+    public class CheckStatusActivity
     {
-        [FunctionName(nameof(CheckStatusActivity))]
-        public static async Task<StatusHelper.ArchiveStatus> Run([ActivityTrigger] string messageJson,
-            [DurableClient] IDurableEntityClient entityClient,
-            [Inject] ILogger logger,
-            [Inject] IPeriodEndArchiveConfiguration config)
+        private readonly IDataFactoryHelper _dataFactoryHelper;
+        private readonly IAppSettingsOptions _appSettingsOption;
+        private readonly IEntityHelper _entityHelper;
+        private ILogger<CheckStatusActivity> _logger;
+
+        public CheckStatusActivity(IDataFactoryHelper dataFactoryHelper
+            , IAppSettingsOptions appSettingsOption
+            , IEntityHelper entityHelper
+            , ILogger<CheckStatusActivity> logger)
         {
-            var currentRunInfo = await StatusHelper.GetCurrentJobs(entityClient);
-            try
+            _dataFactoryHelper = dataFactoryHelper;
+            _appSettingsOption = appSettingsOption;
+            _entityHelper = entityHelper;
+            _logger = logger;
+        }
+
+        [Function(nameof(CheckStatusActivity))]
+        public async Task<StatusHelper.ArchiveStatus> StartCheckStatusActivity([ActivityTrigger] PeriodEndArchiveActivityResponse periodEndArchiveActivityResponse
+            , FunctionContext executionContext
+            , [DurableClient] DurableTaskClient client)
+        {
+            var currentJob = await _entityHelper.GetCurrentJobs(client);
+
+            _logger = executionContext.GetLogger<CheckStatusActivity>();
+            using (_logger.BeginScope(new Dictionary<string, object> { ["OrchestrationInstanceId"] = periodEndArchiveActivityResponse.InstanceId }))
             {
-                var client = await DataFactoryHelper.CreateClient(config);
-
-                var pipelineRun = await client.PipelineRuns.GetAsync(
-                    config.ResourceGroup, config.AzureDataFactoryName, currentRunInfo.InstanceId);
-
-                logger.Log(LogLevel.Information,"Period End Archive Status: " + pipelineRun.Status);
-                if (pipelineRun.Status is "InProgress" or "Queued")
+                try
                 {
-                    currentRunInfo = new ArchiveRunInformation
+                    _logger.LogInformation($"Starting {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}");
+
+                    var datafactoryClient = await _dataFactoryHelper.CreateClientAsync();
+
+                    var pipelineRun = await datafactoryClient.PipelineRuns.GetAsync(
+                        _appSettingsOption.Values.ResourceGroup
+                        , _appSettingsOption.Values.AzureDataFactoryName
+                        , periodEndArchiveActivityResponse.RunId);
+
+
+                    if (pipelineRun.Status is "InProgress" or "Queued")
                     {
-                        JobId = currentRunInfo.JobId,
-                        InstanceId = currentRunInfo.InstanceId,
+                        await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
+                        {
+                            JobId = currentJob.JobId,
+                            InstanceId = currentJob.InstanceId,
+                            Status = pipelineRun.Status
+                        }, StatusHelper.EntityState.add);
+                        return StatusHelper.ArchiveStatus.InProgress;
+                    }
+
+                    var filterParams = new RunFilterParameters(DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(10));
+
+                    var queryResponse = await datafactoryClient.ActivityRuns.QueryByPipelineRunAsync(
+                        _appSettingsOption.Values.ResourceGroup
+                        , _appSettingsOption.Values.AzureDataFactoryName
+                        , periodEndArchiveActivityResponse.RunId
+                        , filterParams);
+
+                    if (queryResponse is not null)
+                        _logger.LogInformation(queryResponse.Value.First().Output.ToString());
+
+                    if (pipelineRun.Status is not "Succeeded")
+                    {
+                        await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
+                        {
+                            JobId = currentJob.JobId,
+                            InstanceId = currentJob.InstanceId,
+                            Status = pipelineRun.Status
+                        }, StatusHelper.EntityState.add);
+
+                        _logger.LogError($"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Pipeline run failed. Status: {pipelineRun.Status}. InstanceId: {periodEndArchiveActivityResponse.InstanceId}");
+                        return StatusHelper.ArchiveStatus.Failed;
+                    }
+
+                    await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
+                    {
+                        JobId = currentJob.JobId,
+                        InstanceId = currentJob.InstanceId,
                         Status = pipelineRun.Status
-                    };
-                    await StatusHelper.UpdateCurrentJobStatus(entityClient, currentRunInfo);
+                    }, StatusHelper.EntityState.add);
 
-                    return StatusHelper.ArchiveStatus.InProgress;
+                    return StatusHelper.ArchiveStatus.Completed;
                 }
-
-
-                var filterParams = new RunFilterParameters(
-                    DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(10));
-                var queryResponse = await client.ActivityRuns.QueryByPipelineRunAsync(
-                    config.ResourceGroup, config.AzureDataFactoryName, currentRunInfo.InstanceId, filterParams);
-
-                if (pipelineRun.Status != "Succeeded")
+                catch (Exception ex)
                 {
-                    throw new Exception(
-                        $"Error in CheckStatusActivity. Pipeline run failed. Status: {pipelineRun.Status}. Message: {messageJson}");
+                    await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
+                    {
+                        JobId = currentJob.JobId,
+                        InstanceId = currentJob.InstanceId,
+                        Status = "Failed"
+                    }, StatusHelper.EntityState.add);
+
+                    _logger.LogError(ex, $"Error in {nameof(CheckStatusActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}. Error message: {ex.Message}.", ex.Message);
+                    return StatusHelper.ArchiveStatus.Failed;
                 }
-
-                logger.Log(LogLevel.Information,queryResponse.Value.First().Output.ToString());
-
-                currentRunInfo = new ArchiveRunInformation
-                {
-                    JobId = currentRunInfo.JobId,
-                    InstanceId = currentRunInfo.InstanceId,
-                    Status = pipelineRun.Status
-                };
-                await StatusHelper.UpdateCurrentJobStatus(entityClient, currentRunInfo);
-                return StatusHelper.ArchiveStatus.Completed;
-            }
-            catch
-            {
-                currentRunInfo.Status = "Failed";
-                await StatusHelper.UpdateCurrentJobStatus(entityClient, currentRunInfo);
-                return StatusHelper.ArchiveStatus.Failed;
             }
         }
     }
