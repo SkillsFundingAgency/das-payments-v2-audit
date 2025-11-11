@@ -149,14 +149,14 @@ jobs:
       command: publish
       publishWebProjects: false
       projects: src/SFA.DAS.Payments.Audit.ArchiveService/SFA.DAS.Payments.Audit.ArchiveService.csproj
-      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\AuditArchiveFunctionApp'
+      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\Audit-ArchiveService'
       modifyOutputPath: false
 
   - task: PublishPipelineArtifact@1
-    displayName: 'Publish Pipeline Artifact'
+    displayName: 'Publish Pipeline Artifact- Audit Archive Service'
     inputs:
-      targetPath: '$(build.artifactstagingdirectory)\AuditArchiveFunctionApp'
-      artifact: Audit-ArchiveService
+      targetPath: '$(build.artifactstagingdirectory)\Audit-ArchiveService'
+      artifact: AuditArchiveFunctionApp
 
   - template: /azure-pipelines-templates/build/step/nuget-pack.yml
     parameters:
