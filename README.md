@@ -31,6 +31,28 @@ Setup instructions can be found at the following link, which will help you set u
 
 Select the configuration for the Audit application
 
+local.settings.json for Audit.ArchiveService
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "<your-storage-connection-string>",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "ApplicationInsightsInstrumentationKey": "<your-app-insights-key>",
+    "ResourceGroup": "<your-resource-group>",
+    "AzureDataFactoryName": "<your-data-factory-name>",
+    "PipeLine": "<your-pipeline-name>",
+    "SubscriptionId": "<your-subscription-id>",
+    "TenantId": "<your-tenant-id>",
+    "ApplicationId": "<your-application-id>",
+    "AuthenticationKey": "<your-authentication-key>",
+    "SleepDelay": 1000,
+    "AuthorityUri": "<your-authority-uri>",
+    "ManagementUri": "<your-management-uri>"
+  }
+}
+```
+
 ## 🔗 External Dependencies
 
 N/A
