@@ -37,7 +37,7 @@ local.settings.json for Audit.ArchiveService
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "<your-storage-connection-string>",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "ApplicationInsightsInstrumentationKey": "<your-app-insights-key>",
     "ResourceGroup": "<your-resource-group>",
     "AzureDataFactoryName": "<your-data-factory-name>",
@@ -47,8 +47,8 @@ local.settings.json for Audit.ArchiveService
     "ApplicationId": "<your-application-id>",
     "AuthenticationKey": "<your-authentication-key>",
     "SleepDelay": 1000,
-    "AuthorityUri": "<your-authority-uri>",
-    "ManagementUri": "<your-management-uri>"
+    "AuthorityUri": "https://login.microsoftonline.com/",
+    "ManagementUri": "https://management.azure.com//.default",
   }
 }
 ```
