@@ -1,0 +1,24 @@
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.DurableTask.Client;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests
+{
+    public class DurableTaskClientWrapper : IDurableTaskClientWrapper
+    {
+        private readonly DurableTaskClient _durableTaskClient;
+
+        public DurableTaskClientWrapper(DurableTaskClient durableTaskClient)
+        {
+            _durableTaskClient = durableTaskClient;
+        }
+
+        public Task<HttpResponseData> CreateCheckStatusResponseAsync(HttpRequestData request, string instanceId, CancellationToken cancellationToken)
+        {
+            return _durableTaskClient.CreateCheckStatusResponseAsync(request, instanceId, cancellationToken);
+        }
+    }
+
+}

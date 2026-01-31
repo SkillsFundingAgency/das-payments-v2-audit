@@ -1,23 +1,17 @@
 parameters:
   TargetProjects: 'src/**/*.csproj'
 
+  
 jobs:
 - job: CodeBuild
   pool:
-    name: SLD Build pool
+    name: SLD BUILD Pool - CD
   variables:
   - group: BUILD Management Resources
   - name: SolutionBaseName
     value: SFA.DAS.Payments.Audit
   steps:
   - template: /azure-pipelines-templates/build/step/gitversion.yml
-
-  - task: UseDotNet@2
-    displayName: Use .NET 
-    inputs: 
-      packageType: 'sdk'
-      version: 6.x
-      
 
   - task: NuGetCommand@2
     displayName: Nuget Restore
@@ -38,6 +32,12 @@ jobs:
       feedsToUse: 'select'
       vstsFeed: 'dct-pkg'
       includeNuGetOrg: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
+    inputs:
+      projects: ${{ parameters.TargetProjects }}
+      arguments: '--configuration $(BuildConfiguration)'
   
   - task: MSBuild@1
     displayName: 'Build solution'
@@ -141,6 +141,22 @@ jobs:
       targetPath: $(build.artifactstagingdirectory)
       artifact: audit-drop
       continueOnError: true
+      
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet publish'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: src/SFA.DAS.Payments.Audit.ArchiveService/SFA.DAS.Payments.Audit.ArchiveService.csproj
+      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\Audit-ArchiveService'
+      modifyOutputPath: false
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Pipeline Artifact- Audit Archive Service'
+    inputs:
+      targetPath: '$(build.artifactstagingdirectory)\Audit-ArchiveService'
+      artifact: AuditArchiveFunctionApp
 
   - template: /azure-pipelines-templates/build/step/nuget-pack.yml
     parameters:

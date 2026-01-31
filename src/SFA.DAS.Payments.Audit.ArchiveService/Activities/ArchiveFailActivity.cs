@@ -1,37 +1,55 @@
-﻿using System;
-using System.Threading.Tasks;
-using AzureFunctions.Autofac;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Newtonsoft.Json;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
-using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
-using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
+using SFA.DAS.Payments.Audit.ArchiveService.Models;
+using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 {
-    [DependencyInjectionConfig(typeof(DependencyRegister))]
-    public static class ArchiveFailActivity
+    public class ArchiveFailActivity
     {
-        [FunctionName(nameof(ArchiveFailActivity))]
-        public static async Task Run([ActivityTrigger] string messageJson,
-            [DurableClient] IDurableEntityClient entityClient,
-            [Inject] IPaymentLogger logger)
+        private readonly IEntityHelper _entityHelper;
+        private ILogger<ArchiveFailActivity> _logger;
+        public ArchiveFailActivity(IEntityHelper entityHelper, ILogger<ArchiveFailActivity> logger)
         {
-            var message = JsonConvert.DeserializeObject<RecordPeriodEndFcsHandOverCompleteJob>(messageJson) ??
-                          throw new Exception(
-                              $"Error in StartPeriodEndArchiveActivity. Message is null. Message: {messageJson}");
-            var runInformation = await StatusHelper.GetCurrentJobs(entityClient);
-            if(string.IsNullOrEmpty(runInformation.JobId))
+            _entityHelper = entityHelper;
+            _logger = logger;
+        }
+
+        [Function(nameof(ArchiveFailActivity))]
+        public async Task StartArchiveFailActivity([ActivityTrigger] PeriodEndArchiveActivityResponse periodEndArchiveActivityResponse
+            , FunctionContext executionContext
+            , [DurableClient] DurableTaskClient client)
+        {
+            var currentJob = await _entityHelper.GetCurrentJobs(client);
+
+            _logger = executionContext.GetLogger<ArchiveFailActivity>();
+            try
             {
-                runInformation.JobId = message.JobId.ToString();
+                _logger.LogInformation($"Starting {nameof(ArchiveFailActivity)} for OrchestrationInstanceId: {periodEndArchiveActivityResponse.InstanceId}");
+
+                await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
+                {
+                    JobId = currentJob.JobId,
+                    InstanceId = currentJob.InstanceId,
+                    Status = "Failed"
+                }, StatusHelper.EntityState.add);
+
+                _logger.LogError($"JobId: {currentJob.JobId}. ADF InstanceId: {currentJob.InstanceId} PeriodEndArchiveOrchestrator failed");
+
             }
-            runInformation.Status = "Failed";
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while executing {nameof(ArchiveFailActivity)} function with InstanceId : {periodEndArchiveActivityResponse.InstanceId}.", ex.Message);
 
-            logger.LogError($"JobId: {runInformation.JobId}. ADF InstanceId: {runInformation.InstanceId} PeriodEndArchiveOrchestrator failed");
-
-            await StatusHelper.UpdateCurrentJobStatus(entityClient, runInformation);
+                await _entityHelper.UpdateCurrentJobStatus(client, new ArchiveRunInformation
+                {
+                    JobId = currentJob.JobId,
+                    InstanceId = currentJob.InstanceId,
+                    Status = "Failed"
+                }, StatusHelper.EntityState.add);
+            }
         }
     }
 }
