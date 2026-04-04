@@ -35,6 +35,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .ForMember(dest => dest.AgreementId, opt => opt.MapFrom(source => source.AgreementId))
                 .ForMember(dest => dest.Periods, opt => opt.MapFrom<ApprenticeshipContractTypeEarningPeriodResolver>())
                 .ForMember(dest => dest.SfaContributionPercentage, opt => opt.MapFrom(x => x.SfaContributionPercentage))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.Apprenticeship))
                 ;
 
 
@@ -42,6 +43,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act2))
                 .ForMember(dest => dest.Periods, opt => opt.MapFrom<ApprenticeshipContractTypeEarningPeriodResolver>())
                 .ForMember(dest => dest.SfaContributionPercentage, opt => opt.MapFrom(x => x.SfaContributionPercentage))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.Apprenticeship))
                 ;
 
 
@@ -50,22 +52,29 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .ForMember(dest => dest.AgreementId, opt => opt.MapFrom(source => source.AgreementId))
                 .ForMember(dest => dest.Periods, opt => opt.MapFrom<ApprenticeshipContractTypeEarningPeriodResolver>())
                 .ForMember(dest => dest.SfaContributionPercentage, opt => opt.MapFrom(x => x.SfaContributionPercentage))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.Apprenticeship))
                 ;
 
             CreateMap<ApprenticeshipContractType2EarningEvent, EarningEventModel>()
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act2))
                 .ForMember(dest => dest.Periods,opt => opt.MapFrom<ApprenticeshipContractTypeEarningPeriodResolver>())
                 .ForMember(dest => dest.SfaContributionPercentage, opt => opt.MapFrom(x => x.SfaContributionPercentage))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.Apprenticeship))
                 ;
 
             CreateMap<Act1FunctionalSkillEarningsEvent, EarningEventModel>()
-                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1));
+                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.FunctionalSkill));
             CreateMap<Act2FunctionalSkillEarningsEvent, EarningEventModel>()
-                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act2));
+                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act2))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.FunctionalSkill)); ;
+
             CreateMap<Act1RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
-                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1));
+                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.FunctionalSkill)); ;
             CreateMap<Act2RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
-                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act2));
+                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act2))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.FunctionalSkill)); ;
 
 
 
