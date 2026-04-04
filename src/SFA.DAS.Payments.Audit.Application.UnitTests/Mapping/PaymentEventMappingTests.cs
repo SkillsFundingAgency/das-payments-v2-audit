@@ -53,7 +53,9 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
                 PathwayCode = 97,
                 ProgrammeType = 96,
                 Reference = "LA-54321",
-                SequenceNumber = 112
+                SequenceNumber = 112,
+                CourseCode = "98",
+                LearningType = LearningType.Apprenticeship
             };
             paymentEvent.Ukprn = 23456;
         }
@@ -151,6 +153,18 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
         public void Maps_LearningAimStandardCode()
         {
             Mapper.Map<TDest>(PaymentEvent).LearningAimStandardCode.Should().Be(PaymentEvent.LearningAim.StandardCode);
+        }
+
+        [Test]
+        public void Maps_CourseCode()
+        {
+            Mapper.Map<TDest>(PaymentEvent).CourseCode.Should().Be(PaymentEvent.LearningAim.CourseCode);
+        }
+
+        [Test]
+        public void Maps_LearningType()
+        {
+            Mapper.Map<TDest>(PaymentEvent).LearningType.Should().Be((byte)PaymentEvent.LearningAim.LearningType);
         }
     }
 }
