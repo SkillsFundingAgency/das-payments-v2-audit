@@ -65,5 +65,7 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
             var model = Mapper.Map<EarningEventModel>(PaymentEvent);
             model.AgeAtStartOfLearning.Should().Be(17);
         }
+
+
     }
 }
