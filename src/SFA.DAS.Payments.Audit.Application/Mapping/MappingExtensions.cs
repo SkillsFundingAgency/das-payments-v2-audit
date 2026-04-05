@@ -29,7 +29,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping
         }
 
         public static IMappingExpression<TSource, TDest> MapCommon<TSource, TDest>(this IMappingExpression<TSource, TDest> mappingExpression)
-            where TSource : PaymentsEvent
+            where TSource : IPaymentsEvent
             where TDest : PaymentsEventModel
         {
             return mappingExpression
