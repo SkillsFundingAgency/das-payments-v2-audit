@@ -12,7 +12,7 @@ using SFA.DAS.Payments.Tests.Core.Builders;
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
 {
     public abstract class PaymentEventMappingTests<TSource, TDest>
-        where TSource :PaymentsEvent
+        where TSource :IPaymentsEvent
         where TDest : PaymentsEventModel
     {
         protected IMapper Mapper { get; private set; }
@@ -35,8 +35,12 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
             PopulateCommonProperties(PaymentEvent);
         }
 
-        protected virtual void PopulateCommonProperties(TSource paymentEvent)
+        protected virtual void PopulateCommonProperties(TSource sourceEvent)
         {
+            //TODO: Fix the inheritance of the GSOShortCourseEarningsEvent which is currently breaking the mapping of the common properties to the model. Once this is fixed, this method can be moved to a base class for all payment events.
+            var paymentEvent = sourceEvent as PaymentsEvent;
+            if (paymentEvent == null)
+                return;
             paymentEvent.Learner = new Learner
             {
                 ReferenceNumber = "LR-12345",
