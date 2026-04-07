@@ -22,7 +22,7 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
 
         [TestCase(CourseType.Apprenticeship)]
         [TestCase(CourseType.ShortCourse)]
-        public void Maps_CourseType(CourseType courseType, LearningType learningType)
+        public void Maps_CourseType(CourseType courseType)
         {
             PaymentEvent.CourseType = courseType;
             Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).CourseType.Should().Be(courseType);

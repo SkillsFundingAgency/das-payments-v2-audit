@@ -54,6 +54,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.RequiredPaymentEvents
                   .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(source => (TransactionType)source.Type))
                   .ForMember(dest => dest.ContractType, opt => opt.MapFrom(source => source.ContractType))
                   .ForMember(dest => dest.SfaContributionPercentage, opt => opt.MapFrom(src => 1M))
+                  .ForMember(dest => dest.CourseType, opt => opt.MapFrom(source => CourseType.Apprenticeship))
                   ;
 
             CreateMap<CalculatedRequiredOnProgrammeAmount, RequiredPaymentEventModel>()
@@ -66,16 +67,19 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.RequiredPaymentEvents
             CreateMap<CalculatedRequiredCoInvestedAmount, RequiredPaymentEventModel>()
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(source => source.ContractType))
                 .ForMember(dest => dest.AgeAtStartOfLearning, opt => opt.MapFrom(source => source.AgeAtStartOfLearning))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(source => CourseType.Apprenticeship))
                 ;
 
             CreateMap<CalculatedRequiredLevyAmount, RequiredPaymentEventModel>()
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1))
                 .ForMember(dest => dest.AgreementId, opt => opt.MapFrom(source => source.AgreementId))
                 .ForMember(dest => dest.AgeAtStartOfLearning, opt => opt.MapFrom(source => source.AgeAtStartOfLearning))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(source => source.CourseType))
                 ;
 
             CreateMap<CompletionPaymentHeldBackEvent, RequiredPaymentEventModel>()
                 .ForMember(dest => dest.NonPaymentReason, opt => opt.MapFrom(src => NonPaymentReason.InsufficientEmployerContribution))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(source => CourseType.Apprenticeship))
                 ;
         }
     }
