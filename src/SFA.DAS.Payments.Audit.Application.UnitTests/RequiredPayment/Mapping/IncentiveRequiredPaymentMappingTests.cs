@@ -45,5 +45,12 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
         {
             Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).SfaContributionPercentage.Should().Be(1);
         }
+
+        //TODO: Short courses can also contain incentive earnings, The CalculatedRequiredIncentiveAmount type should also have a type of course
+        [Test]
+        public void Maps_CourseType()
+        {
+            Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).CourseType.Should().Be(CourseType.Apprenticeship);
+        }
     }
 }

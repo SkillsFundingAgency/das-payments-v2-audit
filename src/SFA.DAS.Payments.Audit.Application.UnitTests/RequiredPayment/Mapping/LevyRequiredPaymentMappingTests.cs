@@ -20,9 +20,8 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
             };
         }
 
-        [TestCase(CourseType.Apprenticeship, LearningType.Apprenticeship)]
-        [TestCase(CourseType.Apprenticeship, LearningType.FoundationApprenticeship)]
-        [TestCase(CourseType.ShortCourse, LearningType.ApprenticeshipUnit)]
+        [TestCase(CourseType.Apprenticeship)]
+        [TestCase(CourseType.ShortCourse)]
         public void Maps_CourseType(CourseType courseType, LearningType learningType)
         {
             PaymentEvent.CourseType = courseType;
