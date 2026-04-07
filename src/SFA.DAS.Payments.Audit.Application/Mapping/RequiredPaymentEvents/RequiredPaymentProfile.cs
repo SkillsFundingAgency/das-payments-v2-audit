@@ -46,6 +46,8 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.RequiredPaymentEvents
                 .ForMember(dest => dest.PriceEpisodeIdentifier, opt => opt.MapFrom(source => source.PriceEpisodeIdentifier ?? string.Empty))
                 .ForMember(dest => dest.EventType, opt => opt.MapFrom(src => src.GetType().Name))
                 .ForMember(dest => dest.ClawbackSourcePaymentEventId, opt => opt.MapFrom(source => source.ClawbackSourcePaymentEventId ?? Guid.Empty))
+                .ForMember(dest => dest.CourseCode, opt => opt.MapFrom(source => source.LearningAim.CourseCode))
+                .ForMember(dest => dest.LearningType, opt => opt.MapFrom(source => source.LearningAim.LearningType))
                 ;
 
             CreateMap<CalculatedRequiredIncentiveAmount, RequiredPaymentEventModel>()
