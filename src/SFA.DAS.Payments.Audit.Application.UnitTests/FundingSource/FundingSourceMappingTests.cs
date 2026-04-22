@@ -229,6 +229,22 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.FundingSource
         }
 
         [Test]
+        public void Maps_LearningAimCourseCode()
+        {
+            Mapper.Map<FundingSourceEventModel>(PaymentEvent).CourseCode.Should().Be(PaymentEvent.LearningAim.CourseCode);
+        }
+
+        [TestCase(LearningType.Apprenticeship)]
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.ApprenticeshipUnit)]
+        [TestCase(LearningType.FunctionalSkill)]
+        public void Maps_LearningAimLearningType(LearningType learningType)
+        {
+            PaymentEvent.LearningAim.LearningType = learningType;
+            Mapper.Map<FundingSourceEventModel>(PaymentEvent).LearningType.Should().Be(PaymentEvent.LearningAim.LearningType);
+        }
+
+        [Test]
         public void Maps_AgeAtStartOfLearning()
         {
             Mapper.Map<FundingSourceEventModel>(PaymentEvent).AgeAtStartOfLearning.Should().Be(17);
@@ -259,7 +275,8 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.FundingSource
                 StandardCode = 98,
                 PathwayCode = 97,
                 ProgrammeType = 96,
-                Reference = "LA-54321"
+                Reference = "LA-54321",
+                CourseCode = "ZSC00001"
             };
             paymentEvent.Ukprn = 23456;
             paymentEvent.AmountDue = 500;
