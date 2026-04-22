@@ -12,7 +12,7 @@ using SFA.DAS.Payments.Tests.Core.Builders;
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
 {
     public abstract class PaymentEventMappingTests<TSource, TDest>
-        where TSource :PaymentsEvent
+        where TSource :IPaymentsEvent
         where TDest : PaymentsEventModel
     {
         protected IMapper Mapper { get; private set; }
@@ -35,8 +35,12 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
             PopulateCommonProperties(PaymentEvent);
         }
 
-        protected virtual void PopulateCommonProperties(TSource paymentEvent)
+        protected virtual void PopulateCommonProperties(TSource sourceEvent)
         {
+            //TODO: Fix the inheritance of the GSOShortCourseEarningsEvent which is currently breaking the mapping of the common properties to the model. Once this is fixed, this method can be moved to a base class for all payment events.
+            var paymentEvent = sourceEvent as PaymentsEvent;
+            if (paymentEvent == null)
+                return;
             paymentEvent.Learner = new Learner
             {
                 ReferenceNumber = "LR-12345",
@@ -53,7 +57,9 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
                 PathwayCode = 97,
                 ProgrammeType = 96,
                 Reference = "LA-54321",
-                SequenceNumber = 112
+                SequenceNumber = 112,
+                CourseCode = "98",
+                LearningType = LearningType.Apprenticeship
             };
             paymentEvent.Ukprn = 23456;
         }
@@ -151,6 +157,18 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
         public void Maps_LearningAimStandardCode()
         {
             Mapper.Map<TDest>(PaymentEvent).LearningAimStandardCode.Should().Be(PaymentEvent.LearningAim.StandardCode);
+        }
+
+        [Test]
+        public void Maps_CourseCode()
+        {
+            Mapper.Map<TDest>(PaymentEvent).CourseCode.Should().Be(PaymentEvent.LearningAim.CourseCode);
+        }
+
+        [Test]
+        public void Maps_LearningType()
+        {
+            Mapper.Map<TDest>(PaymentEvent).LearningType.Should().Be((byte)PaymentEvent.LearningAim.LearningType);
         }
     }
 }
