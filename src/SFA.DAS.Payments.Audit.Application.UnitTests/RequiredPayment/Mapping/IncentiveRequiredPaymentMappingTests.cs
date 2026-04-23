@@ -45,5 +45,31 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
         {
             Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).SfaContributionPercentage.Should().Be(1);
         }
+
+        //TODO: Short courses can also contain incentive earnings, The CalculatedRequiredIncentiveAmount type should also have a type of course
+        [TestCase(IncentivePaymentType.First16To18EmployerIncentive)]
+        [TestCase(IncentivePaymentType.First16To18ProviderIncentive)]
+        [TestCase(IncentivePaymentType.Second16To18EmployerIncentive)]
+        [TestCase(IncentivePaymentType.Second16To18ProviderIncentive)]
+        [TestCase(IncentivePaymentType.OnProgramme16To18FrameworkUplift)]
+        [TestCase(IncentivePaymentType.Completion16To18FrameworkUplift)]
+        [TestCase(IncentivePaymentType.Balancing16To18FrameworkUplift)]
+        [TestCase(IncentivePaymentType.FirstDisadvantagePayment)]
+        [TestCase(IncentivePaymentType.SecondDisadvantagePayment)]
+        [TestCase(IncentivePaymentType.LearningSupport)]
+        [TestCase(IncentivePaymentType.CareLeaverApprenticePayment)]
+        public void Maps_CourseType_Apprenticeship_Incentives(IncentivePaymentType paymentType)
+        {
+            PaymentEvent.Type = paymentType;
+            Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).CourseType.Should().Be(CourseType.Apprenticeship);
+        }
+
+        [TestCase(IncentivePaymentType.OnProgrammeMathsAndEnglish)]
+        [TestCase(IncentivePaymentType.BalancingMathsAndEnglish)]
+        public void Maps_CourseType_For_Functional_Skills(IncentivePaymentType paymentType)
+        {
+            PaymentEvent.Type = paymentType;
+            Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).CourseType.Should().Be(CourseType.FunctionalSkill);
+        }
     }
 }

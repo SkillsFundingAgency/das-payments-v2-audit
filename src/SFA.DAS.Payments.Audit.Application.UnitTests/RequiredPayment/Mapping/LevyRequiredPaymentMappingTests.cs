@@ -1,6 +1,9 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
+using NUnit.Framework;
+using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.RequiredPayments.Messages.Events;
+using System;
 
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
 {
@@ -15,6 +18,14 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
                 ApprenticeshipId = 400L,
                 ApprenticeshipPriceEpisodeId = 800L
             };
+        }
+
+        [TestCase(CourseType.Apprenticeship)]
+        [TestCase(CourseType.ShortCourse)]
+        public void Maps_CourseType(CourseType courseType)
+        {
+            PaymentEvent.CourseType = courseType;
+            Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).CourseType.Should().Be(courseType);
         }
     }
 }

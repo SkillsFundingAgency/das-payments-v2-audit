@@ -72,7 +72,9 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
                 StandardCode = 98,
                 PathwayCode = 97,
                 ProgrammeType = 96,
-                Reference = "LA-54321"
+                Reference = "LA-54321",
+                LearningType = LearningType.Apprenticeship,
+                CourseCode = "ZPROG0001"
             };
             paymentEvent.Ukprn = 23456;
             paymentEvent.EarningEventId = Guid.NewGuid();
@@ -134,7 +136,14 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
             mapped.NumberOfInstalments.Should().Be(PaymentEvent.NumberOfInstalments);
         }
 
+        [TestCase(LearningType.Apprenticeship)]
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.ApprenticeshipUnit)]
+        [TestCase(LearningType.FunctionalSkill)]
+        public void Maps_CourseType(LearningType learningType)
+        {
+            PaymentEvent.LearningAim.LearningType = learningType;
+            Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).LearningType.Should().Be(learningType);
+        }
     }
-
-
 }
