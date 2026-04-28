@@ -29,7 +29,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping
         }
 
         public static IMappingExpression<TSource, TDest> MapCommon<TSource, TDest>(this IMappingExpression<TSource, TDest> mappingExpression)
-            where TSource : PaymentsEvent
+            where TSource : IPaymentsEvent
             where TDest : PaymentsEventModel
         {
             return mappingExpression
@@ -46,9 +46,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping
                     .ForMember(dest => dest.LearningAimFundingLineType, opt => opt.MapFrom(source => source.LearningAim.FundingLineType))
                     .ForMember(dest => dest.LearningAimProgrammeType, opt => opt.MapFrom(source => source.LearningAim.ProgrammeType))
                     .ForMember(dest => dest.LearningAimReference, opt => opt.MapFrom(source => source.LearningAim.Reference))
-                    .ForMember(dest => dest.LearningAimStandardCode, opt => opt.MapFrom(source => source.LearningAim.StandardCode))
-                    .ForMember(dest => dest.CourseCode, opt => opt.MapFrom(source => source.LearningAim.CourseCode))
-                    .ForMember(dest => dest.LearningType, opt => opt.MapFrom(source => source.LearningAim.LearningType));
+                    .ForMember(dest => dest.LearningAimStandardCode, opt => opt.MapFrom(source => source.LearningAim.StandardCode));
         }
 
     }
