@@ -22,7 +22,7 @@
     <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.4.1-prerelease-37" />
     <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.4.1-prerelease-37" />
     <PackageReference Include="SFA.DAS.Payments.DataLocks.Messages" Version="0.2.4" />
-    <PackageReference Include="SFA.DAS.Payments.EarningEvents.Messages" Version="2.0.8-prerelease-9" />
+    <PackageReference Include="SFA.DAS.Payments.EarningEvents.Messages" Version="2.0.8-prerelease-4" />
     <PackageReference Include="SFA.DAS.Payments.FundingSource.Messages" Version="1.2.5-prerelease-23" />
     <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Messages" Version="2.0.6" />
     <PackageReference Include="SFA.DAS.Payments.RequiredPayments.Messages" Version="2.0.11-prerelease-39" />
