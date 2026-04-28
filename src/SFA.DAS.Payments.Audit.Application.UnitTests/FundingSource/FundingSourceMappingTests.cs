@@ -11,6 +11,7 @@ using SFA.DAS.Payments.Tests.Core.Builders;
 
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.FundingSource
 {
+    [TestFixture]
     public abstract class FundingSourceMappingTests<TSource>
         where TSource : FundingSourcePaymentEvent
     {
