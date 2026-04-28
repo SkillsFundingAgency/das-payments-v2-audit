@@ -10,6 +10,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.FundingSource
     {
         public FundingSourceProfile()
         {
+            //TODO: Use the MapCommon extension method
             CreateMap<FundingSourcePaymentEvent, FundingSourceEventModel>()
                 .Include<SfaCoInvestedFundingSourcePaymentEvent, FundingSourceEventModel>()
                 .Include<EmployerCoInvestedFundingSourcePaymentEvent, FundingSourceEventModel>()
