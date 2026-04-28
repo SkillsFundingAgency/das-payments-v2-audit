@@ -41,7 +41,6 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
         }
 
 
-        //TODO: Short courses can also contain co invested payments, The CalculatedRequiredCoInvestedAmount type should also have a type of course
         [TestCase(CourseType.Apprenticeship)]
         //[TestCase(CourseType.ShortCourse)]
         public void Maps_CourseType(CourseType courseType)

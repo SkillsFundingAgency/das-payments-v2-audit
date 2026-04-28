@@ -140,10 +140,16 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
         [TestCase(LearningType.FoundationApprenticeship)]
         [TestCase(LearningType.ApprenticeshipUnit)]
         [TestCase(LearningType.FunctionalSkill)]
-        public void Maps_CourseType(LearningType learningType)
+        public void Maps_LearningType(LearningType learningType)
         {
             PaymentEvent.LearningAim.LearningType = learningType;
             Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).LearningType.Should().Be(learningType);
+        }
+
+        [Test]
+        public void Maps_CourseCode()
+        {
+            Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).CourseCode.Should().Be(PaymentEvent.LearningAim.CourseCode);
         }
     }
 }
