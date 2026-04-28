@@ -9,6 +9,7 @@ using SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Audit;
+using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.Model.Core.Incentives;
 using SFA.DAS.Payments.Model.Core.OnProgramme;
 
@@ -142,6 +143,10 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
             earningEventModel.LearningAimStandardCode.Should().Be(earningEvent.LearningAim.StandardCode);
             earningEventModel.LearningAimReference.Should().Be(earningEvent.LearningAim.Reference);
             earningEventModel.LearningAimFundingLineType.Should().Be(earningEvent.LearningAim.FundingLineType);
+
+            earningEventModel.CourseCode.Should().Be(earningEvent.LearningAim.CourseCode);
+            earningEventModel.LearningType.Should().Be((byte)earningEvent.LearningAim.LearningType);
+            earningEventModel.CourseType.Should().Be((byte)CourseType.Apprenticeship);
         }
 
         private void CompareLearnerDetails(EarningEvents.Messages.Events.EarningEvent earningEvent, EarningEventModel earningEventModel)
