@@ -251,7 +251,7 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.FundingSource
 
         [TestCase(LearningType.Apprenticeship)]
         [TestCase(LearningType.FoundationApprenticeship)]
-        [TestCase(LearningType.FunctionalSkill)]
+        [TestCase(LearningType.MathsAndEnglish)]
         [TestCase(LearningType.ApprenticeshipUnit)]
         public void Maps_CourseLearningType(LearningType learningType)
         {

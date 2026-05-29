@@ -16,8 +16,8 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
     <PackageReference Include="System.Text.Json" Version="8.0.0" />
 
-    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.4.1-prerelease-59" />
-    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.4.1-prerelease-59" />
+    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.5.0-prerelease-72" />
+    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.5.0-prerelease-72" />
     <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Messages" Version="2.0.6" />
   </ItemGroup>
   <ItemGroup>
