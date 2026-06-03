@@ -17,7 +17,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
 {
     public interface IEarningEventRepository
     {
-        Task RemovePriorEvents(long ukprn, short academicYear, byte collectionPeriod, DateTime latestIlrSubmissionTime, CancellationToken cancellationToken);
+        Task RemovePriorEvents(long ukprn, short academicYear, byte collectionPeriod, DateTime? latestIlrSubmissionTime, CancellationToken cancellationToken);
         Task RemoveFailedSubmissionEvents(long jobId, CancellationToken cancellationToken);
         Task SaveEarningEvents(List<EarningEventModel> earningEvents, CancellationToken cancellationToken);
         Task SaveEarningsIndividually(List<EarningEventModel> earningEvents, CancellationToken cancellationToken);
@@ -36,7 +36,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task RemovePriorEvents(long ukprn, short academicYear, byte collectionPeriod, DateTime latestIlrSubmissionTime, CancellationToken cancellationToken)
+        public async Task RemovePriorEvents(long ukprn, short academicYear, byte collectionPeriod, DateTime? latestIlrSubmissionTime, CancellationToken cancellationToken)
         {
             var dataContext = retryDataContextFactory.Create();
             await dataContext.Database.ExecuteSqlRawAsync($@"
