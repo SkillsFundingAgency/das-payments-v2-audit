@@ -31,6 +31,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .ForMember(dest => dest.EventType, opt => opt.MapFrom(x => x.GetType().FullName))
                 ;
 
+            
             CreateMap<ApprenticeshipContractType1RedundancyEarningEvent, EarningEventModel>()
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1))
                 .ForMember(dest => dest.AgreementId, opt => opt.MapFrom(source => source.AgreementId))
@@ -92,6 +93,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
             CreateMap<GSLShortCourseEarningsEvent, EarningEventModel>()
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1))
                 .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.ShortCourse))
+                .ForMember(dest => dest.Periods, opt => opt.MapFrom<GslShortCoursesResolver>())
                 ;
 
             CreateMap<FunctionalSkillEarningsEvent, EarningEventModel>()
@@ -131,6 +133,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
             CreateMap<ApprenticeshipContractTypeEarningsEvent, EarningEventModel>()
                 .ForMember(dest => dest.AgeAtStartOfLearning,
                     opt => opt.MapFrom(source => source.AgeAtStartOfLearning));
+            
         }
     }
 }

@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.Azure.Amqp.Framing;
 using NUnit.Framework;
 using SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
-using SFA.DAS.Payments.Messages.Common.Events;
 using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Model.Core.Entities;
@@ -12,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using SFA.DAS.Payments.EarningEvents.Messages;
 
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
 {
@@ -66,6 +65,27 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
                         FundingLineType = "funding line type",
                         LearningAimSequenceNumber = 112
                     }
+                },
+                Earnings = new List<ShortCourseEarning>()
+                {
+                    new ShortCourseEarning
+                    {
+                        Type = ShortCourseEarningType.Milestone1,
+                        Periods = new List<EarningPeriod>()
+                        {
+                            new EarningPeriod
+                            {
+                                AccountId = 12345,
+                                TransferSenderAccountId = 223344,
+                                Amount = 1000m,
+                                SfaContributionPercentage = 0.95m,
+                                PriceEpisodeIdentifier = "PEI",
+                                ApprenticeshipId = 11223344,
+                                Period = 1,
+                                ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy
+                            }
+                        }
+                    }
                 }
             };
         }
@@ -99,6 +119,43 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
         {
             var model = Mapper.Map<EarningEventModel>(PaymentEvent);
             model.CourseType.Should().Be((byte)CourseType.ShortCourse);
+        }
+
+        [Test]
+        public void Maps_Periods()
+        {
+            var model = Mapper.Map<EarningEventModel>(PaymentEvent);
+
+            model.Periods.Should().NotBeNull();
+            model.Periods.Count.Should().Be(1);
+            var period = model.Periods[0];
+            var earning = PaymentEvent.Earnings.ToList()[0];
+            var earningEventPeriod = earning.Periods.ToList()[0];
+            period.TransactionType.Should().Be((TransactionType)earning.Type);
+            period.AcademicYear.Should().Be(PaymentEvent.CollectionPeriod.AcademicYear);
+            period.CollectionPeriod.Should().Be(PaymentEvent.CollectionPeriod.Period);
+            period.DeliveryPeriod.Should().Be(earningEventPeriod.Period);
+            period.Amount.Should().Be(earningEventPeriod.Amount);
+            period.PriceEpisodeIdentifier.Should().Be(earningEventPeriod.PriceEpisodeIdentifier);
+            period.SfaContributionPercentage.Should().Be(earningEventPeriod.SfaContributionPercentage);
+            period.EarningEventId.Should().Be(PaymentEvent.EventId);
+        }
+
+        [Test]
+        public void Maps_Empty_Periods()
+        {
+            PaymentEvent.Earnings = new List<ShortCourseEarning>
+            {
+                new ShortCourseEarning
+                {
+                    Periods = new List<EarningPeriod>()
+                }
+            };
+
+            var model = Mapper.Map<EarningEventModel>(PaymentEvent);
+
+            model.Periods.Should().NotBeNull();
+            model.Periods.Count.Should().Be(0);
         }
     }
 }
