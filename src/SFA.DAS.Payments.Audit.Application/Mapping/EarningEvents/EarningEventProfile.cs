@@ -21,7 +21,6 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .Include<Act2FunctionalSkillEarningsEvent, EarningEventModel>()
                 .Include<Act1RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
                 .Include<Act2RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
-                .Include<GSLShortCourseEarningsEvent, EarningEventModel>()
                 .MapCommon()
                 .ForMember(dest => dest.ContractType, opt => opt.Ignore())
                 .ForMember(dest => dest.AgreementId, opt => opt.Ignore())
@@ -29,7 +28,17 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .ForMember(dest => dest.LearningAimSequenceNumber, opt => opt.MapFrom(x => x.LearningAim.SequenceNumber))
                 .ForMember(dest => dest.LearningStartDate, opt => opt.MapFrom(src => src.LearningAim.StartDate))
                 .ForMember(dest => dest.EventType, opt => opt.MapFrom(x => x.GetType().FullName))
-                ;
+            ;
+
+            CreateMap<GSLShortCourseEarningsEvent, EarningEventModel>()
+                .MapCommon()
+                .ForMember(dest => dest.ContractType, opt => opt.Ignore())
+                .ForMember(dest => dest.AgreementId, opt => opt.Ignore())
+                .ForMember(dest => dest.PriceEpisodes, opt => opt.MapFrom<EarningEventPriceEpisodeModelListResolver>())
+                .ForMember(dest => dest.LearningAimSequenceNumber, opt => opt.MapFrom(x => x.LearningAim.SequenceNumber))
+                .ForMember(dest => dest.LearningStartDate, opt => opt.MapFrom(src => src.LearningAim.StartDate))
+                .ForMember(dest => dest.EventType, opt => opt.MapFrom(x => x.GetType().FullName))
+                .ForMember(dest => dest.Periods, opt => opt.MapFrom<GslShortCoursesResolver>());
 
             CreateMap<ApprenticeshipContractType1RedundancyEarningEvent, EarningEventModel>()
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1))

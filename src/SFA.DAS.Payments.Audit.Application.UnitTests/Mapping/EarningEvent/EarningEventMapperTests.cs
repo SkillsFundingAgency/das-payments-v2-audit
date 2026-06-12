@@ -119,6 +119,57 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
             ComparePriceEpisodes(earningEvent, earningEventModel); //TODO: 
         }
 
+        [Test]
+        public void Maps_GSLShortCourseEarningsEvent_To_EarningEventModel()
+        {
+            var earningsEvent = new GSLShortCourseEarningsEvent
+            {
+                JobId = 1234,
+                EventId = Guid.NewGuid(),
+                EventTime = DateTimeOffset.UtcNow,
+                IlrSubmissionDateTime = DateTime.UtcNow,
+                Ukprn = 10000001,
+                Learner = new Learner
+                {
+                    Uln = 1234567890,
+                    ReferenceNumber = "LRN-001"
+                },
+                CollectionPeriod = new CollectionPeriod
+                {
+                    AcademicYear = 2425,
+                    Period = 1
+                },
+                LearningAim = new LearningAim
+                {
+                    SequenceNumber = 1,
+                    StartDate = new DateTime(2025, 8, 1),
+                    Reference = "ZPROG001",
+                    FundingLineType = "Funding line type",
+                    FrameworkCode = 1,
+                    ProgrammeType = 2,
+                    PathwayCode = 3,
+                    StandardCode = 4,
+                    CourseCode = "SC-001",
+                    LearningType = LearningType.Apprenticeship
+                },
+                PriceEpisodes = new List<PriceEpisode>
+                {
+                    new PriceEpisode
+                    {
+                        Identifier = "pe-1",
+                        LearningAimSequenceNumber = 1,
+                        FundingLineType = "Funding line type",
+                        TotalNegotiatedPrice1 = 1000m
+                    }
+                }
+            };
+            var model = Mapper.Map<EarningEventModel>(earningsEvent);
+
+            model.Should().NotBeNull();
+            model.ContractType.Should().Be(ContractType.Act1);
+            model.CourseType.Should().Be((byte)CourseType.ShortCourse);
+        }
+
         private void CompareCommonProperties(EarningEvents.Messages.Events.EarningEvent earningEvent, EarningEventModel earningEventModel)
         {
             earningEventModel.EventId.Should().Be(earningEvent.EventId);
