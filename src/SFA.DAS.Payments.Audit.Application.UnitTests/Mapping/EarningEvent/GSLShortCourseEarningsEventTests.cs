@@ -35,7 +35,7 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
                 JobId = 1234,
                 LearningAim = new LearningAim
                 {
-                    FundingLineType = "funding line type",
+                    FundingLineType = "", // not populated by GSO Earnings Bridge
                     FrameworkCode = 0,
                     StandardCode = 0,
                     PathwayCode = 0,
@@ -62,7 +62,7 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
                         NumberOfInstalments = 10,
                         PlannedEndDate = DateTime.Today,
                         EffectiveTotalNegotiatedPriceStartDate = DateTime.Today.AddMonths(-1),
-                        FundingLineType = "funding line type",
+                        FundingLineType = "gso funding line type", // populated by GSO Earnings Bridge
                         LearningAimSequenceNumber = 112
                     }
                 },
@@ -157,5 +157,14 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
             model.Periods.Should().NotBeNull();
             model.Periods.Count.Should().Be(0);
         }
+
+        [Test]
+        public void Maps_FundingLineType()
+        {
+            var model = Mapper.Map<EarningEventModel>(PaymentEvent);
+
+            model.LearningAimFundingLineType.Should().Be(PaymentEvent.PriceEpisodes.ToList()[0].FundingLineType);
+        }
+
     }
 }

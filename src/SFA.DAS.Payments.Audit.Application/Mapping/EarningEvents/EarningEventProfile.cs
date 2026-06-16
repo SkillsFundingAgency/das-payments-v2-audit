@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.Messages.Common.Events;
 using SFA.DAS.Payments.Model.Core;
@@ -94,6 +95,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1))
                 .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.ShortCourse))
                 .ForMember(dest => dest.Periods, opt => opt.MapFrom<GslShortCoursesResolver>())
+                .ForMember(dest => dest.LearningAimFundingLineType, opt => opt.MapFrom(src => src.PriceEpisodes.FirstOrDefault().FundingLineType ?? string.Empty))
                 ;
 
             CreateMap<FunctionalSkillEarningsEvent, EarningEventModel>()
