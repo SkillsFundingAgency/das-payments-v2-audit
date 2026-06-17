@@ -16,7 +16,7 @@
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="7.0.1010" />
     <PackageReference Include="NServiceBus" Version="8.1.1" />
 
-    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.5.0-prerelease-72" />
+    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.5.0-prerelease-75" />
     <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.5" />
   </ItemGroup>
 
