@@ -27,7 +27,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data
                 new DataColumn("LearningAimPathwayCode"),
                 new DataColumn("LearningAimFundingLineType"),
                 new DataColumn("Ukprn"),
-                new DataColumn("IlrSubmissionDateTime", typeof(DateTime)),
+                new DataColumn("IlrSubmissionDateTime", typeof(DateTime)) {AllowDBNull = true},
                 new DataColumn("JobId"),
                 new DataColumn("EventTime", typeof(DateTimeOffset)),
                 new DataColumn("LearningStartDate",typeof(DateTime)) {AllowDBNull = true},
