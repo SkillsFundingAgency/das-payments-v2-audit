@@ -25,11 +25,12 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping
                     .ForMember(dest => dest.InstalmentAmount, opt => opt.MapFrom(source => source.InstalmentAmount))
                     .ForMember(dest => dest.NumberOfInstalments, opt => opt.MapFrom(source => source.NumberOfInstalments))
                     .ForMember(dest => dest.ApprenticeshipId, opt => opt.MapFrom(source => source.ApprenticeshipId))
-                    .ForMember(dest => dest.ApprenticeshipPriceEpisodeId, opt => opt.MapFrom(source => source.ApprenticeshipPriceEpisodeId));
+                    .ForMember(dest => dest.ApprenticeshipPriceEpisodeId, opt => opt.MapFrom(source => source.ApprenticeshipPriceEpisodeId))
+                ;
         }
 
         public static IMappingExpression<TSource, TDest> MapCommon<TSource, TDest>(this IMappingExpression<TSource, TDest> mappingExpression)
-            where TSource : PaymentsEvent
+            where TSource : IPaymentsEvent
             where TDest : PaymentsEventModel
         {
             return mappingExpression
@@ -46,7 +47,11 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping
                     .ForMember(dest => dest.LearningAimFundingLineType, opt => opt.MapFrom(source => source.LearningAim.FundingLineType))
                     .ForMember(dest => dest.LearningAimProgrammeType, opt => opt.MapFrom(source => source.LearningAim.ProgrammeType))
                     .ForMember(dest => dest.LearningAimReference, opt => opt.MapFrom(source => source.LearningAim.Reference))
-                    .ForMember(dest => dest.LearningAimStandardCode, opt => opt.MapFrom(source => source.LearningAim.StandardCode));
+                    .ForMember(dest => dest.LearningAimStandardCode, opt => opt.MapFrom(source => source.LearningAim.StandardCode))
+                    .ForMember(dest => dest.LearningType, opt => opt.MapFrom(source => source.LearningAim.LearningType))
+                    .ForMember(dest => dest.CourseCode, opt => opt.MapFrom(source => source.LearningAim.CourseCode))
+
+                ;
         }
 
     }

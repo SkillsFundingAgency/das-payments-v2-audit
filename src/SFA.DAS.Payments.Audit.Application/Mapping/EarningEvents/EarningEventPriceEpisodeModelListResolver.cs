@@ -2,13 +2,14 @@
 using System.Linq;
 using AutoMapper;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
+using SFA.DAS.Payments.Messages.Common.Events;
 using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
 {
-    public class EarningEventPriceEpisodeModelListResolver: IValueResolver<EarningEvent,EarningEventModel,List<EarningEventPriceEpisodeModel>>
+    public class EarningEventPriceEpisodeModelListResolver: IValueResolver<IEarningEvent,EarningEventModel,List<EarningEventPriceEpisodeModel>>
     {
-        public List<EarningEventPriceEpisodeModel> Resolve(EarningEvent source, EarningEventModel destination, List<EarningEventPriceEpisodeModel> destMember, ResolutionContext context)
+        public List<EarningEventPriceEpisodeModel> Resolve(IEarningEvent source, EarningEventModel destination, List<EarningEventPriceEpisodeModel> destMember, ResolutionContext context)
         {
             var priceEpisodeModels = source.PriceEpisodes?
                 .Select(priceEpisode => context.Mapper.Map<EarningEventPriceEpisodeModel>(priceEpisode))

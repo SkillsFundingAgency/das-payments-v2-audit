@@ -10,6 +10,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.FundingSource
     {
         public FundingSourceProfile()
         {
+            //TODO: Use the MapCommon extension method
             CreateMap<FundingSourcePaymentEvent, FundingSourceEventModel>()
                 .Include<SfaCoInvestedFundingSourcePaymentEvent, FundingSourceEventModel>()
                 .Include<EmployerCoInvestedFundingSourcePaymentEvent, FundingSourceEventModel>()
@@ -49,6 +50,9 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.FundingSource
                 .ForMember(dest => dest.ClawbackSourcePaymentEventId, opt => opt.MapFrom(source => source.ClawbackSourcePaymentEventId ?? Guid.Empty))
                 .ForMember(dest => dest.AgeAtStartOfLearning, opt => opt.MapFrom(source => source.AgeAtStartOfLearning))
                 .ForMember(dest => dest.FundingPlatformType, opt => opt.MapFrom(source => source.FundingPlatformType))
+                .ForMember(dest => dest.CourseCode, opt => opt.MapFrom(source => source.LearningAim.CourseCode))
+                .ForMember(dest => dest.LearningType, opt => opt.MapFrom(source => source.LearningAim.LearningType))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(source => source.CourseType))
                 ;
             CreateMap<SfaCoInvestedFundingSourcePaymentEvent, FundingSourceEventModel>();
             CreateMap<EmployerCoInvestedFundingSourcePaymentEvent, FundingSourceEventModel>();

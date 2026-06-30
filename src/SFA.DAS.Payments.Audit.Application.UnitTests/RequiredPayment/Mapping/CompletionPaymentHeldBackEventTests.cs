@@ -17,5 +17,10 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
         {
             Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).NonPaymentReason.Should().Be(NonPaymentReason.InsufficientEmployerContribution);
         }
+        [Test]
+        public void Maps_CourseType()
+        {
+            Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).CourseType.Should().Be(CourseType.Apprenticeship);
+        }
     }
 }

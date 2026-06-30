@@ -46,5 +46,14 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
             Mapper.Map<EarningEventModel>(PaymentEvent).ContractType.Should().Be(PaymentEvent.ContractType);
         }
 
+
+        [Test]
+        public void Maps_Course_Type()
+        {
+            var model = Mapper.Map<EarningEventModel>(PaymentEvent);
+            model.CourseType.Should().NotBeNull();
+            model.CourseType.Should().Be((byte)CourseType.FunctionalSkill);
+        }
+
     }
 }

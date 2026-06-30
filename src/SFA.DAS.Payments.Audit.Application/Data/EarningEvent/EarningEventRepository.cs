@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Newtonsoft.Json;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core;
@@ -69,7 +70,12 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
                     {SetOutputIdentity = false, BulkCopyTimeout = 60, PreserveInsertOrder = false};
                 await ((DbContext) dataContext).BulkInsertAsync(earningEvents, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
-                await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.Periods).ToList(), bulkConfig, null, null, cancellationToken)
+
+                var list = earningEvents.SelectMany(earning => earning.Periods).ToList();
+
+                logger.LogInfo($"SaveEarningEvents - Inserting Earning events into DB - {JsonConvert.SerializeObject(list)} earning events.");
+
+                await ((DbContext)dataContext).BulkInsertAsync(list, bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);
                 await ((DbContext)dataContext).BulkInsertAsync(earningEvents.SelectMany(earning => earning.PriceEpisodes).ToList(), bulkConfig, null, null, cancellationToken)
                     .ConfigureAwait(false);

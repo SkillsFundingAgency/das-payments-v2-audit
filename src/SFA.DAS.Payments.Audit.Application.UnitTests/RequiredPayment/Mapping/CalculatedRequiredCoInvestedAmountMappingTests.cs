@@ -36,8 +36,17 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
         {
             var payment = CreatePaymentEvent();
             payment.ContractType = contractType;
-
+            
             Mapper.Map<RequiredPaymentEventModel>(payment).AgeAtStartOfLearning.Should().Be(17);
+        }
+
+
+        [TestCase(CourseType.Apprenticeship)]
+        //[TestCase(CourseType.ShortCourse)]
+        public void Maps_CourseType(CourseType courseType)
+        {
+            //PaymentEvent.CourseType = courseType;  //TODO: Short courses can also contain co invested payments, The CalculatedRequiredCoInvestedAmount type should also have a type of course
+            Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).CourseType.Should().Be(courseType);
         }
     }
 }

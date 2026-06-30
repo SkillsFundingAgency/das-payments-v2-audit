@@ -12,7 +12,7 @@ using SFA.DAS.Payments.Tests.Core.Builders;
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
 {
     public abstract class PaymentEventMappingTests<TSource, TDest>
-        where TSource :PaymentsEvent
+        where TSource : PaymentsEvent
         where TDest : PaymentsEventModel
     {
         protected IMapper Mapper { get; private set; }
@@ -52,8 +52,10 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
                 StandardCode = 98,
                 PathwayCode = 97,
                 ProgrammeType = 96,
-                Reference = "LA-54321",
-                SequenceNumber = 112
+                Reference = "ZPROG001",
+                SequenceNumber = 112,
+                CourseCode = "ZPROG001",
+                LearningType = LearningType.Apprenticeship
             };
             paymentEvent.Ukprn = 23456;
         }
@@ -151,6 +153,19 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
         public void Maps_LearningAimStandardCode()
         {
             Mapper.Map<TDest>(PaymentEvent).LearningAimStandardCode.Should().Be(PaymentEvent.LearningAim.StandardCode);
+        }
+
+        [Test]
+        public void Maps_CourseCode()
+        {
+            Mapper.Map<TDest>(PaymentEvent).CourseCode.Should().Be(PaymentEvent.LearningAim.CourseCode);
+
+        }
+
+        [Test]
+        public void Maps_LearningType()
+        {
+            Mapper.Map<TDest>(PaymentEvent).LearningType.Should().Be((byte?)PaymentEvent.LearningAim.LearningType);
         }
     }
 }

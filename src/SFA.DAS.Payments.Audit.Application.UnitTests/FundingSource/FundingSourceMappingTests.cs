@@ -11,6 +11,7 @@ using SFA.DAS.Payments.Tests.Core.Builders;
 
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.FundingSource
 {
+    [TestFixture]
     public abstract class FundingSourceMappingTests<TSource>
         where TSource : FundingSourcePaymentEvent
     {
@@ -240,6 +241,22 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.FundingSource
         {
             PaymentEvent.FundingPlatformType = fundingPlatformType;
             Mapper.Map<FundingSourceEventModel>(PaymentEvent).FundingPlatformType.Should().Be(fundingPlatformType);
+        }
+
+        [Test]
+        public void Maps_CourseCode()
+        {
+            Mapper.Map<FundingSourceEventModel>(PaymentEvent).CourseCode.Should().Be(PaymentEvent.LearningAim.CourseCode);
+        }
+
+        [TestCase(LearningType.Apprenticeship)]
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.MathsAndEnglish)]
+        [TestCase(LearningType.ApprenticeshipUnit)]
+        public void Maps_CourseLearningType(LearningType learningType)
+        {
+            PaymentEvent.LearningAim.LearningType = learningType;
+            Mapper.Map<FundingSourceEventModel>(PaymentEvent).LearningType.Should().Be(learningType);
         }
 
         protected virtual void PopulateCommonProperties(TSource paymentEvent)
