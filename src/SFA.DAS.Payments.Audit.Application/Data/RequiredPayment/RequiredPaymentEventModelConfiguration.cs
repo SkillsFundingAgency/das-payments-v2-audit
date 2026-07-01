@@ -54,6 +54,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.RequiredPayment
             builder.Property(x => x.ApprenticeshipEmployerType).HasColumnName(@"ApprenticeshipEmployerType");
             builder.Property(x => x.NonPaymentReason).HasColumnName(@"NonPaymentReason");
             builder.Property(x => x.EventType).HasColumnName(@"EventType");
+            builder.Property(x => x.ExternalEarningsId).HasColumnName(@"ExternalEarningsId");
         }
     }
 }
