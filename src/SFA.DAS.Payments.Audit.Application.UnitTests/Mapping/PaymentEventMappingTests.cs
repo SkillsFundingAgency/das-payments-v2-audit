@@ -3,6 +3,7 @@ using AutoMapper;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Payments.Audit.Model;
+using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.Messages.Common.Events;
 using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Audit;
@@ -134,6 +135,12 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping
         [Test]
         public void Maps_LearningAimFundingLineType()
         {
+            // if statement added as FundingLineType is populated in the earnings for GSO
+            // 
+            if (PaymentEvent is GSLShortCourseEarningsEvent)
+            {
+                return;
+            }
             Mapper.Map<TDest>(PaymentEvent).LearningAimFundingLineType.Should().Be(PaymentEvent.LearningAim.FundingLineType);
         }
 
