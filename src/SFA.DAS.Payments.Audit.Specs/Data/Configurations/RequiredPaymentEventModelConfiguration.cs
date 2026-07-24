@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SFA.DAS.Payments.Model.Core.Audit;
 
-namespace SFA.DAS.Payments.Audit.Application.Data.RequiredPayment
+namespace SFA.DAS.Payments.Audit.Specs.Data.Configurations
 {
     public class RequiredPaymentEventModelConfiguration : IEntityTypeConfiguration<RequiredPaymentEventModel>
     {
