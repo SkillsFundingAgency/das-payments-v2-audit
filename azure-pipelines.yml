@@ -14,7 +14,7 @@ variables:
 - name: ArtifactName
   value: 'AuditArchiveFunctionApp'
 - group: Release Management Resources
-- group: RELEASE das-payments-v2-auditfunction
+- group: RELEASE das-payments-v2-archivefunction
 
 resources:
   repositories:
@@ -40,7 +40,7 @@ stages:
   dependsOn: Build
   displayName: Deploy to DAS
   variables:
-  - group: DAS das-payments-v2-auditfunction
+  - group: DAS das-payments-v2-archivefunction
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -53,7 +53,7 @@ stages:
 #   dependsOn: Build
 #   displayName: Deploy to DST
 #   variables:
-#   - group: DST das-payments-v2-auditfunction
+#   - group: DST das-payments-v2-archivefunction
 #   jobs:
 #   - template: pipeline-templates/job/deploy.yml
 #     parameters:
@@ -66,7 +66,7 @@ stages:
   dependsOn: Build
   displayName: Deploy to SIT
   variables:
-  - group: SIT das-payments-v2-auditfunction
+  - group: SIT das-payments-v2-archivefunction
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -79,7 +79,7 @@ stages:
 #   dependsOn: Build
 #   displayName: Deploy to ETE
 #   variables:
-#   - group: ETE das-payments-v2-auditfunction
+#   - group: ETE das-payments-v2-archivefunction
 #   jobs:
 #   - template: pipeline-templates/job/deploy.yml
 #     parameters:
@@ -92,7 +92,7 @@ stages:
 #   dependsOn: Build
 #   displayName: Deploy to MO
 #   variables:
-#   - group: MO das-payments-v2-auditfunction
+#   - group: MO das-payments-v2-archivefunction
 #   jobs:
 #   - template: pipeline-templates/job/deploy.yml
 #     parameters:
@@ -105,7 +105,7 @@ stages:
 #   dependsOn: Build
 #   displayName: Deploy to PP
 #   variables:
-#   - group: PP das-payments-v2-auditfunction
+#   - group: PP das-payments-v2-archivefunction
 #   jobs:
 #   - template: pipeline-templates/job/deploy.yml
 #     parameters:
@@ -118,7 +118,7 @@ stages:
 #   dependsOn: Build
 #   displayName: Deploy to PD
 #   variables:
-#   - group: PD das-payments-v2-auditfunction
+#   - group: PD das-payments-v2-archivefunction
 #   jobs:
 #   - template: pipeline-templates/job/deploy.yml
 #     parameters:
