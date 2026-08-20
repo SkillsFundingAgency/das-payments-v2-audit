@@ -1,0 +1,260 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "functionAppName": {
+      "type": "string"
+    },
+    "environmentName": {
+      "type": "string",
+      "metadata": {
+        "description": "Short environment name, e.g. DAS, DST, SIT, ETE, MO, PP, PD. Applied as a resource tag."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing storage account used for the Flex Consumption deployment container. Must be the same account as the one in azureWebJobsStorage."
+      }
+    },
+    "deploymentContainerName": {
+      "type": "string",
+      "defaultValue": "audit-archive-app-package",
+      "metadata": {
+        "description": "Blob container the Flex Consumption package is deployed to. Must already exist and must not be shared with another function app."
+      }
+    },
+    "maximumInstanceCount": {
+      "type": "int",
+      "defaultValue": 100
+    },
+    "instanceMemoryMB": {
+      "type": "int",
+      "defaultValue": 2048,
+      "allowedValues": [
+        512,
+        2048,
+        4096
+      ]
+    },
+    "resourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group holding the Azure Data Factory the archive pipeline runs in. Read by the app as the ResourceGroup setting, not the resource group this template deploys to."
+      }
+    },
+    "azureDataFactoryName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Data Factory holding the archive pipeline, e.g. DCOL-SIT-DataFactoryDAS-WEU"
+      }
+    },
+    "pipeLine": {
+      "type": "string",
+      "defaultValue": "CopyPaymentsToArchive",
+      "metadata": {
+        "description": "Name of the Data Factory pipeline the archive orchestrator triggers"
+      }
+    },
+    "subscriptionId": {
+      "type": "string",
+      "metadata": {
+        "description": "Subscription holding the Data Factory, used by the app when calling the ADF management API"
+      }
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "applicationId": {
+      "type": "string",
+      "metadata": {
+        "description": "Client id of the service principal used to authenticate against the Data Factory management API"
+      }
+    },
+    "authenticationKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Client secret for the applicationId service principal"
+      }
+    },
+    "sleepDelay": {
+      "type": "int",
+      "defaultValue": 180,
+      "metadata": {
+        "description": "Minutes the orchestrator polls the Data Factory pipeline run for before giving up"
+      }
+    },
+    "authorityUri": {
+      "type": "string",
+      "defaultValue": "https://login.microsoftonline.com/"
+    },
+    "managementUri": {
+      "type": "string",
+      "defaultValue": "https://management.azure.com//.default"
+    },
+    "azureWebJobsStorage": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Connection string for the storage account the Functions host uses for internal state, Durable Functions task hub state, and for the deployment container"
+      }
+    },
+    "appInsightsInstrumentationKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Value for the APPINSIGHTS_INSTRUMENTATIONKEY setting read by the Functions host"
+      }
+    },
+    "applicationInsightsInstrumentationKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Value for the ApplicationInsightsInstrumentationKey setting read by the application"
+      }
+    },
+    "applicationInsightsConnectionString": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Connection string for the Application Insights resource. Required on Flex Consumption, which has no filesystem log streaming"
+      }
+    }
+  },
+  "variables": {
+    "functionAppApiVersion": "2023-12-01",
+    "deploymentStorageContainerUri": "[concat('https://', parameters('storageAccountName'), '.blob.core.windows.net/', parameters('deploymentContainerName'))]",
+    "vnetName": "[concat('DCOL-', parameters('environmentName'), '-VNET-WEU')]",
+    "functionAppSubnetId": "[resourceId(variables('vnetName'), 'Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'DCOL-FunctionApp-Integration-Subnet')]",
+    "appSettings": [
+      {
+        "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+        "value": "[parameters('appInsightsInstrumentationKey')]"
+      },
+      {
+        "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+        "value": "[parameters('applicationInsightsConnectionString')]"
+      },
+      {
+        "name": "ApplicationId",
+        "value": "[parameters('applicationId')]"
+      },
+      {
+        "name": "ApplicationInsightsInstrumentationKey",
+        "value": "[parameters('applicationInsightsInstrumentationKey')]"
+      },
+      {
+        "name": "AuthenticationKey",
+        "value": "[parameters('authenticationKey')]"
+      },
+      {
+        "name": "AuthorityUri",
+        "value": "[parameters('authorityUri')]"
+      },
+      {
+        "name": "AzureDataFactoryName",
+        "value": "[parameters('azureDataFactoryName')]"
+      },
+      {
+        "name": "AzureWebJobsStorage",
+        "value": "[parameters('azureWebJobsStorage')]"
+      },
+      {
+        "name": "DEPLOYMENT_STORAGE_CONNECTION_STRING",
+        "value": "[parameters('azureWebJobsStorage')]"
+      },
+      {
+        "name": "ManagementUri",
+        "value": "[parameters('managementUri')]"
+      },
+      {
+        "name": "PipeLine",
+        "value": "[parameters('pipeLine')]"
+      },
+      {
+        "name": "ResourceGroup",
+        "value": "[parameters('resourceGroup')]"
+      },
+      {
+        "name": "SleepDelay",
+        "value": "[string(parameters('sleepDelay'))]"
+      },
+      {
+        "name": "SubscriptionId",
+        "value": "[parameters('subscriptionId')]"
+      },
+      {
+        "name": "TenantId",
+        "value": "[parameters('tenantId')]"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "name": "[parameters('functionAppName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2023-12-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Environment": "[parameters('environmentName')]"
+      },
+      "sku": {
+        "name": "FC1",
+        "tier": "FlexConsumption"
+      },
+      "kind": "functionapp",
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "name": "[parameters('functionAppName')]",
+      "type": "Microsoft.Web/sites",
+      "kind": "functionapp,linux",
+      "apiVersion": "[variables('functionAppApiVersion')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Environment": "[parameters('environmentName')]"
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppName'))]",
+        "virtualNetworkSubnetId": "[variables('functionAppSubnetId')]",
+        "clientAffinityEnabled": false,
+        "httpsOnly": true,
+        "siteConfig": {
+          "appSettings": "[variables('appSettings')]",
+          "minTlsVersion": "1.2",
+          "ftpsState": "Disabled"
+        },
+        "functionAppConfig": {
+          "deployment": {
+            "storage": {
+              "type": "blobContainer",
+              "value": "[variables('deploymentStorageContainerUri')]",
+              "authentication": {
+                "type": "StorageAccountConnectionString",
+                "storageAccountConnectionStringName": "DEPLOYMENT_STORAGE_CONNECTION_STRING"
+              }
+            }
+          },
+          "scaleAndConcurrency": {
+            "maximumInstanceCount": "[parameters('maximumInstanceCount')]",
+            "instanceMemoryMB": "[parameters('instanceMemoryMB')]"
+          },
+          "runtime": {
+            "name": "dotnet-isolated",
+            "version": "8.0"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "managedServiceIdentityId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', parameters('functionAppName')), variables('functionAppApiVersion'), 'Full').identity.principalId]"
+    }
+  }
+}
