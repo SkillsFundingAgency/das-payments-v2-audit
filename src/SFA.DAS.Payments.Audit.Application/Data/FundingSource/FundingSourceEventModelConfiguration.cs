@@ -55,6 +55,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.FundingSource
             builder.Property(x => x.ApprenticeshipPriceEpisodeId).HasColumnName(@"ApprenticeshipPriceEpisodeId");
             builder.Property(x => x.ApprenticeshipEmployerType).HasColumnName(@"ApprenticeshipEmployerType");
             builder.Property(x => x.FundingPlatformType).HasColumnName(@"FundingPlatformType");
+            builder.Property(x => x.ExternalEarningsId).HasColumnName(@"ExternalEarningsId");
         }
     }
 }

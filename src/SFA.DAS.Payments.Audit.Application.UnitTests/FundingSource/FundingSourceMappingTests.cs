@@ -259,6 +259,20 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.FundingSource
             Mapper.Map<FundingSourceEventModel>(PaymentEvent).LearningType.Should().Be(learningType);
         }
 
+        [Test]
+        public void Maps_ExternalEarningsId()
+        {
+            PaymentEvent.ExternalEarningsId = Guid.NewGuid();
+            Mapper.Map<FundingSourceEventModel>(PaymentEvent).ExternalEarningsId.Should().Be(PaymentEvent.ExternalEarningsId);
+        }
+
+        [Test]
+        public void Maps_ExternalEarningsId_WhenNull()
+        {
+            PaymentEvent.ExternalEarningsId = null;
+            Mapper.Map<FundingSourceEventModel>(PaymentEvent).ExternalEarningsId.Should().BeNull();
+        }
+
         protected virtual void PopulateCommonProperties(TSource paymentEvent)
         {
             paymentEvent.Learner = new Learner
