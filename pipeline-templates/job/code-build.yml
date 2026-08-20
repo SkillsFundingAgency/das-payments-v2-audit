@@ -17,7 +17,12 @@ jobs:
     inputs: 
       packageType: 'sdk'
       version: 6.x
-      
+
+  - task: UseDotNet@2
+    displayName: Use .NET 8
+    inputs:
+      packageType: 'sdk'
+      version: 8.x
 
   - task: NuGetCommand@2
     displayName: Nuget Restore
@@ -57,6 +62,28 @@ jobs:
     inputs:
       command: build
       projects: '**/*unittest*.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build ArchiveService'
+    inputs:
+      projects: src/SFA.DAS.Payments.Audit.ArchiveService/SFA.DAS.Payments.Audit.ArchiveService.csproj
+      arguments: '--configuration $(BuildConfiguration)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet publish ArchiveService'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: src/SFA.DAS.Payments.Audit.ArchiveService/SFA.DAS.Payments.Audit.ArchiveService.csproj
+      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\Audit-ArchiveService'
+      modifyOutputPath: false
+      zipAfterPublish: false
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Pipeline Artifact - Audit ArchiveService Function'
+    inputs:
+      targetPath: '$(build.artifactstagingdirectory)\Audit-ArchiveService'
+      artifact: AuditArchiveFunctionApp
 
   - task: DotNetCoreCLI@2
     displayName: 'dotnet test UnitTest Projects'
