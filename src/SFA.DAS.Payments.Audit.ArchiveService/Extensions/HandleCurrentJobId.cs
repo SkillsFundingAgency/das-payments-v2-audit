@@ -1,30 +1,26 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using SFA.DAS.Payments.Model.Core.Audit;
+﻿using SFA.DAS.Payments.Model.Core.Audit;
+using SFA.DAS.Payments.Application.Infrastructure.Logging;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Extensions
 {
+    // In-memory replacement for durable entity used during isolated-worker POC.
     public static class HandleCurrentJobId
     {
         public const string PeriodEndArchiveEntityName = "CurrentPeriodEndArchiveJobId";
 
-        [FunctionName(nameof(Handle))]
-        public static void Handle([EntityTrigger] IDurableEntityContext ctx)
+        public static void Add(ArchiveRunInformation info)
         {
-            var currentValue = ctx.GetState<ArchiveRunInformation>();
-            switch (ctx.OperationName.ToLowerInvariant())
-            {
-                case "add":
-                    var newJobId = ctx.GetInput<ArchiveRunInformation>();
-                    ctx.SetState(newJobId);
-                    break;
-                case "reset":
-                    ctx.SetState(new ArchiveRunInformation());
-                    break;
-                case "get":
-                    ctx.Return(currentValue);
-                    break;
-            }
+            Helpers.StatusHelper.UpdateCurrentJobStatus(info);
+        }
+
+        public static void Reset(IPaymentLogger log)
+        {
+            Helpers.StatusHelper.ClearCurrentStatus(log);
+        }
+
+        public static ArchiveRunInformation Get()
+        {
+            return Helpers.StatusHelper.GetCurrentJobs();
         }
     }
 }

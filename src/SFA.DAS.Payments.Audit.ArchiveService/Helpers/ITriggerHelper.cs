@@ -7,10 +7,9 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
 {
     public interface ITriggerHelper
     {
-        Task<HttpResponseMessage> StartOrchestrator(
-            HttpRequestMessage req,
+        Task<HttpResponseMessage> StartOrchestrator(HttpRequestMessage req,
             IDurableOrchestrationClient starter,
-            IPaymentLogger log,
-            IDurableEntityClient client);
+            IDurableEntityClient client,
+            IPaymentLogger log);
     }
 }

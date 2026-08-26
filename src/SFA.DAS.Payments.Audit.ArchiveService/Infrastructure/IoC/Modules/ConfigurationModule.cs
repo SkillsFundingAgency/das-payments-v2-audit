@@ -27,6 +27,12 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC.Modules
                 })
                 .As<IPeriodEndArchiveConfiguration>().SingleInstance();
             builder.RegisterType<FunctionsConfigurationHelper>().As<IConfigurationHelper>().SingleInstance();
+            // Register ArchiveService components for DI
+            builder.RegisterType<SFA.DAS.Payments.Audit.ArchiveService.Helpers.TriggerHelper>()
+                .As<SFA.DAS.Payments.Audit.ArchiveService.Helpers.ITriggerHelper>()
+                .InstancePerDependency();
+
+            // Activities are implemented as static Durable functions and are not registered in DI.
         }
     }
 }

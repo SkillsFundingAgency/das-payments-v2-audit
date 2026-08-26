@@ -16,15 +16,46 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
         public async Task<HttpResponseMessage> StartOrchestrator(
             HttpRequestMessage req,
             IDurableOrchestrationClient starter,
-            IPaymentLogger log,
-            IDurableEntityClient client
-        )
+            IDurableEntityClient client,
+            IPaymentLogger log)
         {
             try
             {
                 const string orchestratorName = nameof(PeriodEndArchiveOrchestrator);
                 const string triggerName = nameof(PeriodEndArchiveHttpTrigger);
                 var messageJson = await req.Content?.ReadAsStringAsync()!;
+
+                // If no durable starter provided, fallback to in-memory behaviour
+                if (starter == null)
+                {
+                    // Check current in-memory run status
+                    var current = StatusHelper.GetCurrentJobs();
+                    if (current != null && (current.Status == StatusHelper.ArchiveStatus.InProgress.ToString()
+                                             || current.Status == StatusHelper.ArchiveStatus.Queued.ToString()))
+                    {
+                        var responseMessage = new HttpResponseMessage(HttpStatusCode.Conflict)
+                            { Content = new StringContent($"An instance of {orchestratorName} is already running.") };
+                        log.LogInfo(await responseMessage.Content.ReadAsStringAsync());
+                        return responseMessage;
+                    }
+
+                    log.LogInfo($"Clearing down previous {orchestratorName} runs");
+                    StatusHelper.ClearCurrentStatus(log);
+
+                    var jobId = Guid.NewGuid().ToString();
+                    StatusHelper.UpdateCurrentJobStatus(new Model.Core.Audit.ArchiveRunInformation
+                    {
+                        JobId = jobId,
+                        InstanceId = jobId,
+                        Status = StatusHelper.ArchiveStatus.Queued.ToString()
+                    });
+
+                    var response = new HttpResponseMessage(HttpStatusCode.Accepted)
+                    {
+                        Content = new StringContent($"Started orchestrator [{orchestratorName}] with ID [{jobId}]\n\n\n\n")
+                    };
+                    return response;
+                }
 
                 var existingInstances = await GetRunningInstances(triggerName, orchestratorName, starter, log);
 
@@ -40,14 +71,12 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
                 await StatusHelper.ClearCurrentStatus(client, log);
 
                 log.LogInfo($"Triggering {orchestratorName}");
-                var instanceId =
-                    await starter.StartNewAsync(orchestratorName, $"{orchestratorName}-{Guid.NewGuid()}", messageJson);
+                var instanceId = await starter.StartNewAsync(orchestratorName, $"{orchestratorName}-{Guid.NewGuid()}", messageJson);
                 if (string.IsNullOrEmpty(instanceId))
                 {
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.Conflict)
                     {
-                        Content = new StringContent(
-                            $"An error occurred starting [{orchestratorName}], no instance id was returned.")
+                        Content = new StringContent($"An error occurred starting [{orchestratorName}], no instance id was returned.")
                     };
                     log.LogInfo(await responseMessage.Content.ReadAsStringAsync());
                     return responseMessage;
@@ -59,8 +88,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
                 {
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.Conflict)
                     {
-                        Content = new StringContent(
-                            $"An error occurred getting the status of [{orchestratorName}] for instance Id [{instanceId}].")
+                        Content = new StringContent($"An error occurred getting the status of [{orchestratorName}] for instance Id [{instanceId}].")
                     };
                     log.LogInfo(await responseMessage.Content.ReadAsStringAsync());
                     return responseMessage;
@@ -72,7 +100,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
 
                 return responseHttpMessage;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new HttpResponseMessage(HttpStatusCode.Conflict);
             }

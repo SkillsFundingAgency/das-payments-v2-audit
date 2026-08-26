@@ -1,25 +1,37 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+    <TargetFramework>net8.0</TargetFramework>
+    <FunctionsWorkerRuntime>dotnet-isolated</FunctionsWorkerRuntime>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
   <ItemGroup>
+    <!-- Isolated worker SDK (PrivateAssets=all) -->
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.18.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.18.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
+    <!-- Durable extension for isolated worker (adjust version if needed) -->
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.0" />
+    <!-- Dependency injection -->
     <PackageReference Include="Autofac" Version="7.1.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+
+    <!-- Azure / other libs retained (upgrade later if required) -->
     <PackageReference Include="Azure.ResourceManager" Version="1.7.0" />
     <PackageReference Include="Azure.ResourceManager.DataFactory" Version="1.0.0-beta.3" />
-    <PackageReference Include="AzureFunctions.Autofac" Version="4.0.3" />
-    <PackageReference Include="Microsoft.Azure.Management.DataFactory" Version="9.3.0" />
-    <PackageReference Include="Microsoft.Azure.Management.ResourceManager" Version="3.17.4-preview" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.8.1" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.55.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
     <PackageReference Include="System.Text.Json" Version="8.0.0" />
 
+    <!-- Internal SFA.DAS packages -->
     <PackageReference Include="SFA.DAS.Payments.Application" Version="2.5.0-prerelease-72" />
     <PackageReference Include="SFA.DAS.Payments.Core" Version="2.5.0-prerelease-72" />
     <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Messages" Version="2.0.6" />
   </ItemGroup>
+
   <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -29,4 +41,5 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
+
 </Project>
