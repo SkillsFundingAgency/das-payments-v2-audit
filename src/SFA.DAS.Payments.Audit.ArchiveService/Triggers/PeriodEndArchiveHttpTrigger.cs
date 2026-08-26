@@ -1,49 +1,50 @@
-﻿using System;
+using System;
 using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using AzureFunctions.Autofac;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.DurableTask.Client;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
-using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
 using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Triggers
 {
-    [DependencyInjectionConfig(typeof(DependencyRegister))]
-    public static class PeriodEndArchiveHttpTrigger
+    public class PeriodEndArchiveHttpTrigger
     {
-        [FunctionName(nameof(PeriodEndArchiveHttpTrigger))]
-        public static async Task<HttpResponseMessage> HttpStart(
+        private readonly ITriggerHelper triggerHelper;
+        private readonly IPaymentLogger log;
+
+        public PeriodEndArchiveHttpTrigger(ITriggerHelper triggerHelper, IPaymentLogger log)
+        {
+            this.triggerHelper = triggerHelper;
+            this.log = log;
+        }
+
+        [Function(nameof(PeriodEndArchiveHttpTrigger))]
+        public async Task<HttpResponseData> HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post",
                 Route = "orchestrators/PeriodEndArchiveOrchestrator")]
-            HttpRequestMessage req,
-            [DurableClient] IDurableOrchestrationClient starter,
-            [DurableClient] IDurableEntityClient client,
-            [Inject] IPaymentLogger log
+            HttpRequestData req,
+            [DurableClient] DurableTaskClient starter
         )
         {
             try
             {
-                if (req.Method == HttpMethod.Post)
+                if (req.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (req.Content != null)
+                    if (req.Body != null && req.Body.Length > 0)
                     {
-                        ITriggerHelper triggerHelper = new TriggerHelper();
-                        return await triggerHelper.StartOrchestrator(req, starter, log, client);
+                        return await triggerHelper.StartOrchestrator(req, starter, log);
                     }
 
                     throw new Exception(
                         $"Error in PeriodEndArchiveHttpTrigger. Request content is null. Request: {req}");
                 }
 
-                var urlParam = HttpUtility.ParseQueryString(req.RequestUri.Query).Get("jobId");
+                var urlParam = HttpUtility.ParseQueryString(req.Url.Query).Get("jobId");
 
                 //Ensure the jobId is a valid long
                 if (!long.TryParse(urlParam, out _))
@@ -53,7 +54,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Triggers
                 }
 
                 //GET: Get the current status of the job
-                var stateResponse = await StatusHelper.GetCurrentJobs(client) ?? new ArchiveRunInformation();
+                var stateResponse = await StatusHelper.GetCurrentJobs(starter) ?? new ArchiveRunInformation();
 
                 if (stateResponse.JobId != urlParam)
                 {
@@ -62,20 +63,18 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Triggers
                     stateResponse.Status = "Queued";
                 }
 
-                return new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(stateResponse), Encoding.UTF8,
-                        "application/json")
-                };
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                response.Headers.Add("Content-Type", "application/json; charset=utf-8");
+                await response.WriteStringAsync(JsonConvert.SerializeObject(stateResponse));
+                return response;
             }
 
             catch (Exception ex)
             {
                 log.LogError("Error in PeriodEndArchiveHttpTrigger", ex);
-                return new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                {
-                    Content = new StringContent(ex.Message)
-                };
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteStringAsync(ex.Message);
+                return errorResponse;
             }
         }
     }

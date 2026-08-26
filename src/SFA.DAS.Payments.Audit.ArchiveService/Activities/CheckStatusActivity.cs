@@ -1,27 +1,31 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AzureFunctions.Autofac;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.DurableTask.Client;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
 using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.Configuration;
-using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
 using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 {
-    [DependencyInjectionConfig(typeof(DependencyRegister))]
-    public static class CheckStatusActivity
+    public class CheckStatusActivity
     {
-        [FunctionName(nameof(CheckStatusActivity))]
-        public static async Task<StatusHelper.ArchiveStatus> Run([ActivityTrigger] string messageJson,
-            [DurableClient] IDurableEntityClient entityClient,
-            [Inject] IPaymentLogger logger,
-            [Inject] IPeriodEndArchiveConfiguration config)
+        private readonly IPaymentLogger logger;
+        private readonly IPeriodEndArchiveConfiguration config;
+
+        public CheckStatusActivity(IPaymentLogger logger, IPeriodEndArchiveConfiguration config)
+        {
+            this.logger = logger;
+            this.config = config;
+        }
+
+        [Function(nameof(CheckStatusActivity))]
+        public async Task<StatusHelper.ArchiveStatus> Run([ActivityTrigger] string messageJson,
+            [DurableClient] DurableTaskClient entityClient)
         {
             var currentRunInfo = await StatusHelper.GetCurrentJobs(entityClient);
             try

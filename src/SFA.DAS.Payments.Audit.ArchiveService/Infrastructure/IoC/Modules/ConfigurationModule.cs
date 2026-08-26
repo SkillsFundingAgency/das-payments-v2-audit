@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
 using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.Configuration;
 using SFA.DAS.Payments.Core.Configuration;
 
@@ -27,6 +28,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC.Modules
                 })
                 .As<IPeriodEndArchiveConfiguration>().SingleInstance();
             builder.RegisterType<FunctionsConfigurationHelper>().As<IConfigurationHelper>().SingleInstance();
+            builder.RegisterType<TriggerHelper>().As<ITriggerHelper>();
         }
     }
 }

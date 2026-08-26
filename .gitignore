@@ -288,3 +288,4 @@ local.settings.json
 src/Directory.Build.targets
 /src/SFA.DAS.Payments.Monitoring.Jobs.Application/local.settings.json
 /src/SFA.DAS.Payments.sln.startup.json
+/src/SFA.DAS.Payments.Audit.Specs/appsettings.Development.json

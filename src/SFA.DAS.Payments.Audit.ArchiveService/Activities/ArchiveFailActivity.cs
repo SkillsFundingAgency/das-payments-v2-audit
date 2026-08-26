@@ -1,23 +1,26 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using AzureFunctions.Autofac;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
-using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 {
-    [DependencyInjectionConfig(typeof(DependencyRegister))]
-    public static class ArchiveFailActivity
+    public class ArchiveFailActivity
     {
-        [FunctionName(nameof(ArchiveFailActivity))]
-        public static async Task Run([ActivityTrigger] string messageJson,
-            [DurableClient] IDurableEntityClient entityClient,
-            [Inject] IPaymentLogger logger)
+        private readonly IPaymentLogger logger;
+
+        public ArchiveFailActivity(IPaymentLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        [Function(nameof(ArchiveFailActivity))]
+        public async Task Run([ActivityTrigger] string messageJson,
+            [DurableClient] DurableTaskClient entityClient)
         {
             var message = JsonConvert.DeserializeObject<RecordPeriodEndFcsHandOverCompleteJob>(messageJson) ??
                           throw new Exception(

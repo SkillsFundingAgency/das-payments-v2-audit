@@ -1,5 +1,6 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Entities;
 using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Extensions
@@ -8,23 +9,26 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Extensions
     {
         public const string PeriodEndArchiveEntityName = "CurrentPeriodEndArchiveJobId";
 
-        [FunctionName(nameof(Handle))]
-        public static void Handle([EntityTrigger] IDurableEntityContext ctx)
+        [Function(nameof(Handle))]
+        public static Task Handle([EntityTrigger] TaskEntityDispatcher dispatcher)
         {
-            var currentValue = ctx.GetState<ArchiveRunInformation>();
-            switch (ctx.OperationName.ToLowerInvariant())
+            return dispatcher.DispatchAsync(operation =>
             {
-                case "add":
-                    var newJobId = ctx.GetInput<ArchiveRunInformation>();
-                    ctx.SetState(newJobId);
-                    break;
-                case "reset":
-                    ctx.SetState(new ArchiveRunInformation());
-                    break;
-                case "get":
-                    ctx.Return(currentValue);
-                    break;
-            }
+                switch (operation.Name.ToLowerInvariant())
+                {
+                    case "add":
+                        var newJobId = operation.GetInput<ArchiveRunInformation>();
+                        operation.State.SetState(newJobId);
+                        break;
+                    case "reset":
+                        operation.State.SetState(new ArchiveRunInformation());
+                        break;
+                    case "get":
+                        return new(operation.State.GetState<ArchiveRunInformation>());
+                }
+
+                return default;
+            });
         }
     }
 }

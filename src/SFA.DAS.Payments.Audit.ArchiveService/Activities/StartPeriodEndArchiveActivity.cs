@@ -1,28 +1,31 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AzureFunctions.Autofac;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Identity.Client;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
 using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.Configuration;
-using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 {
-    [DependencyInjectionConfig(typeof(DependencyRegister))]
-    public static class StartPeriodEndArchiveActivity
+    public class StartPeriodEndArchiveActivity
     {
-        [FunctionName(nameof(StartPeriodEndArchiveActivity))]
-        public static async Task Run([ActivityTrigger] string messageJson,
-            [DurableClient] IDurableEntityClient entityClient,
-            [Inject] IPaymentLogger logger,
-            [Inject] IPeriodEndArchiveConfiguration config)
+        private readonly IPaymentLogger logger;
+        private readonly IPeriodEndArchiveConfiguration config;
+
+        public StartPeriodEndArchiveActivity(IPaymentLogger logger, IPeriodEndArchiveConfiguration config)
+        {
+            this.logger = logger;
+            this.config = config;
+        }
+
+        [Function(nameof(StartPeriodEndArchiveActivity))]
+        public async Task Run([ActivityTrigger] string messageJson,
+            [DurableClient] DurableTaskClient entityClient)
         {
             var currentRunInfo = await StatusHelper.GetCurrentJobs(entityClient);
 
@@ -72,7 +75,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                 logger.LogError( "Error in StartPeriodEndArchiveActivity", ex);
                 throw;
             }
- 
+
         }
     }
 }

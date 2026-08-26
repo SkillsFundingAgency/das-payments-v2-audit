@@ -1,25 +1,29 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AzureFunctions.Autofac;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Activities;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
 using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.Configuration;
-using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Orchestrators
 {
-    [DependencyInjectionConfig(typeof(DependencyRegister))]
-    public static class PeriodEndArchiveOrchestrator
+    public class PeriodEndArchiveOrchestrator
     {
-        [FunctionName("PeriodEndArchiveOrchestrator")]
-        public static async Task RunOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext context,
-            [Inject] IPaymentLogger log,
-            [Inject] IPeriodEndArchiveConfiguration config)
+        private readonly IPaymentLogger log;
+        private readonly IPeriodEndArchiveConfiguration config;
+
+        public PeriodEndArchiveOrchestrator(IPaymentLogger log, IPeriodEndArchiveConfiguration config)
+        {
+            this.log = log;
+            this.config = config;
+        }
+
+        [Function(nameof(PeriodEndArchiveOrchestrator))]
+        public async Task RunOrchestrator(
+            [OrchestrationTrigger] TaskOrchestrationContext context)
         {
             var messageJson = context.GetInput<string>() ??
                               throw new Exception(
