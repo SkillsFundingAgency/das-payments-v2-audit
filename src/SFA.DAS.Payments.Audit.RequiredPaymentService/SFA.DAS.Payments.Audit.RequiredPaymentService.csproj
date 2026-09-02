@@ -24,7 +24,7 @@
     <PackageReference Include="SFA.DAS.Payments.Core" Version="2.5.0-prerelease-72" />
     <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.5.0-prerelease-72" />
     <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.5.0-prerelease-72" />
-    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Client" Version="2.1.5-prerelease-2" />
+    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Client" Version="2.1.8-prerelease-5" />
     <PackageReference Include="SFA.DAS.Payments.RequiredPayments.Messages" Version="2.0.11-prerelease-39" />
     <PackageReference Include="SFA.DAS.Payments.RequiredPayments.Model" Version="2.0.11-prerelease-39" />
     <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.5" />
