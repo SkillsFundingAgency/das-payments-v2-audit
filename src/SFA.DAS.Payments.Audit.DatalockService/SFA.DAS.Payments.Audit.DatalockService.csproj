@@ -28,8 +28,8 @@
     <PackageReference Include="SFA.DAS.Payments.EarningEvents.Messages" Version="2.1.0-prerelease-15" />
     <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.5.0-prerelease-72" />
     <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.5.0-prerelease-72" />
-    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Messages" Version="2.0.6" />
-    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Client" Version="2.0.6" />
+    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Messages" Version="2.1.8-prerelease-5" />
+    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Client" Version="2.1.8-prerelease-5" />
     <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.5" />
   </ItemGroup>
 
