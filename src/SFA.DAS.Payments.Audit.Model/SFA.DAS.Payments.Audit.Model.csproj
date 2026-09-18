@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.9.0-prerelease-6" />
+	  <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.10.0-prerelease-5" />
   </ItemGroup>
 
 </Project>
