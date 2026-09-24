@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
@@ -20,12 +20,12 @@
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
 
-    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.5.0-prerelease-72" />
-    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.5.0-prerelease-72" />
-	<PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.5.0-prerelease-72" />
+    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.5.1" />
+    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.5.1" />
+	<PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.5.1" />
     <PackageReference Include="SFA.DAS.Payments.RequiredPayments.Messages" Version="2.0.11-prerelease-39" />
     <PackageReference Include="SFA.DAS.Payments.FundingSource.Messages" Version="1.2.5-prerelease-23" />
-    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.5" />
+    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.9" />
     <PackageReference Include="SFA.DAS.Payments.Tests.Core" Version="2.0.0" />
 
   </ItemGroup>
