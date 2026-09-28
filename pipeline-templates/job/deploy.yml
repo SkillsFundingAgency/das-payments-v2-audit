@@ -83,7 +83,7 @@ jobs:
             rootFolderOrFile: $(Pipeline.Workspace)/${{ parameters.ArtifactName }}
             includeRootFolder: false
             archiveType: zip
-            archiveFile: $(Build.ArtifactStagingDirectory)/${{ parameters.ArtifactName }}.zip
+            archiveFile: $(Pipeline.Workspace)/${{ parameters.ArtifactName }}/${{ parameters.ArtifactName }}.zip
             replaceExistingArchive: true
 
         - task: AzureFunctionApp@2
