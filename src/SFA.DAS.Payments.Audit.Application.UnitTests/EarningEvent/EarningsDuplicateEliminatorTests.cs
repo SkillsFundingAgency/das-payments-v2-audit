@@ -120,15 +120,17 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.EarningEvent
         [Test]
         public void Removes_Duplicates_In_The_Batch()
         {
+            var eventId = Guid.NewGuid();
             var earnings = new List<EarningEvents.Messages.Events.EarningEvent>
             {
-                CreateEarningEvent(null),
-                CreateEarningEvent(null),
+                CreateEarningEvent(model => { model.EventId = eventId; model.JobId = 0; }),
+                CreateEarningEvent(model => { model.EventId = eventId; model.JobId = 0; }),
                 CreateEarningEvent(model => model.Ukprn = 4321),
             };
+
             var service = moqer.Create<EarningsDuplicateEliminator>();
-            var deDuplicatedEvents = service.RemoveDuplicates(earnings);
-            deDuplicatedEvents.Count.Should().Be(2);
+            var uniqueEvents = service.RemoveDuplicates(earnings);
+            uniqueEvents.Count.Should().Be(2);
         }
     }
 }

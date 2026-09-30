@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMoqCore;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Payments.Audit.Application.Data.EarningEvent;
@@ -17,6 +13,11 @@ using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.Model.Core.Incentives;
 using SFA.DAS.Payments.Model.Core.OnProgramme;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.EarningEvent
 {
@@ -132,12 +133,14 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.EarningEvent
         [Test]
         public async Task Removes_Duplicates_Earning_Events()
         {
+            var eventId = Guid.NewGuid();
             var earnings = new List<EarningEvents.Messages.Events.EarningEvent>
             {
-                CreateEarningEvent(null),
-                CreateEarningEvent(null),
+                CreateEarningEvent(model => { model.EventId = eventId; model.JobId = 0; }),
+                CreateEarningEvent(model => { model.EventId = eventId; model.JobId = 0; }),
                 CreateEarningEvent(model => model.Ukprn = 4321),
             };
+
             var service = moqer.Create<EarningEventStorageService>();
             await service.StoreEarnings(earnings, CancellationToken.None);
             moqer.GetMock<IEarningsDuplicateEliminator>()
