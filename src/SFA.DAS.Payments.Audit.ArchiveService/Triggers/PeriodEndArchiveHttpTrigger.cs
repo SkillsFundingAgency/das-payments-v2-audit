@@ -15,10 +15,12 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Triggers
     public class PeriodEndArchiveHttpTrigger
     {
         private readonly IPaymentLogger log;
+        private readonly ITriggerHelper _triggerHelper;
 
-        public PeriodEndArchiveHttpTrigger(IPaymentLogger log)
+        public PeriodEndArchiveHttpTrigger(IPaymentLogger log, ITriggerHelper triggerHelper)
         {
             this.log = log;
+            _triggerHelper = triggerHelper;
         }
 
         [Function(nameof(PeriodEndArchiveHttpTrigger))]
@@ -31,9 +33,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Triggers
             {
                 if (req.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
                 {
-                    ITriggerHelper triggerHelper = new TriggerHelper();
-
-                    return await triggerHelper.StartOrchestrator(req, starter, log);
+                    return await _triggerHelper.StartOrchestrator(req, starter, log);
                 }
 
                 var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
