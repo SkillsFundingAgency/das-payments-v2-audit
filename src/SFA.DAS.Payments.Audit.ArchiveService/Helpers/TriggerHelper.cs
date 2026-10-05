@@ -1,20 +1,30 @@
-﻿using System;
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.DurableTask;
+using Microsoft.DurableTask.Client;
+using SFA.DAS.Payments.Application.Infrastructure.Logging;
+using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.Configuration;
+using SFA.DAS.Payments.Audit.ArchiveService.Orchestrators;
+using System;
 using System.IO;
 using System.Net;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.DurableTask.Client;
-using Microsoft.DurableTask;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
-using SFA.DAS.Payments.Audit.ArchiveService.Orchestrators;
-using SFA.DAS.Payments.Audit.ArchiveService.Triggers;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
 {
     public class TriggerHelper : ITriggerHelper
     {
-        public async Task<HttpResponseData> StartOrchestrator(HttpRequestData req, DurableTaskClient starter, IPaymentLogger log)
+        private readonly IPeriodEndArchiveConfiguration _config;
+
+        public TriggerHelper(IPeriodEndArchiveConfiguration config)
+        {
+            _config = config;
+        }
+
+        public async Task<HttpResponseData> StartOrchestrator(
+            HttpRequestData req,
+            DurableTaskClient starter,
+            IPaymentLogger log)
         {
             try
             {
@@ -23,32 +33,65 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Helpers
                 using var reader = new StreamReader(req.Body);
                 var messageJson = await reader.ReadToEndAsync();
 
+                if (string.IsNullOrWhiteSpace(messageJson))
+                {
+                    var response = req.CreateResponse(HttpStatusCode.BadRequest);
+                    await response.WriteStringAsync("Request body cannot be empty.");
+                    return response;
+                }
+
+                // Check whether an instance of this orchestrator is already running.
+                var existingInstances = starter.GetAllInstancesAsync(
+                    new OrchestrationQuery
+                    {
+                        Statuses =
+                        [
+                            OrchestrationRuntimeStatus.Pending,
+                            OrchestrationRuntimeStatus.Running,
+                            OrchestrationRuntimeStatus.ContinuedAsNew
+                        ]
+                    });
+
+                await foreach (var instance in existingInstances)
+                {
+                    if (instance.InstanceId.StartsWith($"{orchestratorName}-", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var response = req.CreateResponse(HttpStatusCode.Conflict);
+
+                        await response.WriteStringAsync($"An instance of {orchestratorName} is already running.");
+
+                        log.LogInfo($"An instance of {orchestratorName} is already running.");
+
+                        return response;
+                    }
+                }
+
                 log.LogInfo($"Clearing down previous {orchestratorName} runs");
 
                 await StatusHelper.ClearCurrentStatus(starter, log);
 
                 log.LogInfo($"Triggering {orchestratorName}");
 
-                var instanceId = await starter.ScheduleNewOrchestrationInstanceAsync(orchestratorName, messageJson);
+                // Preserve the old instance ID format.
+                var instanceId = $"{orchestratorName}-{Guid.NewGuid()}";
 
-                if (string.IsNullOrEmpty(instanceId))
+                var options = new StartOrchestrationOptions
                 {
-                    var response = req.CreateResponse(HttpStatusCode.Conflict);
+                    InstanceId = instanceId
+                };
 
-                    await response.WriteStringAsync(
-                        $"An error occurred starting [{orchestratorName}], no instance id was returned.");
+                var input = new PeriodEndArchiveOrchestrationInput
+                {
+                    MessageJson = messageJson,
+                    SleepDelay = _config.SleepDelay
+                };
 
-                    return response;
-                }
+                await starter.ScheduleNewOrchestrationInstanceAsync(orchestratorName, input, options);
 
                 log.LogInfo($"Started orchestration with ID = '{instanceId}'.");
 
-                var responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
-
-                await responseMessage.WriteStringAsync(
-                    $"Started orchestrator [{orchestratorName}] with ID [{instanceId}]");
-
-                return responseMessage;
+                // Isolated equivalent of CreateCheckStatusResponse.
+                return await starter.CreateCheckStatusResponseAsync(req, instanceId);
             }
             catch (Exception ex)
             {

@@ -20,11 +20,6 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Extensions
             State = new ArchiveRunInformation();
         }
 
-        public ArchiveRunInformation Get()
-        {
-            return State ?? new ArchiveRunInformation();
-        }
-
         [Function(nameof(HandleCurrentJobId))]
         public static Task Run(
             [EntityTrigger] TaskEntityDispatcher dispatcher)

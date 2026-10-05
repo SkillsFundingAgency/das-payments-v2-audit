@@ -14,7 +14,10 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Orchestrators
         [Function(nameof(PeriodEndArchiveOrchestrator))]
         public static async Task RunOrchestrator([OrchestrationTrigger] TaskOrchestrationContext context)
         {
-            var messageJson = context.GetInput<string>() ?? throw new Exception("Error in PeriodEndArchiveOrchestrator. Message is null.");
+            var input = context.GetInput<PeriodEndArchiveOrchestrationInput>()
+                        ?? throw new Exception("Error in PeriodEndArchiveOrchestrator. Input is null.");
+
+            var messageJson = input.MessageJson;
 
             try
             {
@@ -24,7 +27,7 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Orchestrators
 
                 await context.CallActivityAsync(nameof(StartPeriodEndArchiveActivity), messageJson);
 
-                var timeout = context.CurrentUtcDateTime.AddMinutes(60);
+                var timeout = context.CurrentUtcDateTime.AddMinutes(input.SleepDelay);
                 var pollingInterval = TimeSpan.FromMinutes(1);
 
                 while (context.CurrentUtcDateTime < timeout)
