@@ -166,5 +166,15 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
             model.LearningAimFundingLineType.Should().Be(PaymentEvent.PriceEpisodes.ToList()[0].FundingLineType);
         }
 
+        [Test]
+        public void Maps_ExternalEarningsId()
+        {
+            PaymentEvent.ExternalEarningsId = Guid.NewGuid();
+
+            var model = Mapper.Map<EarningEventModel>(PaymentEvent);
+
+            model.ExternalEarningsId.Should().Be(PaymentEvent.ExternalEarningsId);
+        }
+
     }
 }
