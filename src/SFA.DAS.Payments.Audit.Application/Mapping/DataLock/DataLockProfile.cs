@@ -88,6 +88,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.DataLock
             
             CreateMap<DataLockEventNonPayablePeriodFailureModel, DataLockEventNonPayablePeriodFailureModel>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
+
         }
     }
 }
