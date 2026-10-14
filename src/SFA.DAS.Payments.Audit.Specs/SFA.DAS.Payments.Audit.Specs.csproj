@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Bogus" Version="35.6.5" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.2" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
+		<PackageReference Include="NServiceBus" Version="8.1.1" />
+		<PackageReference Include="NServiceBus.Transport.AzureServiceBus" Version="3.2.1" />
+		<PackageReference Include="NUnit" Version="3.14.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+		<PackageReference Include="Reqnroll.NUnit" Version="3.3.4" />
+		<PackageReference Include="NUnit.ConsoleRunner" Version="3.22.0" />
+
+
+		<PackageReference Include="SFA.DAS.Payments.Application" Version="2.6.0-prerelease-10" />
+		<PackageReference Include="SFA.DAS.Payments.Core" Version="2.6.0-prerelease-10" />
+		<PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.6.0-prerelease-10" />
+		<PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.6.0-prerelease-10" />
+		<PackageReference Include="SFA.DAS.Payments.RequiredPayments.Messages" Version="2.0.17-prerelease-2" />
+		<PackageReference Include="SFA.DAS.Payments.RequiredPayments.Model" Version="2.0.17-prerelease-2" />
+		<PackageReference Include="UUIDNext" Version="4.2.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="appSettings.development.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="appSettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Features\" />
+	  <Folder Include="Handlers\" />
+	</ItemGroup>
+</Project>
