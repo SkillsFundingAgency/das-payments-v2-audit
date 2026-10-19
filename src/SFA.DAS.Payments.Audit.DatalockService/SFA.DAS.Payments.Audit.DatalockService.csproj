@@ -25,7 +25,7 @@
 
     <PackageReference Include="SFA.DAS.Payments.Application" Version="2.10.0-prerelease-4" />
     <PackageReference Include="SFA.DAS.Payments.Core" Version="2.10.0-prerelease-4" />
-    <PackageReference Include="SFA.DAS.Payments.EarningEvents.Messages" Version="2.0.20-prerelease-72" />
+    <PackageReference Include="SFA.DAS.Payments.EarningEvents.Messages" Version="2.0.20-prerelease-74" />
     <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.10.0-prerelease-4" />
     <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.10.0-prerelease-4" />
     <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Messages" Version="2.0.6" />
