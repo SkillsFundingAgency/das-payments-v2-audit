@@ -35,6 +35,22 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.DataLock
         }
 
         [Test]
+        public void Maps_ExternalEarningsId()
+        {
+            PaymentEvent.ExternalEarningsId = Guid.NewGuid();
+
+            Mapper.Map<DataLockEventModel>(PaymentEvent).ExternalEarningsId.Should().Be(PaymentEvent.ExternalEarningsId);
+        }
+
+        [Test]
+        public void Maps_Null_ExternalEarningsId()
+        {
+            PaymentEvent.ExternalEarningsId = null;
+
+            Mapper.Map<DataLockEventModel>(PaymentEvent).ExternalEarningsId.Should().BeNull();
+        }
+
+        [Test]
         public void Maps_PriceEpisodes()
         {
             Mapper.Map<DataLockEventModel>(PaymentEvent).PriceEpisodes.Count.Should().Be(1);
