@@ -23,6 +23,8 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .Include<Act1RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
                 .Include<Act2RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
                 .Include<GSLShortCourseEarningsEvent, EarningEventModel>()
+                .Include<GSLApprenticeshipEarningsEvent, EarningEventModel>()
+                .Include<GSLFunctionalSkillEarningsEvent, EarningEventModel>()
                 .MapCommon()
                 .ForMember(dest => dest.ContractType, opt => opt.Ignore())
                 .ForMember(dest => dest.AgreementId, opt => opt.Ignore())
@@ -91,6 +93,22 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .ForMember(dest => dest.IlrFileName, opt => opt.MapFrom(x => x.IlrFileName))
                 ;
 
+            CreateMap<GSLApprenticeshipEarningsEvent, EarningEventModel>()
+                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => src.ContractType))
+                .ForMember(dest => dest.AgreementId, opt => opt.MapFrom(src => src.AgreementId))
+                .ForMember(dest => dest.Periods, opt => opt.MapFrom<ApprenticeshipContractTypeEarningPeriodResolver>())
+                .ForMember(dest => dest.SfaContributionPercentage, opt => opt.MapFrom(src => src.SfaContributionPercentage))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.Apprenticeship))
+                .ForMember(dest => dest.IlrFileName, opt => opt.MapFrom(src => src.IlrFileName))
+                ;
+
+            CreateMap<GSLFunctionalSkillEarningsEvent, EarningEventModel>()
+                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => src.ContractType))
+                .ForMember(dest => dest.AgreementId, opt => opt.MapFrom(src => src.AgreementId))
+                .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.FunctionalSkill))
+                .ForMember(dest => dest.IlrFileName, opt => opt.MapFrom(src => src.IlrFileName))
+                ;
+
             CreateMap<GSLShortCourseEarningsEvent, EarningEventModel>()
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => ContractType.Act1))
                 .ForMember(dest => dest.CourseType, opt => opt.MapFrom(src => CourseType.ShortCourse))
@@ -103,6 +121,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .Include<Act2FunctionalSkillEarningsEvent, EarningEventModel>()
                 .Include<Act1RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
                 .Include<Act2RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
+                .Include<GSLFunctionalSkillEarningsEvent, EarningEventModel>()
                 .ForMember(dest => dest.Periods, opt => opt.MapFrom<FunctionalSkillEarningResolver>());
 
             CreateMap<PriceEpisode, EarningEventPriceEpisodeModel>()
