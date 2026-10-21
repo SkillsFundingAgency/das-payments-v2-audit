@@ -1,30 +1,30 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Entities;
 using SFA.DAS.Payments.Model.Core.Audit;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Extensions
 {
-    public static class HandleCurrentJobId
+    public class HandleCurrentJobId : TaskEntity<ArchiveRunInformation>
     {
-        public const string PeriodEndArchiveEntityName = "CurrentPeriodEndArchiveJobId";
+        public const string PeriodEndArchiveEntityName =
+            "CurrentPeriodEndArchiveJobId";
 
-        [FunctionName(nameof(Handle))]
-        public static void Handle([EntityTrigger] IDurableEntityContext ctx)
+        public void Add(ArchiveRunInformation value)
         {
-            var currentValue = ctx.GetState<ArchiveRunInformation>();
-            switch (ctx.OperationName.ToLowerInvariant())
-            {
-                case "add":
-                    var newJobId = ctx.GetInput<ArchiveRunInformation>();
-                    ctx.SetState(newJobId);
-                    break;
-                case "reset":
-                    ctx.SetState(new ArchiveRunInformation());
-                    break;
-                case "get":
-                    ctx.Return(currentValue);
-                    break;
-            }
+            State = value;
+        }
+
+        public void Reset()
+        {
+            State = new ArchiveRunInformation();
+        }
+
+        [Function(nameof(HandleCurrentJobId))]
+        public static Task Run(
+            [EntityTrigger] TaskEntityDispatcher dispatcher)
+        {
+            return dispatcher.DispatchAsync<HandleCurrentJobId>();
         }
     }
 }
