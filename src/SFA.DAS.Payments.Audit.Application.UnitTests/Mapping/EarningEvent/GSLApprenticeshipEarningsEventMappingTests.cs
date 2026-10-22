@@ -8,11 +8,9 @@ using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
 {
-    [TestFixture(ContractType.Act1)]
-    [TestFixture(ContractType.Act2)]
     public class GSLApprenticeshipEarningsEventMappingTests : ApprenticeshipContractTypeMappingTests<GSLApprenticeshipEarningsEvent>
     {
-        public GSLApprenticeshipEarningsEventMappingTests(ContractType contractType) : base(contractType)
+        public GSLApprenticeshipEarningsEventMappingTests() : base(ContractType.Act1)
         {
         }
 

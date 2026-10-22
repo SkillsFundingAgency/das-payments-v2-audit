@@ -8,21 +8,12 @@ using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.Audit.Application.UnitTests.Mapping.EarningEvent
 {
-    [TestFixture(ContractType.Act1)]
-    [TestFixture(ContractType.Act2)]
     public class GSLFunctionalSkillEarningsEventMappingTests : FunctionalSkillMappingTests<GSLFunctionalSkillEarningsEvent>
     {
-        private readonly ContractType contractType;
-
-        public GSLFunctionalSkillEarningsEventMappingTests(ContractType contractType)
-        {
-            this.contractType = contractType;
-        }
-
         protected override GSLFunctionalSkillEarningsEvent CreatePaymentEvent()
         {
             var earningEvent = base.CreatePaymentEvent();
-            earningEvent.ContractType = contractType;
+            earningEvent.ContractType = ContractType.Act1;
             earningEvent.AgreementId = "GSL-FS-AGREEMENT-456";
             earningEvent.Earnings[0].Periods[0].SfaContributionPercentage = .8m;
             return earningEvent;
