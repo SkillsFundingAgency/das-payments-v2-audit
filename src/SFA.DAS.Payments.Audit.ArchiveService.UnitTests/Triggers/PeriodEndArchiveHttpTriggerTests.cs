@@ -1,299 +1,344 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FluentAssertions;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.DurableTask.Client;
+using Moq;
+using NUnit.Framework;
+using SFA.DAS.Payments.Application.Infrastructure.Logging;
+using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
+using SFA.DAS.Payments.Audit.ArchiveService.Triggers;
+using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Autofac.Extras.Moq;
-using FluentAssertions;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Moq;
-using Newtonsoft.Json;
-using NUnit.Framework;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
-using SFA.DAS.Payments.Audit.ArchiveService.Orchestrators;
-using SFA.DAS.Payments.Audit.ArchiveService.Triggers;
-using SFA.DAS.Payments.Model.Core.Audit;
-using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.UnitTests.Triggers
 {
     [TestFixture]
     public class PeriodEndArchiveHttpTriggerTests
     {
+        private Mock<IPaymentLogger> _logger = null!;
+        private Mock<ITriggerHelper> _triggerHelper = null!;
+        private Mock<DurableTaskClient> _durableClient = null!;
+
+        private PeriodEndArchiveHttpTrigger _sut = null!;
+
         [SetUp]
         public void Setup()
         {
-            mocker = AutoMock.GetLoose();
-            mockOrchestrationClient = mocker.Mock<IDurableOrchestrationClient>();
-            mockEntityClient = mocker.Mock<IDurableEntityClient>();
-            logger = mocker.Mock<IPaymentLogger>();
+            _logger = new Mock<IPaymentLogger>();
+            _triggerHelper = new Mock<ITriggerHelper>();
+
+            // DurableTaskClient is abstract and requires a client name.
+            _durableClient = new Mock<DurableTaskClient>("TestClient");
+
+            _sut = new PeriodEndArchiveHttpTrigger(
+                _logger.Object,
+                _triggerHelper.Object);
         }
 
-        private Mock<IPaymentLogger> logger;
-        private Mock<IDurableEntityClient> mockEntityClient;
-        private AutoMock mocker;
-        private Mock<IDurableOrchestrationClient> mockOrchestrationClient;
-
         [Test]
-        public async Task WhenHttpTrigger_ReceivesPostRequest_ThenOrchestratorIsStarted()
+        public async Task WhenHttpTrigger_ReceivesPostRequest_ThenTriggerHelperIsCalled()
         {
-            var req = new HttpRequestMessage { Method = HttpMethod.Post, Content = SetupHttpPostMessage() };
+            // Arrange
+            var request = CreateRequest(
+                "POST",
+                "http://localhost:7071/api/orchestrators/PeriodEndArchiveOrchestrator",
+                "{}");
 
-            SetupRunningInstances(null);
-            SetupStartOrchestration("1234", new HttpResponseMessage(HttpStatusCode.Accepted));
-            SetupMockRunInformation();
+            var expectedResponse = CreateResponse(
+                request.FunctionContext,
+                HttpStatusCode.Accepted);
 
-            var response = await PeriodEndArchiveHttpTrigger.HttpStart(req, mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            var content = await response.Content.ReadAsStringAsync();
+            _triggerHelper
+                .Setup(x => x.StartOrchestrator(
+                    request.Request.Object,
+                    _durableClient.Object,
+                    _logger.Object))
+                .ReturnsAsync(expectedResponse.Response.Object);
 
+            // Act
+            var response = await _sut.HttpStart(
+                request.Request.Object,
+                _durableClient.Object);
+
+            // Assert
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.Accepted);
-            content.Should().Be("Started orchestrator [PeriodEndArchiveOrchestrator] with ID [1234]\n\n\n\n");
+
+            _triggerHelper.Verify(
+                x => x.StartOrchestrator(
+                    request.Request.Object,
+                    _durableClient.Object,
+                    _logger.Object),
+                Times.Once);
         }
 
         [Test]
-        public void WhenHttpTrigger_ReceivesPostRequest_WithoutContent_ThenOrchestratorIsNotStarted()
+        public async Task WhenHttpTrigger_ReceivesPostRequest_ThenGetStatusLogicIsNotExecuted()
         {
-            var req = new HttpRequestMessage { Method = HttpMethod.Post, Content = null };
+            // Arrange
+            var request = CreateRequest(
+                "POST",
+                "http://localhost:7071/api/orchestrators/PeriodEndArchiveOrchestrator",
+                "{}");
 
-            SetupMockRunInformation();
+            var expectedResponse = CreateResponse(
+                request.FunctionContext,
+                HttpStatusCode.Accepted);
 
-            Func<Task> act = async () => await PeriodEndArchiveHttpTrigger.HttpStart(req,
-                mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            act.Should().ThrowAsync<Exception>()
-                .WithMessage("Error in PeriodEndArchiveHttpTrigger. Request content is null. Request: {req}");
+            _triggerHelper
+                .Setup(x => x.StartOrchestrator(
+                    It.IsAny<HttpRequestData>(),
+                    It.IsAny<DurableTaskClient>(),
+                    It.IsAny<IPaymentLogger>()))
+                .ReturnsAsync(expectedResponse.Response.Object);
+
+            // Act
+            var response = await _sut.HttpStart(
+                request.Request.Object,
+                _durableClient.Object);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+            _triggerHelper.Verify(
+                x => x.StartOrchestrator(
+                    It.IsAny<HttpRequestData>(),
+                    It.IsAny<DurableTaskClient>(),
+                    It.IsAny<IPaymentLogger>()),
+                Times.Once);
         }
 
         [Test]
-        public async Task WhenHttpTrigger_ReceivesPostRequest_AndInstancesAlreadyExist_ThenOrchestratorIsNotStarted()
+        public async Task WhenHttpTrigger_ReceivesGetRequest_WithoutJobId_ShouldReturnInternalServerError()
         {
-            var req = new HttpRequestMessage { Method = HttpMethod.Post, Content = SetupHttpPostMessage() };
+            // Arrange
+            var request = CreateRequest(
+                "GET",
+                "http://localhost:7071/api/orchestrators/PeriodEndArchiveOrchestrator");
 
-            var orchestrationResult = new OrchestrationStatusQueryResult
+            // Act
+            var response = await _sut.HttpStart(
+                request.Request.Object,
+                _durableClient.Object);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should()
+                .Be(HttpStatusCode.InternalServerError);
+
+            var content = await ReadResponseBody(response);
+
+            content.Should().Be(
+                "Error in PeriodEndArchiveHttpTrigger. Invalid jobId.");
+
+            _triggerHelper.Verify(
+                x => x.StartOrchestrator(
+                    It.IsAny<HttpRequestData>(),
+                    It.IsAny<DurableTaskClient>(),
+                    It.IsAny<IPaymentLogger>()),
+                Times.Never);
+        }
+
+        [Test]
+        public async Task WhenHttpTrigger_ReceivesGetRequest_WithEmptyJobId_ShouldReturnInternalServerError()
+        {
+            // Arrange
+            var request = CreateRequest(
+                "GET",
+                "http://localhost:7071/api/orchestrators/PeriodEndArchiveOrchestrator?jobId=");
+
+            // Act
+            var response = await _sut.HttpStart(
+                request.Request.Object,
+                _durableClient.Object);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should()
+                .Be(HttpStatusCode.InternalServerError);
+
+            var content = await ReadResponseBody(response);
+
+            content.Should().Be(
+                "Error in PeriodEndArchiveHttpTrigger. Invalid jobId.");
+        }
+
+        [Test]
+        public async Task WhenHttpTrigger_ReceivesGetRequest_WithNonNumericJobId_ShouldReturnInternalServerError()
+        {
+            // Arrange
+            var request = CreateRequest(
+                "GET",
+                "http://localhost:7071/api/orchestrators/PeriodEndArchiveOrchestrator?jobId=abcd");
+
+            // Act
+            var response = await _sut.HttpStart(
+                request.Request.Object,
+                _durableClient.Object);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.StatusCode.Should()
+                .Be(HttpStatusCode.InternalServerError);
+
+            var content = await ReadResponseBody(response);
+
+            content.Should().Be(
+                "Error in PeriodEndArchiveHttpTrigger. Invalid jobId.");
+        }
+
+        [Test]
+        public async Task WhenHttpTrigger_ReceivesGetRequest_WithInvalidJobId_ShouldLogError()
+        {
+            // Arrange
+            var request = CreateRequest(
+                "GET",
+                "http://localhost:7071/api/orchestrators/PeriodEndArchiveOrchestrator?jobId=abcd");
+
+            // Act
+            await _sut.HttpStart(
+                request.Request.Object,
+                _durableClient.Object);
+
+            // Assert
+            _logger.Verify(
+            x => x.LogError(
+                "Error in PeriodEndArchiveHttpTrigger",
+                It.Is<Exception>(e =>
+                    e.Message ==
+                    "Error in PeriodEndArchiveHttpTrigger. Invalid jobId."),
+                It.IsAny<object[]>(),
+                It.IsAny<long>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>()),
+            Times.Once);
+        }
+
+        [Test]
+        public async Task WhenHttpTrigger_ReceivesGetRequest_ThenTriggerHelperIsNotCalled()
+        {
+            // Arrange
+            var request = CreateRequest(
+                "GET",
+                "http://localhost:7071/api/orchestrators/PeriodEndArchiveOrchestrator?jobId=abcd");
+
+            // Act
+            await _sut.HttpStart(
+                request.Request.Object,
+                _durableClient.Object);
+
+            // Assert
+            _triggerHelper.Verify(
+                x => x.StartOrchestrator(
+                    It.IsAny<HttpRequestData>(),
+                    It.IsAny<DurableTaskClient>(),
+                    It.IsAny<IPaymentLogger>()),
+                Times.Never);
+        }
+
+        private static RequestTestContext CreateRequest(
+            string method,
+            string url,
+            string? body = null)
+        {
+            var functionContext = new Mock<FunctionContext>();
+
+            var request = new Mock<HttpRequestData>(
+                functionContext.Object);
+
+            request
+                .SetupGet(x => x.Method)
+                .Returns(method);
+
+            request
+                .SetupGet(x => x.Url)
+                .Returns(new Uri(url));
+
+            request
+                .SetupGet(x => x.Body)
+                .Returns(new MemoryStream(
+                    Encoding.UTF8.GetBytes(body ?? string.Empty)));
+
+            request
+                .Setup(x => x.CreateResponse())
+                .Returns(() =>
+                    CreateResponse(
+                        functionContext,
+                        HttpStatusCode.OK)
+                    .Response.Object);
+
+            return new RequestTestContext(
+                functionContext,
+                request);
+        }
+
+        private static ResponseTestContext CreateResponse(
+            Mock<FunctionContext> functionContext,
+            HttpStatusCode statusCode)
+        {
+            var response = new Mock<HttpResponseData>(
+                functionContext.Object);
+
+            response
+                .SetupProperty(
+                    x => x.StatusCode,
+                    statusCode);
+
+            response
+                .SetupProperty(
+                    x => x.Body,
+                    new MemoryStream());
+
+            response
+                .SetupProperty(
+                    x => x.Headers,
+                    new HttpHeadersCollection());
+
+            return new ResponseTestContext(response);
+        }
+
+        private static async Task<string> ReadResponseBody(
+            HttpResponseData response)
+        {
+            response.Body.Position = 0;
+
+            using var reader = new StreamReader(
+                response.Body,
+                Encoding.UTF8,
+                leaveOpen: true);
+
+            return await reader.ReadToEndAsync();
+        }
+
+        private sealed class RequestTestContext
+        {
+            public RequestTestContext(
+                Mock<FunctionContext> functionContext,
+                Mock<HttpRequestData> request)
             {
-                DurableOrchestrationState = new List<DurableOrchestrationStatus>
-                    { new() { CreatedTime = DateTime.Now, Name = "Instance01" } }
-            };
-
-            SetupStartOrchestration("1234", new HttpResponseMessage(HttpStatusCode.Accepted));
-            SetupRunningInstances(orchestrationResult);
-            SetupMockRunInformation();
-
-            var response = await PeriodEndArchiveHttpTrigger.HttpStart(req, mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            var content = await response.Content.ReadAsStringAsync();
-
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-            content.Should().Be("An instance of PeriodEndArchiveOrchestrator is already running.");
-        }
-
-
-        [Test]
-        public async Task WhenHttpTrigger_ReceivesPostRequest_AndInstanceFailsToReturn_ThenErrorIsReceived()
-        {
-            var req = new HttpRequestMessage { Method = HttpMethod.Post, Content = SetupHttpPostMessage() };
-            const string orchestratorName = nameof(PeriodEndArchiveOrchestrator);
-
-
-            SetupRunningInstances(null);
-            SetupStartOrchestration_FailToReturnInstance();
-            SetupMockRunInformation();
-
-            var response = await PeriodEndArchiveHttpTrigger.HttpStart(req, mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            var content = await response.Content.ReadAsStringAsync();
-
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-            content.Should().Be($"An error occurred starting [{orchestratorName}], no instance id was returned.");
-        }
-
-        [Test]
-        public async Task WhenHttpTrigger_ReceivesPostRequest_AndInstanceCreateCheckStatusFails_ThenErrorIsReceived()
-        {
-            var req = new HttpRequestMessage { Method = HttpMethod.Post, Content = SetupHttpPostMessage() };
-            const string orchestratorName = nameof(PeriodEndArchiveOrchestrator);
-
-            SetupRunningInstances(null);
-            SetupStartOrchestration_FailCheckStatus("1234");
-            SetupMockRunInformation();
-
-            var response = await PeriodEndArchiveHttpTrigger.HttpStart(req, mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            var content = await response.Content.ReadAsStringAsync();
-
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-            content.Should()
-                .Be($"An error occurred getting the status of [{orchestratorName}] for instance Id [1234].");
-        }
-
-        [Test]
-        public async Task WhenHttpTrigger_ReceivesGetRequest_AndJobId_DoesNotMatch_ShouldReturn_QueuedStatus()
-        {
-            var req = new HttpRequestMessage { Method = HttpMethod.Get, RequestUri = SetupHttpGetRequest("2345") };
-
-            SetupRunningInstances(null);
-            SetupMockRunInformation();
-
-            var response = await PeriodEndArchiveHttpTrigger.HttpStart(req, mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            var content = await response.Content.ReadAsStringAsync();
-
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            content.Should()
-                .Be("{\"InstanceId\":\"\",\"JobId\":\"2345\",\"Status\":\"Queued\"}");
-        }
-
-        [Test]
-        public async Task WhenHttpTrigger_ReceivesGetRequest_AndJobId_DoesMatch_ShouldReturn_CurrentStatus()
-        {
-            var req = new HttpRequestMessage { Method = HttpMethod.Get, RequestUri = SetupHttpGetRequest("1234") };
-
-            SetupRunningInstances(null);
-            SetupMockRunInformation();
-
-            var response = await PeriodEndArchiveHttpTrigger.HttpStart(req, mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            var content = await response.Content.ReadAsStringAsync();
-
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            content.Should()
-                .Be("{\"InstanceId\":null,\"JobId\":\"1234\",\"Status\":\"Success\"}");
-        }
-
-        [Test]
-        public async Task
-            WhenHttpTrigger_ReceivesGetRequest_AndJobIdArgument_HasNotBeenPassed_ShouldThrowException()
-        {
-            var req = new HttpRequestMessage { Method = HttpMethod.Get, RequestUri = SetupHttpGetRequest(null) };
-
-            SetupRunningInstances(null);
-            SetupMockRunInformation();
-
-            var response = await PeriodEndArchiveHttpTrigger.HttpStart(req, mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            var content = await response.Content.ReadAsStringAsync();
-
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-            content.Should()
-                .Be(
-                    "Error in PeriodEndArchiveHttpTrigger. Invalid jobId. Request: Method: GET, RequestUri: 'http://localhost:7071/orchestrators/PeriodEndArchiveOrchestrator', Version: 1.1, Content: <null>, Headers:\r\n{\r\n}");
-        }
-
-        [Test]
-        public async Task
-            WhenHttpTrigger_ReceivesGetRequest_AndJobIdValue_HasNotBeenPassed_ShouldThrowException()
-        {
-            var req = new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri("http://localhost:7071/orchestrators/PeriodEndArchiveOrchestrator?jobId=")
-            };
-
-            SetupRunningInstances(null);
-            SetupMockRunInformation();
-
-            var response = await PeriodEndArchiveHttpTrigger.HttpStart(req, mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            var content = await response.Content.ReadAsStringAsync();
-
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-            content.Should()
-                .Be(
-                    "Error in PeriodEndArchiveHttpTrigger. Invalid jobId. Request: Method: GET, RequestUri: 'http://localhost:7071/orchestrators/PeriodEndArchiveOrchestrator?jobId=', Version: 1.1, Content: <null>, Headers:\r\n{\r\n}");
-        }
-
-
-        [Test]
-        public async Task
-            WhenHttpTrigger_ReceivesGetRequest_AndJobIdValue_IsNotValidLong_ShouldThrowException()
-        {
-            var req = new HttpRequestMessage { Method = HttpMethod.Get, RequestUri = SetupHttpGetRequest("abcd") };
-
-            SetupRunningInstances(null);
-            SetupMockRunInformation();
-
-            var response = await PeriodEndArchiveHttpTrigger.HttpStart(req, mockOrchestrationClient.Object,
-                mockEntityClient.Object, logger.Object);
-            var content = await response.Content.ReadAsStringAsync();
-
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-            content.Should()
-                .Be(
-                    "Error in PeriodEndArchiveHttpTrigger. Invalid jobId. Request: Method: GET, RequestUri: 'http://localhost:7071/orchestrators/PeriodEndArchiveOrchestrator?jobId=abcd', Version: 1.1, Content: <null>, Headers:\r\n{\r\n}");
-        }
-
-        public StringContent SetupHttpPostMessage()
-        {
-            var model = new RecordPeriodEndFcsHandOverCompleteJob { CollectionPeriod = 11, CollectionYear = 2223 };
-            return new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8,
-                "application/json");
-        }
-
-        public static Uri SetupHttpGetRequest(string? jobId)
-        {
-            var uri = new Uri($"http://localhost:7071/orchestrators/PeriodEndArchiveOrchestrator?jobId={jobId}");
-            if (string.IsNullOrEmpty(jobId))
-            {
-                uri = new Uri("http://localhost:7071/orchestrators/PeriodEndArchiveOrchestrator");
+                FunctionContext = functionContext;
+                Request = request;
             }
 
-            return uri;
+            public Mock<FunctionContext> FunctionContext { get; }
+
+            public Mock<HttpRequestData> Request { get; }
         }
 
-        public void SetupStartOrchestration(string runId, HttpResponseMessage message)
+        private sealed class ResponseTestContext
         {
-            mockOrchestrationClient
-                .Setup(x => x.StartNewAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(runId);
+            public ResponseTestContext(
+                Mock<HttpResponseData> response)
+            {
+                Response = response;
+            }
 
-            mockOrchestrationClient
-                .Setup(x => x.CreateCheckStatusResponse(It.IsAny<HttpRequestMessage>(), It.IsAny<string>(), false))
-                .Returns(message);
-        }
-
-        public void SetupRunningInstances(OrchestrationStatusQueryResult? queryResult)
-        {
-            mockOrchestrationClient
-                .Setup(x => x.ListInstancesAsync(It.IsAny<OrchestrationStatusQueryCondition>(), CancellationToken.None))
-                .ReturnsAsync(queryResult);
-        }
-
-        public void SetupStartOrchestration_FailToReturnInstance()
-        {
-            mockOrchestrationClient.Setup(x => x.StartNewAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync("");
-        }
-
-        public void SetupStartOrchestration_FailCheckStatus(string runId)
-        {
-            mockOrchestrationClient
-                .Setup(x => x.StartNewAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(runId);
-
-            mockOrchestrationClient
-                .Setup(x => x.CreateCheckStatusResponse(It.IsAny<HttpRequestMessage>(), It.IsAny<string>(), false))
-                .Returns((HttpResponseMessage)null);
-        }
-
-        public void SetupMockRunInformation(string jobId = "1234")
-        {
-            mockEntityClient.Setup(x => x.ReadEntityStateAsync<ArchiveRunInformation>(It.IsAny<EntityId>(), null, null))
-                .ReturnsAsync(() => new EntityStateResponse<ArchiveRunInformation>
-                {
-                    EntityExists = true, EntityState = new ArchiveRunInformation { JobId = jobId, Status = "Success" }
-                });
+            public Mock<HttpResponseData> Response { get; }
         }
     }
 }
