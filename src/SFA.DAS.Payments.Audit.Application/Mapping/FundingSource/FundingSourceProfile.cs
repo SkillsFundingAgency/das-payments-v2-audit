@@ -53,6 +53,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.FundingSource
                 .ForMember(dest => dest.CourseCode, opt => opt.MapFrom(source => source.LearningAim.CourseCode))
                 .ForMember(dest => dest.LearningType, opt => opt.MapFrom(source => source.LearningAim.LearningType))
                 .ForMember(dest => dest.CourseType, opt => opt.MapFrom(source => source.CourseType))
+                .ForMember(dest => dest.ExternalEarningsId, opt => opt.MapFrom(source => source.ExternalEarningsId))
                 ;
             CreateMap<SfaCoInvestedFundingSourcePaymentEvent, FundingSourceEventModel>();
             CreateMap<EmployerCoInvestedFundingSourcePaymentEvent, FundingSourceEventModel>();
