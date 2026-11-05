@@ -9,7 +9,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
         public void Configure(EntityTypeBuilder<EarningEventModel> builder)
         {
             builder.ToTable("EarningEvent", "Payments2");
-            builder.HasKey(x =>  x.Id);
+            builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName(@"Id");
             builder.Property(x => x.EventId).HasColumnName(@"EventId");
             builder.Property(x => x.Ukprn).HasColumnName(@"Ukprn");
@@ -32,7 +32,8 @@ namespace SFA.DAS.Payments.Audit.Application.Data.EarningEvent
             builder.Property(x => x.SfaContributionPercentage).HasColumnName(@"SfaContributionPercentage");
             builder.Property(x => x.IlrFileName).HasColumnName(@"IlrFileName");
             builder.Property(x => x.EventType).HasColumnName(@"EventType");
-          
+            builder.Property(x => x.ExternalEarningsId).HasColumnName(@"ExternalEarningsId");
+
             builder.Ignore(x => x.ActualEndDate);
             builder.Ignore(x => x.CompletionAmount);
             builder.Ignore(x => x.CompletionStatus);
