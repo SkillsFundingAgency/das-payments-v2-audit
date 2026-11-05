@@ -1,37 +1,50 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AzureFunctions.Autofac;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.DurableTask.Client;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Audit.ArchiveService.Helpers;
 using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.Configuration;
-using SFA.DAS.Payments.Audit.ArchiveService.Infrastructure.IoC;
 using SFA.DAS.Payments.Model.Core.Audit;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
 {
-    [DependencyInjectionConfig(typeof(DependencyRegister))]
-    public static class CheckStatusActivity
+    public class CheckStatusActivity
     {
-        [FunctionName(nameof(CheckStatusActivity))]
-        public static async Task<StatusHelper.ArchiveStatus> Run([ActivityTrigger] string messageJson,
-            [DurableClient] IDurableEntityClient entityClient,
-            [Inject] IPaymentLogger logger,
-            [Inject] IPeriodEndArchiveConfiguration config)
+        private readonly IPaymentLogger _logger;
+        private readonly IPeriodEndArchiveConfiguration _config;
+
+        public CheckStatusActivity(
+            IPaymentLogger logger,
+            IPeriodEndArchiveConfiguration config)
         {
-            var currentRunInfo = await StatusHelper.GetCurrentJobs(entityClient);
+            _logger = logger;
+            _config = config;
+        }
+
+        [Function(nameof(CheckStatusActivity))]
+        public async Task<StatusHelper.ArchiveStatus> Run(
+            [ActivityTrigger] string messageJson,
+            [DurableClient] DurableTaskClient durableClient)
+        {
+            var currentRunInfo =
+                await StatusHelper.GetCurrentJobs(durableClient);
+
             try
             {
-                var client = await DataFactoryHelper.CreateClient(config);
+                var client = await DataFactoryHelper.CreateClient(_config);
 
                 var pipelineRun = await client.PipelineRuns.GetAsync(
-                    config.ResourceGroup, config.AzureDataFactoryName, currentRunInfo.InstanceId);
+                    _config.ResourceGroup,
+                    _config.AzureDataFactoryName,
+                    currentRunInfo.InstanceId);
 
-                logger.LogInfo("Period End Archive Status: " + pipelineRun.Status);
+                _logger.LogInfo(
+                    "Period End Archive Status: " + pipelineRun.Status);
+
                 if (pipelineRun.Status is "InProgress" or "Queued")
                 {
                     currentRunInfo = new ArchiveRunInformation
@@ -40,24 +53,35 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                         InstanceId = currentRunInfo.InstanceId,
                         Status = pipelineRun.Status
                     };
-                    await StatusHelper.UpdateCurrentJobStatus(entityClient, currentRunInfo);
+
+                    await StatusHelper.UpdateCurrentJobStatus(
+                        durableClient,
+                        currentRunInfo);
 
                     return StatusHelper.ArchiveStatus.InProgress;
                 }
 
-
                 var filterParams = new RunFilterParameters(
-                    DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(10));
-                var queryResponse = await client.ActivityRuns.QueryByPipelineRunAsync(
-                    config.ResourceGroup, config.AzureDataFactoryName, currentRunInfo.InstanceId, filterParams);
+                    DateTime.UtcNow.AddMinutes(-10),
+                    DateTime.UtcNow.AddMinutes(10));
+
+                var queryResponse =
+                    await client.ActivityRuns.QueryByPipelineRunAsync(
+                        _config.ResourceGroup,
+                        _config.AzureDataFactoryName,
+                        currentRunInfo.InstanceId,
+                        filterParams);
 
                 if (pipelineRun.Status != "Succeeded")
                 {
                     throw new Exception(
-                        $"Error in CheckStatusActivity. Pipeline run failed. Status: {pipelineRun.Status}. Message: {messageJson}");
+                        $"Error in CheckStatusActivity. " +
+                        $"Pipeline run failed. Status: {pipelineRun.Status}. " +
+                        $"Message: {messageJson}");
                 }
 
-                logger.LogInfo(queryResponse.Value.First().Output.ToString());
+                _logger.LogInfo(
+                    queryResponse.Value.First().Output.ToString());
 
                 currentRunInfo = new ArchiveRunInformation
                 {
@@ -65,13 +89,21 @@ namespace SFA.DAS.Payments.Audit.ArchiveService.Activities
                     InstanceId = currentRunInfo.InstanceId,
                     Status = pipelineRun.Status
                 };
-                await StatusHelper.UpdateCurrentJobStatus(entityClient, currentRunInfo);
+
+                await StatusHelper.UpdateCurrentJobStatus(
+                    durableClient,
+                    currentRunInfo);
+
                 return StatusHelper.ArchiveStatus.Completed;
             }
             catch
             {
                 currentRunInfo.Status = "Failed";
-                await StatusHelper.UpdateCurrentJobStatus(entityClient, currentRunInfo);
+
+                await StatusHelper.UpdateCurrentJobStatus(
+                    durableClient,
+                    currentRunInfo);
+
                 return StatusHelper.ArchiveStatus.Failed;
             }
         }
