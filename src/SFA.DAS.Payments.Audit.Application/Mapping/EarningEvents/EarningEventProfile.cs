@@ -123,6 +123,7 @@ namespace SFA.DAS.Payments.Audit.Application.Mapping.EarningEvents
                 .Include<Act2FunctionalSkillEarningsEvent, EarningEventModel>()
                 .Include<Act1RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
                 .Include<Act2RedundancyFunctionalSkillEarningsEvent, EarningEventModel>()
+                .Include<GSLFunctionalSkillEarningsEvent, EarningEventModel>()
                 .ForMember(dest => dest.Periods, opt => opt.MapFrom<FunctionalSkillEarningResolver>());
 
             CreateMap<PriceEpisode, EarningEventPriceEpisodeModel>()
