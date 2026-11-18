@@ -12,6 +12,7 @@ namespace SFA.DAS.Payments.Audit.Application.Data.DataLock
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName(@"Id").IsRequired();
             builder.Property(x => x.EventId).HasColumnName(@"EventId").IsRequired();
+            builder.Property(x => x.ExternalEarningsId).HasColumnName(@"ExternalEarningsId");
             builder.Property(x => x.Ukprn).HasColumnName(@"Ukprn").IsRequired();
             builder.Property(x => x.ContractType).HasColumnName(@"ContractType").IsRequired();
             builder.Property(x => x.CollectionPeriod).HasColumnName(@"CollectionPeriod").IsRequired();
