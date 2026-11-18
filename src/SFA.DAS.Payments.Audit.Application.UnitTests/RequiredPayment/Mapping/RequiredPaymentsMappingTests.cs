@@ -151,5 +151,13 @@ namespace SFA.DAS.Payments.Audit.Application.UnitTests.RequiredPayment.Mapping
         {
             Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).CourseCode.Should().Be(PaymentEvent.LearningAim.CourseCode);
         }
+
+        [TestCase(FundingPlatformType.SubmitLearnerData)]
+        [TestCase(FundingPlatformType.DigitalApprenticeshipService)]
+        public void Maps_FundingPlatformType(FundingPlatformType fundingPlatformType)
+        {
+            PaymentEvent.FundingPlatformType = fundingPlatformType;
+            Mapper.Map<RequiredPaymentEventModel>(PaymentEvent).FundingPlatformType.Should().Be(fundingPlatformType);
+        }
     }
 }
