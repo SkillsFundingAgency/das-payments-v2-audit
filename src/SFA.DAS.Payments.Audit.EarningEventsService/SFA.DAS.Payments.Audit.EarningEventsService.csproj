@@ -25,8 +25,8 @@
     <PackageReference Include="NServiceBus.Transport.AzureServiceBus" Version="3.2.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
 
-    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.11.0" />
-    <PackageReference Include="SFA.DAS.Payments.EarningEvents.Messages" Version="2.0.22-prerelease-87" />
+    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.12.0-prerelease-4" />
+    <PackageReference Include="SFA.DAS.Payments.EarningEvents.Messages" Version="2.0.23-prerelease-9" />
     <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.9" />
   </ItemGroup>
 
